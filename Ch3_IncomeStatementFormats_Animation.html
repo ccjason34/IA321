@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Income Statement Formats | Kieso Ch. 3</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.2rem; font-weight: 800; }
+  .header p  { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab  { padding: 11px 18px; font-size: .88rem; font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; }
+  .tab:hover  { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+  .panel { display: none; max-width: 960px; margin: 0 auto; padding: 24px 16px 90px; }
+  .panel.active { display: block; }
+
+  .sec-title { font-size: 1.35rem; font-weight: 800; margin-bottom: 8px; }
+  .sec-sub   { font-size: .97rem; color: #475569; margin-bottom: 24px; line-height: 1.7; }
+
+  /* ── Comparison cards ── */
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+  @media(max-width:560px) { .compare-grid { grid-template-columns: 1fr; } }
+
+  .compare-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 3px 12px rgba(0,0,0,.08); }
+  .compare-hdr  { padding: 16px 18px; color: white; }
+  .compare-hdr h3 { font-size: 1.05rem; font-weight: 900; margin-bottom: 4px; }
+  .compare-hdr p  { font-size: .82rem; opacity: .85; }
+  .compare-body { padding: 16px 18px; font-size: .9rem; color: #475569; line-height: 1.7; }
+  .compare-body ul { padding-left: 18px; }
+  .compare-body li { margin-bottom: 5px; }
+  .compare-body strong { color: #1e293b; }
+  .ss-card .compare-hdr  { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+  .ms-card .compare-hdr  { background: linear-gradient(135deg, #6b21a8, #a855f7); }
+
+  .same-result { background: #fef3c7; border: 2px solid #f59e0b; border-radius: 10px; padding: 14px 18px; text-align: center; font-size: .95rem; color: #78350f; line-height: 1.6; margin-bottom: 14px; }
+  .same-result strong { color: #92400e; }
+
+  /* ── Statement display ── */
+  .stmt { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 3px 14px rgba(0,0,0,.09); margin-bottom: 16px; }
+  .stmt-hdr  { padding: 16px 20px; text-align: center; color: white; }
+  .stmt-hdr .co   { font-size: 1rem; font-weight: 900; }
+  .stmt-hdr .doc  { font-size: .85rem; font-weight: 700; opacity: .9; margin-top: 2px; }
+  .stmt-hdr .date { font-size: .78rem; opacity: .75; margin-top: 2px; }
+  .stmt-ss .stmt-hdr  { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+  .stmt-ms .stmt-hdr  { background: linear-gradient(135deg, #6b21a8, #a855f7); }
+
+  .row { display: grid; grid-template-columns: 1fr 110px 110px; padding: 7px 20px; border-bottom: 1px solid #f8fafc; font-size: .9rem; transition: background .3s, opacity .3s; }
+  .row:last-child { border-bottom: none; }
+  .row .lbl { color: #475569; }
+  .row .lbl.indent  { padding-left: 16px; font-size: .87rem; }
+  .row .lbl.indent2 { padding-left: 28px; font-size: .85rem; color: #64748b; }
+  .row .amt { text-align: right; font-family: monospace; font-weight: 700; }
+  .row .amt.col1 { color: #64748b; }
+  .row .amt.col2 { color: #1e293b; }
+  .row.section-hdr { background: #f8fafc; font-weight: 800; font-size: .88rem; color: #1e293b; padding-top: 10px; padding-bottom: 6px; }
+  .row.subtotal { border-top: 1.5px solid #e2e8f0; font-weight: 700; }
+  .row.bigtotal { border-top: 2.5px solid #1e293b; border-bottom: 3px double #1e293b; background: #f8fafc; font-weight: 900; font-size: .95rem; }
+
+  /* ── Multi-step subtotal highlights ── */
+  .row.subtotal-gp { background: #fef3c7; border-top: 2px solid #f59e0b; }
+  .row.subtotal-gp .lbl, .row.subtotal-gp .amt { color: #92400e; font-weight: 900; }
+  .row.subtotal-op { background: #dbeafe; border-top: 2px solid #3b82f6; }
+  .row.subtotal-op .lbl, .row.subtotal-op .amt { color: #1d4ed8; font-weight: 900; }
+  .row.subtotal-ibt { background: #fce7f3; border-top: 2px solid #db2777; }
+  .row.subtotal-ibt .lbl, .row.subtotal-ibt .amt { color: #9d174d; font-weight: 900; }
+  .row.subtotal-ni { background: #dcfce7; border-top: 2.5px solid #16a34a; border-bottom: 3px double #16a34a; }
+  .row.subtotal-ni .lbl, .row.subtotal-ni .amt { color: #15803d; font-weight: 900; font-size: 1rem; }
+
+  /* hidden rows for step build */
+  .row.hidden-row { display: none; }
+  .row.appearing { animation: rowIn .5s ease both; }
+  @keyframes rowIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+
+  /* badge in front of subtotal labels */
+  .badge { display: inline-block; font-size: .7rem; font-weight: 800; padding: 1px 8px; border-radius: 10px; margin-right: 6px; vertical-align: 1px; }
+
+  /* ── Sticky controls ── */
+  .step-sticky { position: sticky; top: 0; z-index: 50; background: linear-gradient(180deg, #f1f5f9 0%, #f1f5f9 92%, rgba(241,245,249,0)); padding: 14px 0 16px; margin: -14px 0 8px; }
+  .step-progress { display: flex; gap: 6px; align-items: center; margin-bottom: 14px; }
+  .sp-dot  { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; color: #94a3b8; flex-shrink: 0; transition: all .3s; }
+  .sp-dot.done   { background: #0d9488; border-color: #0d9488; color: white; }
+  .sp-dot.active { background: #3b82f6; border-color: #3b82f6; color: white; }
+  .sp-line { flex: 1; height: 2px; background: #e2e8f0; transition: background .3s; }
+  .sp-line.done { background: #0d9488; }
+
+  .step-row { display: flex; gap: 12px; align-items: stretch; }
+  @media(max-width:560px) { .step-row { flex-direction: column; } }
+  .step-message { background: white; border-radius: 10px; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); font-size: .92rem; color: #334155; line-height: 1.55; border-left: 4px solid #3b82f6; flex: 1; }
+  .step-message strong { color: #1e293b; }
+  .step-side-ctrl { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; justify-content: center; }
+  @media(max-width:560px) {
+    .step-side-ctrl { flex-direction: row; }
+    .step-side-ctrl .sc-btn { flex: 1; }
+  }
+  .sc-btn { padding: 10px 22px; border-radius: 9px; border: none; font-weight: 700; font-size: .85rem; cursor: pointer; transition: all .15s; }
+  .sc-prev { background: #e2e8f0; color: #475569; padding: 8px 16px; font-size: .78rem; min-width: 100px; }
+  .sc-prev:hover:not(:disabled) { background: #cbd5e1; }
+  .sc-next {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white; font-weight: 900;
+    padding: 14px 22px; font-size: .9rem; min-width: 220px; line-height: 1.2;
+    box-shadow: 0 4px 14px rgba(245,158,11,.45);
+    animation: nextPulse 1.6s ease-in-out infinite;
+  }
+  .sc-next:hover:not(:disabled) { background: linear-gradient(135deg, #d97706, #dc2626); transform: translateY(-1px); }
+  .sc-next:disabled { animation: none; box-shadow: none; background: #94a3b8; }
+  .sc-btn:disabled { opacity: .55; cursor: default; }
+  @keyframes nextPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(245,158,11,.45); }
+    50%      { box-shadow: 0 4px 20px rgba(239,68,68,.7), 0 0 0 4px rgba(245,158,11,.18); }
+  }
+
+  /* ── Quiz ── */
+  .quiz-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .q-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .q-num  { font-size: .72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+  .q-text { font-size: 1rem; font-weight: 700; margin-bottom: 14px; }
+  .q-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .q-opt  { padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f8fafc; font-size: .88rem; font-weight: 600; cursor: pointer; transition: all .15s; text-align: left; color: #334155; }
+  .q-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .q-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-opt.wrong   { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
+  .q-opt:disabled { cursor: default; }
+  .q-explain { margin-top: 10px; font-size: .85rem; padding: 9px 13px; border-radius: 7px; display: none; }
+  .q-explain.show { display: block; }
+  .q-explain.ok  { background: #dcfce7; color: #15803d; }
+  .q-explain.bad { background: #fee2e2; color: #991b1b; }
+  .score-line { text-align: center; font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
+
+  /* ── Nav ── */
+  .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; }
+  .nav-btn { padding: 9px 22px; border-radius: 8px; border: none; font-weight: 700; font-size: .85rem; cursor: pointer; }
+  .nav-btn.prev { background: #1e293b; color: #94a3b8; }
+  .nav-btn.prev:hover:not(:disabled) { background: #334155; }
+  .nav-btn.nxt  { background: #3b82f6; color: white; }
+  .nav-btn.nxt:hover:not(:disabled)  { background: #2563eb; }
+  .nav-btn:disabled { opacity: .4; cursor: default; }
+  .nav-ind { font-size: .8rem; color: #64748b; font-weight: 600; }
+
+  /* scroll target offset */
+  .row, .stmt { scroll-margin-top: 220px; scroll-margin-bottom: 100px; }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>📊 Income Statement Formats</h1>
+  <p>Kieso, Weygandt &amp; Warfield · Intermediate Accounting 18th Ed. · Chapter 3 · Single-Step vs Multi-Step</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab(0)">① Two Formats Overview</div>
+  <div class="tab"        onclick="showTab(1)">② Single-Step Format</div>
+  <div class="tab"        onclick="showTab(2)">③ Build the Multi-Step</div>
+  <div class="tab"        onclick="showTab(3)">④ Self-Check</div>
+</div>
+
+<!-- ═══════════════════════════
+     TAB 0 — Overview
+═══════════════════════════ -->
+<div class="panel active" id="tab-0">
+  <div class="sec-title">Two Ways to Tell the Same Story</div>
+  <div class="sec-sub">
+    Companies can present the same income data in two different formats. Both arrive at the same Net Income —
+    but a multi-step format reveals more about <em>where</em> the profit came from along the way.
+  </div>
+
+  <div class="same-result">
+    <strong>Key idea:</strong> Both formats use the exact same revenues and expenses and produce the
+    <strong>same Net Income</strong>. They differ only in how the information is grouped and how many subtotals are shown.
+  </div>
+
+  <div class="compare-grid">
+    <div class="compare-card ss-card">
+      <div class="compare-hdr">
+        <h3>① Single-Step Format</h3>
+        <p>Two groups. One subtraction.</p>
+      </div>
+      <div class="compare-body">
+        <strong>Structure:</strong>
+        <ul>
+          <li>All revenues grouped together → <em>Total Revenues</em></li>
+          <li>All expenses grouped together → <em>Total Expenses</em></li>
+          <li><strong>Net Income</strong> = Total Revenues − Total Expenses</li>
+        </ul>
+        <strong>Strengths:</strong>
+        <ul>
+          <li>Simple to prepare and read</li>
+          <li>Avoids implying that some classes of revenue or expense are more important than others</li>
+        </ul>
+        <strong>Common users:</strong> Service companies, smaller firms, internal reporting.
+      </div>
+    </div>
+
+    <div class="compare-card ms-card">
+      <div class="compare-hdr">
+        <h3>② Multi-Step Format</h3>
+        <p>Multiple subtotals. Operating vs. non-operating.</p>
+      </div>
+      <div class="compare-body">
+        <strong>Structure (key subtotals):</strong>
+        <ul>
+          <li><strong>Gross Profit</strong> = Net Sales − Cost of Goods Sold</li>
+          <li><strong>Operating Income</strong> = Gross Profit − Operating Expenses</li>
+          <li><strong>Income Before Tax</strong> = Operating Income ± Other Items</li>
+          <li><strong>Net Income</strong> = Income Before Tax − Income Tax</li>
+        </ul>
+        <strong>Strengths:</strong>
+        <ul>
+          <li>Separates <em>operating</em> activities from <em>non-operating</em> items</li>
+          <li>Reveals profitability at each level (gross, operating, pre-tax, net)</li>
+          <li>More useful for analysis and decision-making</li>
+        </ul>
+        <strong>Common users:</strong> Merchandising and manufacturing companies, public companies, external reporting.
+      </div>
+    </div>
+  </div>
+
+  <div style="background:white;border-radius:10px;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,.07);font-size:.9rem;color:#475569;line-height:1.7;margin-top:6px">
+    <strong style="color:#1e293b">Why the multi-step is more informative:</strong>
+    Imagine a company with growing revenue but falling Operating Income. The single-step format would hide this
+    — you would just see Net Income going up or down. The multi-step format makes it obvious that the
+    company's core operations are weakening even if non-operating gains keep total profit afloat.
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     TAB 1 — Single-Step
+═══════════════════════════ -->
+<div class="panel" id="tab-1">
+  <div class="sec-title">Single-Step Income Statement</div>
+  <div class="sec-sub">
+    Everything reduces to one calculation: <strong>Total Revenues − Total Expenses = Net Income</strong>.
+    All revenues are listed first, all expenses second. Below is a complete single-step Income Statement
+    for Boc Apparel, a merchandising company.
+  </div>
+
+  <div class="stmt stmt-ss">
+    <div class="stmt-hdr">
+      <div class="co">Boc Apparel, Inc.</div>
+      <div class="doc">Income Statement (Single-Step)</div>
+      <div class="date">For the Year Ended December 31, 2022</div>
+    </div>
+
+    <!-- Revenues -->
+    <div class="row section-hdr"><span>Revenues</span><span></span><span></span></div>
+    <div class="row"><span class="lbl indent">Net Sales</span><span class="amt col1"></span><span class="amt col2">$275,000</span></div>
+    <div class="row"><span class="lbl indent">Interest Revenue</span><span class="amt col1"></span><span class="amt col2">2,000</span></div>
+    <div class="row subtotal"><span class="lbl"><strong>Total Revenues</strong></span><span class="amt col1"></span><span class="amt col2"><strong>$277,000</strong></span></div>
+
+    <!-- Expenses -->
+    <div class="row section-hdr" style="margin-top:6px"><span>Expenses</span><span></span><span></span></div>
+    <div class="row"><span class="lbl indent">Cost of Goods Sold</span><span class="amt col1"></span><span class="amt col2">$180,000</span></div>
+    <div class="row"><span class="lbl indent">Selling Expenses</span><span class="amt col1"></span><span class="amt col2">28,000</span></div>
+    <div class="row"><span class="lbl indent">Administrative Expenses</span><span class="amt col1"></span><span class="amt col2">29,000</span></div>
+    <div class="row"><span class="lbl indent">Interest Expense</span><span class="amt col1"></span><span class="amt col2">5,000</span></div>
+    <div class="row"><span class="lbl indent">Income Tax Expense</span><span class="amt col1"></span><span class="amt col2">7,000</span></div>
+    <div class="row subtotal"><span class="lbl"><strong>Total Expenses</strong></span><span class="amt col1"></span><span class="amt col2"><strong>$249,000</strong></span></div>
+
+    <!-- Net Income -->
+    <div class="row subtotal-ni"><span class="lbl"><strong>Net Income</strong></span><span class="amt col1"></span><span class="amt"><strong>$28,000</strong></span></div>
+  </div>
+
+  <div style="background:white;border-radius:10px;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,.07);font-size:.9rem;color:#475569;line-height:1.7">
+    <strong style="color:#1e293b">Notice what the single-step doesn't show:</strong>
+    No Gross Profit. No Operating Income. No separation between operating and non-operating activities.
+    Interest Revenue (a financing item) sits alongside Net Sales (an operating item). Interest Expense and
+    Income Tax sit alongside operating costs. The structure is simple, but a lot of analytical detail is hidden.
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     TAB 2 — Build the Multi-Step
+═══════════════════════════ -->
+<div class="panel" id="tab-2">
+  <div class="sec-title">Build the Multi-Step Income Statement</div>
+  <div class="sec-sub">
+    The multi-step format reveals profitability at four levels. Click <strong>Reveal Next Subtotal</strong> to build it
+    one step at a time and watch each subtotal appear.
+  </div>
+
+  <!-- Sticky control area -->
+  <div class="step-sticky">
+    <div class="step-progress">
+      <div class="sp-dot active" id="sp0">1</div>
+      <div class="sp-line" id="sl0"></div>
+      <div class="sp-dot" id="sp1">2</div>
+      <div class="sp-line" id="sl1"></div>
+      <div class="sp-dot" id="sp2">3</div>
+      <div class="sp-line" id="sl2"></div>
+      <div class="sp-dot" id="sp3">4</div>
+      <div class="sp-line" id="sl3"></div>
+      <div class="sp-dot" id="sp4">5</div>
+    </div>
+
+    <div class="step-row">
+      <div class="step-message" id="stepMsg">
+        <strong>Step 1 — Net Sales:</strong>
+        Start with <strong>Sales Revenue</strong>, then subtract <strong>Sales Returns &amp; Allowances</strong>
+        and <strong>Sales Discounts</strong> to arrive at <strong>Net Sales</strong> — the actual revenue earned from sales.
+      </div>
+      <div class="step-side-ctrl">
+        <button class="sc-btn sc-next" id="scNext" onclick="goStep(currentStep+1)">Reveal Cost of Goods Sold →</button>
+        <button class="sc-btn sc-prev" id="scPrev" onclick="goStep(currentStep-1)" disabled>← Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Multi-Step Statement -->
+  <div class="stmt stmt-ms">
+    <div class="stmt-hdr">
+      <div class="co">Boc Apparel, Inc.</div>
+      <div class="doc">Income Statement (Multi-Step)</div>
+      <div class="date">For the Year Ended December 31, 2022</div>
+    </div>
+
+    <!-- ── Section 1: Net Sales (visible from start) ── -->
+    <div class="row" data-step="0"><span class="lbl"><strong>Sales Revenue</strong></span><span class="amt col1"></span><span class="amt col2">$300,000</span></div>
+    <div class="row" data-step="0"><span class="lbl indent">Less: Sales Returns &amp; Allowances</span><span class="amt col1">$20,000</span><span class="amt col2"></span></div>
+    <div class="row" data-step="0"><span class="lbl indent">Less: Sales Discounts</span><span class="amt col1">5,000</span><span class="amt col2">(25,000)</span></div>
+    <div class="row subtotal" data-step="0" id="row-net-sales"><span class="lbl"><strong>Net Sales</strong></span><span class="amt col1"></span><span class="amt col2"><strong>$275,000</strong></span></div>
+
+    <!-- ── Section 2: COGS → Gross Profit ── -->
+    <div class="row hidden-row" data-step="1"><span class="lbl">Cost of Goods Sold</span><span class="amt col1"></span><span class="amt col2">(180,000)</span></div>
+    <div class="row subtotal-gp hidden-row" data-step="1" id="row-gp">
+      <span class="lbl"><span class="badge" style="background:#f59e0b;color:white">SUBTOTAL 1</span><strong>Gross Profit</strong></span>
+      <span class="amt col1"></span>
+      <span class="amt col2"><strong>$95,000</strong></span>
+    </div>
+
+    <!-- ── Section 3: Operating Expenses → Operating Income ── -->
+    <div class="row section-hdr hidden-row" data-step="2"><span><strong>Operating Expenses</strong></span><span></span><span></span></div>
+    <div class="row hidden-row" data-step="2"><span class="lbl indent">Selling Expenses</span><span class="amt col1"></span><span class="amt col2"></span></div>
+    <div class="row hidden-row" data-step="2"><span class="lbl indent2">Sales Salaries Expense</span><span class="amt col1">$20,000</span><span class="amt col2"></span></div>
+    <div class="row hidden-row" data-step="2"><span class="lbl indent2">Advertising Expense</span><span class="amt col1">5,000</span><span class="amt col2"></span></div>
+    <div class="row hidden-row" data-step="2"><span class="lbl indent2">Freight-out</span><span class="amt col1">3,000</span><span class="amt col2">28,000</span></div>
+    <div class="row hidden-row" data-step="2"><span class="lbl indent">Administrative Expenses</span><span class="amt col1"></span><span class="amt col2"></span></div>
+    <div class="row hidden-row" data-step="2"><span class="lbl indent2">Office Salaries Expense</span><span class="amt col1">15,000</span><span class="amt col2"></span></div>
+    <div class="row hidden-row" data-step="2"><span class="lbl indent2">Office Supplies Expense</span><span class="amt col1">2,000</span><span class="amt col2"></span></div>
+    <div class="row hidden-row" data-step="2"><span class="lbl indent2">Utilities Expense</span><span class="amt col1">4,000</span><span class="amt col2"></span></div>
+    <div class="row hidden-row" data-step="2"><span class="lbl indent2">Insurance Expense</span><span class="amt col1">3,000</span><span class="amt col2"></span></div>
+    <div class="row hidden-row" data-step="2"><span class="lbl indent2">Depreciation Expense</span><span class="amt col1">5,000</span><span class="amt col2">29,000</span></div>
+    <div class="row subtotal hidden-row" data-step="2"><span class="lbl indent"><strong>Total Operating Expenses</strong></span><span class="amt col1"></span><span class="amt col2"><strong>(57,000)</strong></span></div>
+    <div class="row subtotal-op hidden-row" data-step="2" id="row-op">
+      <span class="lbl"><span class="badge" style="background:#3b82f6;color:white">SUBTOTAL 2</span><strong>Operating Income</strong></span>
+      <span class="amt col1"></span>
+      <span class="amt col2"><strong>$38,000</strong></span>
+    </div>
+
+    <!-- ── Section 4: Other Items → Income Before Tax ── -->
+    <div class="row section-hdr hidden-row" data-step="3"><span><strong>Other Revenues &amp; Gains</strong></span><span></span><span></span></div>
+    <div class="row hidden-row" data-step="3"><span class="lbl indent">Interest Revenue</span><span class="amt col1"></span><span class="amt col2">2,000</span></div>
+    <div class="row section-hdr hidden-row" data-step="3"><span><strong>Other Expenses &amp; Losses</strong></span><span></span><span></span></div>
+    <div class="row hidden-row" data-step="3"><span class="lbl indent">Interest Expense</span><span class="amt col1"></span><span class="amt col2">(5,000)</span></div>
+    <div class="row subtotal-ibt hidden-row" data-step="3" id="row-ibt">
+      <span class="lbl"><span class="badge" style="background:#db2777;color:white">SUBTOTAL 3</span><strong>Income Before Income Tax</strong></span>
+      <span class="amt col1"></span>
+      <span class="amt col2"><strong>$35,000</strong></span>
+    </div>
+
+    <!-- ── Section 5: Tax → Net Income ── -->
+    <div class="row hidden-row" data-step="4"><span class="lbl">Income Tax Expense (20%)</span><span class="amt col1"></span><span class="amt col2">(7,000)</span></div>
+    <div class="row subtotal-ni hidden-row" data-step="4" id="row-ni">
+      <span class="lbl"><span class="badge" style="background:#16a34a;color:white">FINAL</span><strong>Net Income</strong></span>
+      <span class="amt col1"></span>
+      <span class="amt"><strong>$28,000</strong></span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     TAB 3 — Quiz
+═══════════════════════════ -->
+<div class="panel" id="tab-3">
+  <div class="sec-title">Practice — Income Statement Formats</div>
+  <div class="sec-sub">Test your understanding of single-step and multi-step formats.</div>
+  <div class="score-line">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <br>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</div>
+
+<!-- Nav -->
+<div class="nav-bar">
+  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>← Previous</button>
+  <span class="nav-ind" id="navInd">Tab 1 of 4</span>
+  <button class="nav-btn nxt"  id="btnNext" onclick="navigate(1)">Next →</button>
+</div>
+
+<script>
+// ── Tabs ──
+const TABS = ['Two Formats Overview','Single-Step Format','Build the Multi-Step','Self-Check'];
+let cur = 0;
+function showTab(i) {
+  document.querySelectorAll('.panel').forEach((p,j) => p.classList.toggle('active', j===i));
+  document.querySelectorAll('.tab').forEach((t,j)   => t.classList.toggle('active', j===i));
+  cur = i;
+  document.getElementById('btnPrev').disabled = i===0;
+  document.getElementById('btnNext').disabled = i===TABS.length-1;
+  document.getElementById('navInd').textContent = `Tab ${i+1} of ${TABS.length} — ${TABS[i]}`;
+  if (i===3 && !quizBuilt) buildQuiz();
+}
+function navigate(d) { showTab(cur+d); }
+
+// ── Multi-step builder ──
+let currentStep = 0;
+const TOTAL_STEPS = 5;
+
+const STEP_CONFIG = [
+  {
+    msg: '<strong>Step 1 — Net Sales:</strong> Start with <strong>Sales Revenue</strong>, then subtract <strong>Sales Returns &amp; Allowances</strong> and <strong>Sales Discounts</strong> to arrive at <strong>Net Sales</strong> — the actual revenue earned from sales.',
+    nextLabel: 'Reveal Cost of Goods Sold →',
+    target: 'row-net-sales'
+  },
+  {
+    msg: '<strong>Step 2 — Gross Profit:</strong> Subtract <strong>Cost of Goods Sold</strong> from Net Sales. The result — <strong style="color:#92400e">Gross Profit $95,000</strong> — shows how much markup the company earns on its core products before any operating expenses.',
+    nextLabel: 'Reveal Operating Income →',
+    target: 'row-gp'
+  },
+  {
+    msg: '<strong>Step 3 — Operating Income:</strong> Subtract all <strong>Operating Expenses</strong> (selling and administrative). The result — <strong style="color:#1d4ed8">Operating Income $38,000</strong> — is the profit from running the day-to-day business, before any non-operating items.',
+    nextLabel: 'Reveal Income Before Tax →',
+    target: 'row-op'
+  },
+  {
+    msg: '<strong>Step 4 — Income Before Tax:</strong> Add <strong>Other Revenues &amp; Gains</strong> (interest revenue, etc.) and subtract <strong>Other Expenses &amp; Losses</strong> (interest expense, etc.). These are non-operating items. Result: <strong style="color:#9d174d">Income Before Tax $35,000</strong>.',
+    nextLabel: 'Reveal Net Income →',
+    target: 'row-ibt'
+  },
+  {
+    msg: '<strong>Step 5 — Net Income:</strong> Subtract <strong>Income Tax Expense</strong>. The bottom line — <strong style="color:#15803d">Net Income $28,000</strong> — is the same number you would get with the single-step format. The multi-step just shows you four levels of profitability along the way.',
+    nextLabel: '✓ Done — Statement Complete',
+    target: 'row-ni'
+  },
+];
+
+function goStep(s) {
+  if (s < 0 || s >= TOTAL_STEPS) return;
+  currentStep = s;
+  const cfg = STEP_CONFIG[s];
+
+  // Reveal rows for this step (and earlier steps)
+  document.querySelectorAll('.row[data-step]').forEach(row => {
+    const rowStep = parseInt(row.dataset.step, 10);
+    if (rowStep <= s) {
+      const wasHidden = row.classList.contains('hidden-row');
+      row.classList.remove('hidden-row');
+      if (wasHidden) {
+        row.classList.add('appearing');
+        setTimeout(() => row.classList.remove('appearing'), 600);
+      }
+    } else {
+      row.classList.add('hidden-row');
+    }
+  });
+
+  // Update message
+  document.getElementById('stepMsg').innerHTML = cfg.msg;
+
+  // Step progress dots
+  for (let i = 0; i < TOTAL_STEPS; i++) {
+    const dot  = document.getElementById('sp'+i);
+    const line = document.getElementById('sl'+i);
+    if (i < s)       { dot.className = 'sp-dot done'; dot.textContent = '✓'; }
+    else if (i === s){ dot.className = 'sp-dot active'; dot.textContent = i+1; }
+    else             { dot.className = 'sp-dot'; dot.textContent = i+1; }
+    if (line) line.className = 'sp-line' + (i < s ? ' done' : '');
+  }
+
+  // Buttons
+  document.getElementById('scPrev').disabled = s === 0;
+  document.getElementById('scNext').disabled = s === TOTAL_STEPS - 1;
+  document.getElementById('scNext').textContent = cfg.nextLabel;
+
+  // Scroll to subtotal in middle of viewport
+  const target = document.getElementById(cfg.target);
+  if (target) {
+    setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+  }
+}
+
+// ── Quiz ──
+let quizBuilt = false, score = 0;
+
+const QUESTIONS = [
+  {
+    q: 'What is the key difference between single-step and multi-step income statements?',
+    correct: 'Multi-step shows multiple subtotals (Gross Profit, Operating Income, etc.); single-step has only one subtraction',
+    opts: [
+      'Multi-step shows multiple subtotals (Gross Profit, Operating Income, etc.); single-step has only one subtraction',
+      'Multi-step produces a higher Net Income than single-step',
+      'Single-step is required by GAAP for public companies',
+      'Multi-step excludes income tax; single-step includes it'
+    ],
+    exp: 'Both formats produce the same Net Income. The difference is that multi-step adds intermediate subtotals (Gross Profit, Operating Income, Income Before Tax) that reveal profitability at each level.'
+  },
+  {
+    q: 'How is Gross Profit calculated?',
+    correct: 'Net Sales − Cost of Goods Sold',
+    opts: ['Net Sales − Cost of Goods Sold','Net Sales − Operating Expenses','Total Revenue − Total Expenses','Operating Income − Income Tax'],
+    exp: 'Gross Profit measures profitability after only the direct cost of products sold. It is the first major subtotal on a multi-step income statement.'
+  },
+  {
+    q: 'Boc Apparel had Net Sales of $275,000 and COGS of $180,000. What is Gross Profit?',
+    correct: '$95,000',
+    opts: ['$95,000','$455,000','$180,000','$28,000'],
+    exp: 'Gross Profit = Net Sales − COGS = $275,000 − $180,000 = $95,000.'
+  },
+  {
+    q: 'Where does Interest Expense appear on a multi-step income statement?',
+    correct: 'Other Expenses & Losses — below Operating Income',
+    opts: [
+      'Other Expenses & Losses — below Operating Income',
+      'Operating Expenses — within Selling Expenses',
+      'Cost of Goods Sold',
+      'It is excluded from the income statement'
+    ],
+    exp: 'Interest Expense is a non-operating (financing) item, so it appears in the Other Expenses & Losses section, after Operating Income. This separation is one of the main benefits of the multi-step format.'
+  },
+  {
+    q: 'On a single-step income statement, where does Interest Revenue appear?',
+    correct: 'Grouped with all other revenues',
+    opts: [
+      'Grouped with all other revenues',
+      'Below Operating Income, in a separate non-operating section',
+      'It does not appear — only operating revenue is shown',
+      'Subtracted from Total Expenses'
+    ],
+    exp: 'A single-step format groups every revenue item together — operating or non-operating — under a single Total Revenues figure. The format does not separate them.'
+  },
+  {
+    q: 'A company has Operating Income of $38,000, Interest Revenue of $2,000, and Interest Expense of $5,000. What is Income Before Tax?',
+    correct: '$35,000',
+    opts: ['$35,000','$45,000','$38,000','$33,000'],
+    exp: 'Income Before Tax = Operating Income + Other Revenues − Other Expenses = $38,000 + $2,000 − $5,000 = $35,000.'
+  },
+  {
+    q: "Which format would be most useful for an analyst evaluating whether a company's core operations are profitable?",
+    correct: 'Multi-step — because it isolates Operating Income',
+    opts: [
+      'Multi-step — because it isolates Operating Income',
+      'Single-step — because it shows total profitability simply',
+      'Either format — they show the same information',
+      'Neither — the analyst should look at the balance sheet instead'
+    ],
+    exp: 'Operating Income separates the profit from core, recurring business activities from one-time or non-operating items. Only the multi-step format shows this subtotal, making it more useful for analyzing operational performance.'
+  },
+  {
+    q: 'A company has Total Revenues of $277,000 and Total Expenses of $249,000 (single-step format). The same data in multi-step format would show Net Income of:',
+    correct: '$28,000 — the same amount',
+    opts: [
+      '$28,000 — the same amount',
+      'A higher amount because subtotals reduce taxes',
+      'A lower amount because of operating expense reclassification',
+      'It depends on the chart of accounts used'
+    ],
+    exp: 'Both formats use the same revenues and expenses. They differ only in presentation — Net Income is identical regardless of format.'
+  },
+];
+
+function buildQuiz() {
+  quizBuilt = true;
+  const wrap = document.getElementById('quizWrap');
+  document.getElementById('total').textContent = QUESTIONS.length;
+  QUESTIONS.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML =
+      `<div class="q-num">Question ${qi+1} of ${QUESTIONS.length}</div>` +
+      `<div class="q-text">${q.q}</div>` +
+      `<div class="q-opts">${q.opts.map(o =>
+        `<button class="q-opt" onclick="answer(${qi},this)">${o}</button>`
+      ).join('')}</div>` +
+      `<div class="q-explain" id="qe-${qi}"></div>`;
+    wrap.appendChild(card);
+  });
+}
+
+function answer(qi, btn) {
+  const card = btn.closest('.q-card');
+  if (card.dataset.done) return;
+  card.dataset.done = '1';
+  const q = QUESTIONS[qi];
+  const chosen = btn.textContent.trim();
+  card.querySelectorAll('.q-opt').forEach(b => {
+    b.disabled = true;
+    if (b.textContent.trim() === q.correct) b.classList.add('correct');
+    else b.classList.add('wrong');
+  });
+  const exp = document.getElementById('qe-'+qi);
+  exp.classList.add('show');
+  if (chosen === q.correct) {
+    score++;
+    exp.classList.add('ok');
+    exp.textContent = '✅ Correct! ' + q.exp;
+  } else {
+    exp.classList.add('bad');
+    exp.textContent = '❌ The answer is: ' + q.correct + '. ' + q.exp;
+  }
+  document.getElementById('score').textContent = score;
+}
+
+// Init
+goStep(0);
+</script>
+</body>
+</html>

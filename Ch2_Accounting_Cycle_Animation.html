@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 2 — The Accounting Cycle | Kieso 18th Edition</title>
+<style>
+:root {
+  --blue:   #1a4fa0;
+  --blue2:  #2563eb;
+  --teal:   #0d9488;
+  --green:  #16a34a;
+  --amber:  #d97706;
+  --red:    #dc2626;
+  --purple: #7c3aed;
+  --gray1:  #f8fafc;
+  --gray2:  #e2e8f0;
+  --gray3:  #94a3b8;
+  --gray4:  #475569;
+  --dark:   #1e293b;
+  --white:  #ffffff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: var(--dark); min-height: 100vh; }
+
+/* ── Header ── */
+.header {
+  background: linear-gradient(135deg,#1e3a8a 0%,#1a4fa0 60%,#0d9488 100%);
+  color: white; padding: 16px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 2px 16px rgba(0,0,0,.4);
+}
+.header h1 { font-size: 1.25rem; font-weight: 700; }
+.header p  { font-size: .75rem; opacity: .7; margin-top: 2px; }
+.header-badge { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 8px; padding: 5px 12px; font-size: .75rem; font-weight: 600; }
+
+/* ── Layout ── */
+.shell { display: flex; flex-direction: column; height: calc(100vh - 64px); }
+.layout { display: grid; grid-template-columns: 280px 1fr; flex: 1; overflow: hidden; }
+
+/* ── Progress ── */
+.progress-wrap { background: #1e293b; padding: 10px 24px; border-bottom: 1px solid #334155; }
+.progress-track { display: flex; align-items: center; }
+.prog-step { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; cursor: pointer; }
+.prog-dot { width: 26px; height: 26px; border-radius: 50%; background: #334155; border: 2px solid #475569; display: flex; align-items: center; justify-content: center; font-size: .62rem; font-weight: 700; color: #64748b; z-index: 2; transition: all .3s; }
+.prog-step.active .prog-dot { background: var(--blue2); border-color: #93c5fd; color: white; }
+.prog-step.done   .prog-dot { background: var(--teal);  border-color: #34d399; color: white; }
+.prog-line { position: absolute; top: 13px; left: calc(50% + 13px); width: calc(100% - 26px); height: 2px; background: #334155; z-index: 1; transition: background .4s; }
+.prog-step.done .prog-line { background: var(--teal); }
+.prog-label { font-size: .55rem; color: #475569; margin-top: 3px; text-align: center; max-width: 64px; line-height: 1.2; }
+.prog-step.active .prog-label { color: #93c5fd; }
+.prog-step.done   .prog-label { color: #34d399; }
+
+/* ── Left Panel ── */
+.left-panel { background: #1e293b; border-right: 1px solid #334155; display: flex; flex-direction: column; align-items: center; padding: 20px 14px; overflow-y: auto; }
+.panel-title { color: #94a3b8; font-size: .65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px; }
+
+/* wheel */
+.wheel-wrap { position: relative; width: 230px; height: 230px; margin-bottom: 16px; }
+.wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 72px; height: 72px; background: linear-gradient(135deg,#1a4fa0,#0d9488); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-size: .55rem; font-weight: 700; text-align: center; line-height: 1.4; box-shadow: 0 0 0 4px #1e293b, 0 0 0 6px #334155; z-index: 10; }
+.ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 160px; height: 160px; border-radius: 50%; border: 1px dashed #334155; pointer-events: none; }
+.wnode { position: absolute; width: 46px; height: 46px; border-radius: 50%; background: #334155; border: 2px solid #475569; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; color: #94a3b8; font-size: .58rem; font-weight: 700; text-align: center; line-height: 1.1; padding: 2px; user-select: none; transition: all .25s; }
+.wnode:hover { transform: scale(1.12); border-color: var(--blue2); color: white; background: #1e3a8a; z-index: 20; }
+.wnode.active { background: linear-gradient(135deg,#1a4fa0,#2563eb); border-color: #60a5fa; color: white; box-shadow: 0 0 0 3px rgba(37,99,235,.4); transform: scale(1.15); z-index: 20; }
+.wnode.done { background: linear-gradient(135deg,#065f46,#0d9488); border-color: #34d399; color: white; }
+.wnode .wn { font-size: .55rem; opacity: .7; margin-bottom: 1px; }
+
+/* step list */
+.step-list { width: 100%; }
+.sitem { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 7px; cursor: pointer; transition: background .2s; margin-bottom: 2px; }
+.sitem:hover { background: #334155; }
+.sitem.active { background: #1e3a8a; }
+.sbubble { width: 24px; height: 24px; border-radius: 50%; background: #334155; border: 1.5px solid #475569; display: flex; align-items: center; justify-content: center; font-size: .62rem; font-weight: 800; color: #94a3b8; flex-shrink: 0; transition: all .3s; }
+.sitem.active .sbubble { background: var(--blue2); border-color: #93c5fd; color: white; }
+.sitem.done   .sbubble { background: var(--teal);  border-color: #34d399; color: white; }
+.sitem.active .slabel { color: white; font-weight: 600; }
+.sitem.done   .slabel { color: #34d399; }
+.slabel { font-size: .75rem; color: #94a3b8; line-height: 1.3; }
+
+/* ── Content ── */
+.content { background: var(--gray1); overflow-y: auto; padding: 24px 28px; }
+.step-view { display: none; }
+.step-view.visible { display: block; animation: fadeUp .35s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+/* step header */
+.step-hdr { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 20px; }
+.step-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+.step-badge { display: inline-flex; align-items: center; background: var(--blue2); color: white; font-size: .65rem; font-weight: 700; padding: 2px 9px; border-radius: 20px; margin-bottom: 5px; }
+.step-hdr h2 { font-size: 1.2rem; font-weight: 800; color: var(--dark); }
+.step-hdr p  { font-size: .82rem; color: var(--gray4); margin-top: 3px; line-height: 1.5; }
+
+/* cards */
+.card { background: white; border-radius: 10px; padding: 18px; margin-bottom: 16px; border: 1px solid var(--gray2); box-shadow: 0 1px 4px rgba(0,0,0,.05); animation: fadeUp .35s ease both; }
+.card:nth-child(2){animation-delay:.06s} .card:nth-child(3){animation-delay:.12s} .card:nth-child(4){animation-delay:.18s}
+.card-title { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gray3); margin-bottom: 12px; display: flex; align-items: center; gap: 7px; }
+.card-title .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue2); }
+
+/* concept box */
+.concept { background: linear-gradient(135deg,#eff6ff,#f0fdf4); border: 1.5px solid #bfdbfe; border-radius: 9px; padding: 12px 16px; margin-bottom: 16px; font-size: .8rem; color: #1e3a8a; line-height: 1.6; }
+.concept strong { color: var(--blue); }
+
+/* tags */
+.tag { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: .62rem; font-weight: 700; margin: 0 2px; vertical-align: middle; }
+.ta { background:#dbeafe; color:#1e40af; } .tl { background:#fce7f3; color:#be185d; }
+.te { background:#d1fae5; color:#065f46; } .tr { background:#fef3c7; color:#92400e; }
+.tx { background:#ffe4e6; color:#be123c; }
+
+/* tables */
+.jtbl { width: 100%; border-collapse: collapse; font-size: .8rem; }
+.jtbl th { background: #f1f5f9; padding: 6px 10px; text-align: left; font-weight: 700; font-size: .68rem; color: var(--gray4); border-bottom: 2px solid var(--gray2); }
+.jtbl td { padding: 6px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+.jtbl tr:hover td { background: #f8fafc; }
+.dr td:first-child { font-weight: 600; color: #1e293b; }
+.cr td:first-child { padding-left: 26px; color: var(--gray4); font-style: italic; }
+.amt { text-align: right; font-family: 'Courier New', monospace; }
+.edate { font-weight: 700; color: var(--blue); font-size: .72rem; }
+.esep td { height: 7px; border: none; }
+.enote { font-size: .68rem; color: var(--gray3); font-style: italic; }
+.etotal td { background: #f0fdf4 !important; font-weight: 800; }
+
+/* T-accounts */
+.tgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 14px; }
+.tacc { border: 1.5px solid var(--gray2); border-radius: 8px; overflow: hidden; }
+.tacc-name { color: white; text-align: center; font-size: .7rem; font-weight: 700; padding: 5px; }
+.tacc-labels { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--gray2); }
+.tacc-labels span { font-size: .58rem; color: var(--gray3); font-weight: 700; padding: 2px 7px; }
+.tacc-labels span:last-child { text-align: right; }
+.tacc-body { display: grid; grid-template-columns: 1fr 2px 1fr; min-height: 64px; }
+.tacc-side { padding: 5px 7px; font-size: .7rem; font-family: 'Courier New', monospace; }
+.tacc-div { background: var(--gray2); }
+.tacc-cr { text-align: right; }
+.tacc-bal { font-weight: 700; font-size: .72rem; border-top: 1px double var(--gray2); padding: 4px 7px; text-align: right; }
+
+/* nav */
+.nav { background: #1e293b; padding: 12px 22px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #334155; }
+.nbtn { display: flex; align-items: center; gap: 7px; padding: 9px 20px; border-radius: 7px; border: none; cursor: pointer; font-size: .82rem; font-weight: 700; transition: all .2s; }
+.nbtn-prev { background: #334155; color: #94a3b8; }
+.nbtn-prev:hover:not(:disabled) { background: #475569; color: white; }
+.nbtn-next { background: var(--blue2); color: white; }
+.nbtn-next:hover:not(:disabled) { background: #1d4ed8; }
+.nbtn:disabled { opacity: .35; cursor: not-allowed; }
+.nav-ind { color: #94a3b8; font-size: .8rem; font-weight: 600; }
+
+/* ── ADJUSTING DIFF (Step 6) ── */
+.adj-layout { display: grid; grid-template-columns: 1fr 260px; gap: 16px; }
+.tb-live { background: white; border-radius: 10px; border: 1px solid var(--gray2); overflow: hidden; }
+.tb-live-head { background: linear-gradient(135deg,var(--blue),var(--blue2)); color: white; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; }
+.tb-live-head span { font-size: .78rem; font-weight: 700; }
+.tb-live table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+.tb-live th { padding: 6px 12px; text-align: left; font-size: .68rem; font-weight: 700; color: var(--gray4); border-bottom: 1.5px solid var(--gray2); background: #f8fafc; }
+.tb-live td { padding: 6px 12px; border-bottom: 1px solid #f8fafc; transition: background .4s, color .4s; }
+.tb-live .amt { text-align: right; font-family: monospace; }
+.tb-live .total-row td { border-top: 2px solid var(--gray2); font-weight: 800; background: #f8fafc; }
+
+/* row flash states */
+.row-up   { background: #dcfce7 !important; }
+.row-down { background: #fef9c3 !important; }
+.row-new  { background: #eff6ff !important; }
+.val-up   { color: var(--green) !important; font-weight: 700 !important; }
+.val-down { color: var(--amber) !important; font-weight: 700 !important; }
+.val-new  { color: var(--blue2) !important; font-weight: 700 !important; }
+
+/* AJE selector panel */
+.aje-panel { display: flex; flex-direction: column; gap: 10px; }
+.aje-card {
+  background: white; border: 2px solid var(--gray2); border-radius: 10px;
+  padding: 12px 14px; cursor: pointer; transition: all .2s; user-select: none;
+}
+.aje-card:hover { border-color: var(--blue2); box-shadow: 0 2px 8px rgba(37,99,235,.15); }
+.aje-card.applied { border-color: var(--teal); background: #f0fdf4; }
+.aje-card.active-aje { border-color: var(--blue2); background: #eff6ff; box-shadow: 0 2px 12px rgba(37,99,235,.2); }
+.aje-num { font-size: .62rem; font-weight: 700; color: var(--gray3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+.aje-card.applied .aje-num { color: var(--teal); }
+.aje-card.active-aje .aje-num { color: var(--blue2); }
+.aje-title { font-size: .8rem; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
+.aje-entries { font-size: .72rem; font-family: monospace; color: var(--gray4); line-height: 1.7; }
+.aje-entries .dr { color: #1e293b; font-weight: 600; }
+.aje-entries .cr { padding-left: 14px; color: var(--gray3); }
+.aje-badge { display: inline-flex; align-items: center; gap: 4px; font-size: .62rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; margin-bottom: 6px; }
+.badge-def { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.badge-acc { background: #fefce8; color: #92400e; border: 1px solid #fde68a; }
+.apply-btn { display: block; width: 100%; margin-top: 8px; padding: 5px; border: none; border-radius: 6px; background: var(--blue2); color: white; font-size: .72rem; font-weight: 700; cursor: pointer; transition: background .2s; }
+.apply-btn:hover { background: #1d4ed8; }
+.aje-card.applied .apply-btn { background: var(--teal); }
+.aje-card.applied .apply-btn::before { content: '✓ '; }
+.aje-hint { text-align: center; font-size: .72rem; color: var(--gray3); margin-top: 4px; }
+
+/* diff legend */
+.diff-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.dl-item { display: flex; align-items: center; gap: 5px; font-size: .7rem; color: var(--gray4); }
+.dl-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+/* financial statements grid */
+.fs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.fs-card { background: white; border-radius: 9px; border: 1px solid var(--gray2); overflow: hidden; }
+.fs-hdr { padding: 9px 14px; font-size: .72rem; font-weight: 800; color: white; text-align: center; text-transform: uppercase; letter-spacing: .7px; }
+.fs-sub { text-align: center; font-size: .65rem; color: var(--gray3); padding: 5px 14px 2px; font-style: italic; }
+.fs-body { padding: 10px 14px; }
+.fs-row { display: flex; justify-content: space-between; font-size: .76rem; padding: 3px 0; border-bottom: 1px solid #f8fafc; }
+.fs-row.total { font-weight: 800; border-top: 2px solid var(--gray2); border-bottom: none; margin-top: 3px; padding-top: 5px; color: var(--green); }
+.fs-row.subtotal { font-weight: 600; border-top: 1px solid var(--gray2); }
+.fs-section { font-weight: 700; font-size: .67rem; color: var(--gray3); margin: 7px 0 3px; text-transform: uppercase; letter-spacing: .5px; }
+.fs-row .ind { padding-left: 12px; }
+.fs-amt { font-family: monospace; font-size: .78rem; }
+
+/* equation bar */
+.eq-bar { display: flex; align-items: center; justify-content: center; gap: 14px; background: white; border: 1.5px solid var(--gray2); border-radius: 9px; padding: 10px 18px; margin-bottom: 18px; }
+.eq-block { text-align: center; padding: 7px 14px; border-radius: 7px; min-width: 90px; }
+.eq-lbl { font-size: .62rem; font-weight: 700; text-transform: uppercase; opacity: .65; }
+.eq-val { font-size: 1rem; font-weight: 800; font-family: monospace; margin-top: 2px; }
+.eq-op { font-size: 1.2rem; font-weight: 700; color: var(--gray3); }
+
+/* welcome */
+.welcome { background: linear-gradient(135deg,#1e3a8a,#1a4fa0 60%,#0d9488); border-radius: 12px; padding: 24px 28px; color: white; margin-bottom: 20px; }
+.welcome h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 7px; }
+.welcome p  { opacity: .85; font-size: .83rem; line-height: 1.6; }
+.step-pills { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 14px; }
+.pill { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.15); border-radius: 7px; padding: 8px 10px; font-size: .7rem; display: flex; gap: 7px; align-items: center; cursor: pointer; }
+.pill:hover { background: rgba(255,255,255,.2); }
+.pill-n { font-weight: 800; opacity: .65; }
+
+/* normal balance table */
+.nb-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.nb-card { border-radius: 8px; padding: 10px 12px; border: 1.5px solid; }
+.nb-type { font-size: .68rem; font-weight: 800; margin-bottom: 4px; }
+.nb-detail { font-size: .72rem; line-height: 1.6; }
+
+/* closing flow */
+.close-flow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.close-box { flex: 1; min-width: 130px; background: white; border-radius: 9px; border: 1.5px solid var(--gray2); text-align: center; overflow: hidden; }
+.close-box-hdr { padding: 7px; font-size: .67rem; font-weight: 700; color: white; text-transform: uppercase; }
+.close-box-body { padding: 9px; font-size: .75rem; font-family: monospace; color: var(--gray4); }
+.close-arrow { font-size: 1.3rem; color: var(--gray3); align-self: center; }
+
+/* anim rows */
+@keyframes rowIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+.arow { animation: rowIn .3s ease both; }
+@keyframes pulseGlow {
+  0%,100% { box-shadow: 0 0 0 4px rgba(251,191,36,.5), 0 4px 20px rgba(239,68,68,.3); transform: scale(1); }
+  50%      { box-shadow: 0 0 0 8px rgba(251,191,36,.2), 0 4px 32px rgba(239,68,68,.55); transform: scale(1.02); }
+}
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(5px); }
+}
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <div>
+    <h1>📊 Chapter 2 — The Accounting Cycle</h1>
+    <p>Kieso, Weygandt &amp; Warfield · Intermediate Accounting 18th Edition</p>
+  </div>
+</div>
+
+<div class="shell">
+  <!-- progress bar -->
+  <div class="progress-wrap">
+    <div class="progress-track" id="progTrack"></div>
+  </div>
+
+  <div class="layout">
+    <!-- left -->
+    <div class="left-panel">
+      <div class="panel-title">Accounting Cycle</div>
+      <div class="wheel-wrap">
+        <div class="ring"></div>
+        <div class="wheel-center">ACCOUNTING<br>CYCLE</div>
+        <div id="wheelNodes"></div>
+      </div>
+      <div class="step-list" id="stepList"></div>
+    </div>
+
+    <!-- content -->
+    <div class="content" id="contentPanel">
+
+      <!-- Step 0 intro -->
+      <div class="step-view visible" id="step-0">
+        <div class="welcome">
+          <h2>The Accounting Cycle</h2>
+          <p>Follow Pioneer Advertising through its first month of operations (October). Five streamlined transactions walk through every step from journal entry to financial statements.</p>
+          <div class="step-pills" id="stepPills"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>The Accounting Equation</div>
+          <div class="eq-bar">
+            <div class="eq-block" style="background:#dbeafe;border:1.5px solid #93c5fd">
+              <div class="eq-lbl" style="color:#1e40af">Assets</div>
+              <div class="eq-val" style="color:#1e40af">$35,000</div>
+            </div>
+            <div class="eq-op">=</div>
+            <div class="eq-block" style="background:#fce7f3;border:1.5px solid #f9a8d4">
+              <div class="eq-lbl" style="color:#be185d">Liabilities</div>
+              <div class="eq-val" style="color:#be185d">$17,000</div>
+            </div>
+            <div class="eq-op">+</div>
+            <div class="eq-block" style="background:#d1fae5;border:1.5px solid #6ee7b7">
+              <div class="eq-lbl" style="color:#065f46">Equity</div>
+              <div class="eq-val" style="color:#065f46">$18,000</div>
+            </div>
+          </div>
+          <p style="font-size:.78rem;color:var(--gray4);text-align:center">Every transaction keeps this equation balanced · Debits always = Credits</p>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--teal)"></span>Normal Balances</div>
+          <div class="nb-grid">
+            <div class="nb-card" style="background:#eff6ff;border-color:#bfdbfe">
+              <div class="nb-type" style="color:#1e40af">Assets &amp; Expenses</div>
+              <div class="nb-detail" style="color:#1e3a8a">Normal balance: <strong>Debit</strong><br>Increase → Debit<br>Decrease → Credit</div>
+            </div>
+            <div class="nb-card" style="background:#fce7f3;border-color:#f9a8d4">
+              <div class="nb-type" style="color:#be185d">Liabilities &amp; Equity</div>
+              <div class="nb-detail" style="color:#9f1239">Normal balance: <strong>Credit</strong><br>Increase → Credit<br>Decrease → Debit</div>
+            </div>
+            <div class="nb-card" style="background:#fef3c7;border-color:#fde68a">
+              <div class="nb-type" style="color:#92400e">Revenue</div>
+              <div class="nb-detail" style="color:#78350f">Normal balance: <strong>Credit</strong><br>Earned → Credit<br>Closed at period-end</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 1: Identify -->
+      <div class="step-view" id="step-1">
+        <div class="step-hdr">
+          <div class="step-icon" style="background:#dbeafe">📋</div>
+          <div>
+            <div class="step-badge">Step 1 of 9</div>
+            <h2>Identify &amp; Analyze Transactions</h2>
+            <p>Pioneer Advertising opens for business in October with five transactions that cover every major account type.</p>
+          </div>
+        </div>
+        <div class="concept">
+          <strong>Key Question:</strong> Did this event change assets, liabilities, or equity? If yes → record it. Source documents: invoices, checks, receipts, contracts.
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>October Transactions — Pioneer Advertising</div>
+          <table class="jtbl">
+            <thead><tr><th>Date</th><th>Description</th><th>Accounts Affected</th><th style="text-align:right">Amount</th></tr></thead>
+            <tbody>
+              <tr class="arow" style="animation-delay:.04s"><td class="edate">Oct 1</td><td>Shareholders invest cash</td><td><span class="tag ta">Asset</span> Cash ↑ &nbsp;<span class="tag te">Equity</span> Common Stock ↑</td><td class="amt">$10,000</td></tr>
+              <tr class="arow" style="animation-delay:.09s"><td class="edate">Oct 1</td><td>Borrowed — 3-month, 12% note payable</td><td><span class="tag ta">Asset</span> Cash ↑ &nbsp;<span class="tag tl">Liability</span> Notes Payable ↑</td><td class="amt">$5,000</td></tr>
+              <tr class="arow" style="animation-delay:.14s"><td class="edate">Oct 5</td><td>Purchased advertising supplies for cash</td><td><span class="tag ta">Asset</span> Supplies ↑ &nbsp;<span class="tag ta">Asset</span> Cash ↓</td><td class="amt">$2,500</td></tr>
+              <tr class="arow" style="animation-delay:.19s"><td class="edate">Oct 15</td><td>Received advance from client (R. Knox)</td><td><span class="tag ta">Asset</span> Cash ↑ &nbsp;<span class="tag tl">Liability</span> Unearned Revenue ↑</td><td class="amt">$12,000</td></tr>
+              <tr class="arow" style="animation-delay:.24s"><td class="edate">Oct 31</td><td>Performed advertising services for cash</td><td><span class="tag ta">Asset</span> Cash ↑ &nbsp;<span class="tag tr">Revenue</span> Service Revenue ↑</td><td class="amt">$8,000</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--amber)"></span>Analysis Framework</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:12px">
+              <div style="font-weight:700;color:#166534;margin-bottom:5px;font-size:.78rem">✅ Record this</div>
+              <ul style="font-size:.75rem;color:#166534;padding-left:14px;line-height:1.9">
+                <li>Cash received or paid</li><li>Asset purchased or sold</li><li>Debt incurred or repaid</li><li>Revenue earned or expense incurred</li>
+              </ul>
+            </div>
+            <div style="background:#fff7ed;border:1.5px solid #fcd34d;border-radius:8px;padding:12px">
+              <div style="font-weight:700;color:#92400e;margin-bottom:5px;font-size:.78rem">⚠️ Do NOT record yet</div>
+              <ul style="font-size:.75rem;color:#92400e;padding-left:14px;line-height:1.9">
+                <li>Signing a contract (no exchange)</li><li>Hiring an employee</li><li>Market price changes</li><li>Promises without delivery</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Journalize -->
+      <div class="step-view" id="step-2">
+        <div class="step-hdr">
+          <div class="step-icon" style="background:#fef3c7">📝</div>
+          <div>
+            <div class="step-badge">Step 2 of 9</div>
+            <h2>Journalize Transactions</h2>
+            <p>Record each transaction in the <strong>General Journal</strong> in date order. Every entry must balance: Total Debits = Total Credits.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>General Journal — Pioneer Advertising — October 2022</div>
+          <table class="jtbl">
+            <thead><tr><th>Date</th><th>Account Title</th><th style="text-align:right">Debit</th><th style="text-align:right">Credit</th></tr></thead>
+            <tbody>
+              <tr class="dr arow" style="animation-delay:.04s"><td class="edate">Oct 1</td><td>Cash</td><td class="amt">10,000</td><td></td></tr>
+              <tr class="cr arow" style="animation-delay:.06s"><td></td><td style="padding-left:26px;font-style:italic;color:var(--gray4)">Common Stock</td><td></td><td class="amt" style="color:var(--gray4)">10,000</td></tr>
+              <tr class="arow" style="animation-delay:.08s"><td></td><td class="enote">(Shareholders invest cash in business)</td><td></td><td></td></tr>
+              <tr class="esep"><td colspan="4"></td></tr>
+
+              <tr class="dr arow" style="animation-delay:.11s"><td class="edate">Oct 1</td><td>Cash</td><td class="amt">5,000</td><td></td></tr>
+              <tr class="cr arow" style="animation-delay:.13s"><td></td><td style="padding-left:26px;font-style:italic;color:var(--gray4)">Notes Payable</td><td></td><td class="amt" style="color:var(--gray4)">5,000</td></tr>
+              <tr class="arow" style="animation-delay:.15s"><td></td><td class="enote">(3-month note at 12% annual interest)</td><td></td><td></td></tr>
+              <tr class="esep"><td colspan="4"></td></tr>
+
+              <tr class="dr arow" style="animation-delay:.18s"><td class="edate">Oct 5</td><td>Advertising Supplies</td><td class="amt">2,500</td><td></td></tr>
+              <tr class="cr arow" style="animation-delay:.20s"><td></td><td style="padding-left:26px;font-style:italic;color:var(--gray4)">Cash</td><td></td><td class="amt" style="color:var(--gray4)">2,500</td></tr>
+              <tr class="arow" style="animation-delay:.22s"><td></td><td class="enote">(Purchased supplies for cash)</td><td></td><td></td></tr>
+              <tr class="esep"><td colspan="4"></td></tr>
+
+              <tr class="dr arow" style="animation-delay:.25s"><td class="edate">Oct 15</td><td>Cash</td><td class="amt">12,000</td><td></td></tr>
+              <tr class="cr arow" style="animation-delay:.27s"><td></td><td style="padding-left:26px;font-style:italic;color:var(--gray4)">Unearned Service Revenue</td><td></td><td class="amt" style="color:var(--gray4)">12,000</td></tr>
+              <tr class="arow" style="animation-delay:.29s"><td></td><td class="enote">(Advance payment from R. Knox for future ad campaigns)</td><td></td><td></td></tr>
+              <tr class="esep"><td colspan="4"></td></tr>
+
+              <tr class="dr arow" style="animation-delay:.32s"><td class="edate">Oct 31</td><td>Cash</td><td class="amt">8,000</td><td></td></tr>
+              <tr class="cr arow" style="animation-delay:.34s"><td></td><td style="padding-left:26px;font-style:italic;color:var(--gray4)">Service Revenue</td><td></td><td class="amt" style="color:var(--gray4)">8,000</td></tr>
+              <tr class="arow" style="animation-delay:.36s"><td></td><td class="enote">(Performed ad services; collected cash)</td><td></td><td></td></tr>
+
+              <tr class="etotal arow" style="animation-delay:.42s">
+                <td colspan="2" style="text-align:right;font-weight:800;padding-right:12px">TOTALS</td>
+                <td class="amt" style="color:var(--green)">$37,500</td>
+                <td class="amt" style="color:var(--green)">$37,500</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="concept">✅ <strong>Check:</strong> $37,500 Debits = $37,500 Credits. The accounting equation stays balanced after every entry.
+        </div>
+      </div>
+
+      <!-- Step 3: Post -->
+      <div class="step-view" id="step-3">
+        <div class="step-hdr">
+          <div class="step-icon" style="background:#fce7f3">📒</div>
+          <div>
+            <div class="step-badge">Step 3 of 9</div>
+            <h2>Post to the Ledger</h2>
+            <p>Transfer each journal entry to the appropriate T-account. Debits go to the left side; credits to the right. The difference between sides = the account <strong>balance</strong>.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>General Ledger — T-Accounts after October Transactions</div>
+          <div class="tgrid">
+            <!-- Cash: +10k +5k +12k +8k -2.5k = 32,500 -->
+            <div class="tacc">
+              <div class="tacc-name" style="background:#1a4fa0">Cash <span class="tag ta" style="background:rgba(255,255,255,.2);color:white;border:none">Asset</span></div>
+              <div class="tacc-labels"><span>Dr (+)</span><span>Cr (–)</span></div>
+              <div class="tacc-body">
+                <div class="tacc-side">10,000<br>5,000<br>12,000<br>8,000</div>
+                <div class="tacc-div"></div>
+                <div class="tacc-side tacc-cr">2,500</div>
+              </div>
+              <div class="tacc-bal" style="color:#1a4fa0">Bal: 32,500</div>
+            </div>
+            <!-- Supplies -->
+            <div class="tacc">
+              <div class="tacc-name" style="background:#1a4fa0">Supplies <span class="tag ta" style="background:rgba(255,255,255,.2);color:white;border:none">Asset</span></div>
+              <div class="tacc-labels"><span>Dr (+)</span><span>Cr (–)</span></div>
+              <div class="tacc-body">
+                <div class="tacc-side">2,500</div>
+                <div class="tacc-div"></div>
+                <div class="tacc-side tacc-cr"></div>
+              </div>
+              <div class="tacc-bal" style="color:#1a4fa0">Bal: 2,500</div>
+            </div>
+            <!-- Notes Payable -->
+            <div class="tacc">
+              <div class="tacc-name" style="background:#9f1239">Notes Payable <span class="tag tl" style="background:rgba(255,255,255,.2);color:white;border:none">Liab</span></div>
+              <div class="tacc-labels"><span>Dr (–)</span><span>Cr (+)</span></div>
+              <div class="tacc-body">
+                <div class="tacc-side"></div>
+                <div class="tacc-div"></div>
+                <div class="tacc-side tacc-cr">5,000</div>
+              </div>
+              <div class="tacc-bal" style="color:#9f1239">Bal: 5,000</div>
+            </div>
+            <!-- Unearned Revenue -->
+            <div class="tacc">
+              <div class="tacc-name" style="background:#9f1239">Unearned Revenue <span class="tag tl" style="background:rgba(255,255,255,.2);color:white;border:none">Liab</span></div>
+              <div class="tacc-labels"><span>Dr (–)</span><span>Cr (+)</span></div>
+              <div class="tacc-body">
+                <div class="tacc-side"></div>
+                <div class="tacc-div"></div>
+                <div class="tacc-side tacc-cr">12,000</div>
+              </div>
+              <div class="tacc-bal" style="color:#9f1239">Bal: 12,000</div>
+            </div>
+            <!-- Common Stock -->
+            <div class="tacc">
+              <div class="tacc-name" style="background:#065f46">Common Stock <span class="tag te" style="background:rgba(255,255,255,.2);color:white;border:none">Equity</span></div>
+              <div class="tacc-labels"><span>Dr (–)</span><span>Cr (+)</span></div>
+              <div class="tacc-body">
+                <div class="tacc-side"></div>
+                <div class="tacc-div"></div>
+                <div class="tacc-side tacc-cr">10,000</div>
+              </div>
+              <div class="tacc-bal" style="color:#065f46">Bal: 10,000</div>
+            </div>
+            <!-- Service Revenue -->
+            <div class="tacc">
+              <div class="tacc-name" style="background:#92400e">Service Revenue <span class="tag tr" style="background:rgba(255,255,255,.2);color:white;border:none">Revenue</span></div>
+              <div class="tacc-labels"><span>Dr (–)</span><span>Cr (+)</span></div>
+              <div class="tacc-body">
+                <div class="tacc-side"></div>
+                <div class="tacc-div"></div>
+                <div class="tacc-side tacc-cr">8,000</div>
+              </div>
+              <div class="tacc-bal" style="color:#92400e">Bal: 8,000</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Trial Balance -->
+      <div class="step-view" id="step-4">
+        <div class="step-hdr">
+          <div class="step-icon" style="background:#d1fae5">⚖️</div>
+          <div>
+            <div class="step-badge">Step 4 of 9</div>
+            <h2>Unadjusted Trial Balance</h2>
+            <p>List every account and its balance. Confirm Total Debits = Total Credits. This is <em>before</em> any period-end adjustments.</p>
+          </div>
+        </div>
+        <div class="concept"><strong>Purpose:</strong> Proves the ledger is mathematically balanced. Does NOT mean every transaction was recorded correctly — only that Dr = Cr.</div>
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>Pioneer Advertising — Unadjusted Trial Balance — October 31, 2022</div>
+          <table class="jtbl">
+            <thead><tr><th>Account</th><th style="text-align:right">Debit</th><th style="text-align:right">Credit</th></tr></thead>
+            <tbody>
+              <tr class="arow" style="animation-delay:.04s"><td>Cash</td><td class="amt">$32,500</td><td></td></tr>
+              <tr class="arow" style="animation-delay:.08s"><td>Advertising Supplies</td><td class="amt">2,500</td><td></td></tr>
+              <tr class="arow" style="animation-delay:.12s"><td>Notes Payable</td><td></td><td class="amt">$5,000</td></tr>
+              <tr class="arow" style="animation-delay:.16s"><td>Unearned Service Revenue</td><td></td><td class="amt">12,000</td></tr>
+              <tr class="arow" style="animation-delay:.20s"><td>Common Stock</td><td></td><td class="amt">10,000</td></tr>
+              <tr class="arow" style="animation-delay:.24s"><td>Service Revenue</td><td></td><td class="amt">8,000</td></tr>
+              <tr style="background:#f0fdf4" class="arow" style="animation-delay:.30s">
+                <td style="font-weight:800">TOTALS</td>
+                <td class="amt" style="font-weight:800;color:var(--green)">$35,000</td>
+                <td class="amt" style="font-weight:800;color:var(--green)">$35,000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--amber)"></span>What Still Needs Adjustment — 3 Conditions</div>
+          <div style="display:grid;grid-template-columns:1fr;gap:10px;font-size:.78rem">
+
+            <div style="background:#fef9c3;border:1.5px solid #fde68a;border-radius:8px;padding:12px">
+              <div style="font-weight:800;color:#92400e;margin-bottom:5px">① Supplies — Deferral</div>
+              <div style="color:#78350f;line-height:1.7">
+                Pioneer purchased <strong>$2,500</strong> of advertising supplies on Oct 5. At Oct 31, a physical count shows only <strong>$1,000</strong> remains on hand.
+                That means <strong>$1,500 was used up</strong> during October — but no Supplies Expense has been recorded yet.
+                The Supplies account is <em>overstated</em> by $1,500.
+              </div>
+            </div>
+
+            <div style="background:#fce7f3;border:1.5px solid #f9a8d4;border-radius:8px;padding:12px">
+              <div style="font-weight:800;color:#9d174d;margin-bottom:5px">② Interest — Accrual</div>
+              <div style="color:#831843;line-height:1.7">
+                On Oct 1, Pioneer borrowed <strong>$5,000</strong> on a 12% annual note payable. By Oct 31, one full month of interest has built up:
+                <strong>$5,000 × 12% ÷ 12 months = $50</strong>. This $50 of interest expense has been <em>incurred but not yet paid or recorded</em>.
+                Both Interest Expense and Interest Payable are missing from the trial balance entirely.
+              </div>
+            </div>
+
+            <div style="background:#ecfdf5;border:1.5px solid #6ee7b7;border-radius:8px;padding:12px">
+              <div style="font-weight:800;color:#065f46;margin-bottom:5px">③ Unearned Revenue — Deferral</div>
+              <div style="color:#064e3b;line-height:1.7">
+                On Oct 15, Pioneer received <strong>$12,000 cash</strong> from Knox Co. as an advance for future advertising services. By Oct 31, Pioneer has performed <strong>$4,000</strong> worth of those services.
+                The entire $12,000 still sits as a liability (Unearned Service Revenue) — it needs to be reduced by $4,000 and recognized as earned revenue.
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5: Adjusting Entries -->
+      <div class="step-view" id="step-5">
+        <div class="step-hdr">
+          <div class="step-icon" style="background:#fce7f3">🔧</div>
+          <div>
+            <div class="step-badge">Step 5 of 9</div>
+            <h2>Adjusting Entries</h2>
+            <p>Three entries bring accounts up to date so revenue and expenses fall in the right period. <strong>No cash changes hands</strong> — these are internal corrections.</p>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:16px">
+          <div style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:9px;padding:12px">
+            <div style="font-weight:800;color:#1d4ed8;font-size:.8rem;margin-bottom:4px">🔄 Deferrals</div>
+            <p style="font-size:.74rem;color:#1e40af;line-height:1.5">Cash was paid/received <em>before</em> the cost expired or revenue was earned. Shift from balance sheet → income statement.</p>
+          </div>
+          <div style="background:#fefce8;border:1.5px solid #fde68a;border-radius:9px;padding:12px">
+            <div style="font-weight:800;color:#d97706;font-size:.8rem;margin-bottom:4px">📈 Accruals</div>
+            <p style="font-size:.74rem;color:#92400e;line-height:1.5">Revenue earned or expense incurred but cash has <em>not yet</em> been exchanged. Add receivable or payable + income statement effect.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>Three Adjusting Journal Entries — October 31, 2022</div>
+          <table class="jtbl">
+            <thead><tr><th>Date</th><th>Account</th><th style="text-align:right">Debit</th><th style="text-align:right">Credit</th></tr></thead>
+            <tbody>
+              <tr><td colspan="4"><span class="aje-badge badge-def">Deferral — Supplies Used</span></td></tr>
+              <tr class="arow"><td colspan="4"><span class="enote" style="display:block;padding:4px 0 2px 0;color:#78350f">
+                Of the $2,500 of supplies purchased, only $1,000 remains on hand at Oct 31. The company used $1,500 during October — record the expense now.
+              </span></td></tr>
+              <tr class="dr arow"><td class="edate">Oct 31</td><td>Supplies Expense</td><td class="amt">1,500</td><td></td></tr>
+              <tr class="cr arow"><td></td><td style="padding-left:26px;font-style:italic;color:var(--gray4)">Advertising Supplies</td><td></td><td class="amt" style="color:var(--gray4)">1,500</td></tr>
+              <tr class="arow"><td></td><td class="enote">($2,500 purchased − $1,000 on hand = $1,500 used up in October)</td><td></td><td></td></tr>
+              <tr class="esep"><td colspan="4"></td></tr>
+
+              <tr><td colspan="4"><span class="aje-badge badge-acc">Accrual — Interest Owed</span></td></tr>
+              <tr class="arow"><td colspan="4"><span class="enote" style="display:block;padding:4px 0 2px 0;color:#9d174d">
+                The $5,000 note payable (borrowed Oct 1 at 12% annually) has been outstanding for 1 month. Interest has been building up all month but has not been paid or recorded yet.
+              </span></td></tr>
+              <tr class="dr arow"><td class="edate">Oct 31</td><td>Interest Expense</td><td class="amt">50</td><td></td></tr>
+              <tr class="cr arow"><td></td><td style="padding-left:26px;font-style:italic;color:var(--gray4)">Interest Payable</td><td></td><td class="amt" style="color:var(--gray4)">50</td></tr>
+              <tr class="arow"><td></td><td class="enote">($5,000 × 12% ÷ 12 months = $50 accrued for October)</td><td></td><td></td></tr>
+              <tr class="esep"><td colspan="4"></td></tr>
+
+              <tr><td colspan="4"><span class="aje-badge badge-def">Deferral — Revenue Earned from Advance</span></td></tr>
+              <tr class="arow"><td colspan="4"><span class="enote" style="display:block;padding:4px 0 2px 0;color:#064e3b">
+                Pioneer received $12,000 from Knox Co. in advance and recorded it as a liability. By Oct 31, $4,000 of those services have been performed — that portion is now earned revenue.
+              </span></td></tr>
+              <tr class="dr arow"><td class="edate">Oct 31</td><td>Unearned Service Revenue</td><td class="amt">4,000</td><td></td></tr>
+              <tr class="cr arow"><td></td><td style="padding-left:26px;font-style:italic;color:var(--gray4)">Service Revenue</td><td></td><td class="amt" style="color:var(--gray4)">4,000</td></tr>
+              <tr class="arow"><td></td><td class="enote">(Of Knox's $12,000 advance, $4,000 earned in Oct → $8,000 still unearned)</td><td></td><td></td></tr>
+
+              <tr class="etotal"><td colspan="2" style="text-align:right;padding-right:12px;font-weight:800">TOTALS</td><td class="amt" style="color:var(--green)">$5,550</td><td class="amt" style="color:var(--green)">$5,550</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Step 6: Adjusted Trial Balance — INTERACTIVE DIFF -->
+      <div class="step-view" id="step-6">
+        <div class="step-hdr">
+          <div class="step-icon" style="background:#d1fae5">📊</div>
+          <div>
+            <div class="step-badge">Step 6 of 9</div>
+            <h2>Adjusted Trial Balance</h2>
+            <p>The adjusted trial balance is built by applying all 3 adjusting entries to the <strong>unadjusted</strong> trial balance from Step 4. Click each AJE card below to apply it — watch the balances change as each entry is posted.</p>
+          </div>
+        </div>
+
+        <div class="diff-legend">
+          <div class="dl-item"><div class="dl-dot" style="background:#dcfce7"></div>Account increased</div>
+          <div class="dl-item"><div class="dl-dot" style="background:#fef9c3"></div>Account decreased</div>
+          <div class="dl-item"><div class="dl-dot" style="background:#eff6ff"></div>New account added</div>
+        </div>
+
+        <div class="adj-layout">
+          <!-- Live TB -->
+          <div class="tb-live">
+            <div class="tb-live-head">
+              <span id="tb-title">Pioneer Advertising — Unadjusted Trial Balance — Oct 31, 2022</span>
+              <span id="tb-status" style="font-size:.7rem;opacity:.75">Unadjusted</span>
+            </div>
+            <table>
+              <thead><tr><th>Account</th><th style="text-align:right">Debit</th><th style="text-align:right">Credit</th></tr></thead>
+              <tbody id="tbBody"></tbody>
+            </table>
+          </div>
+
+          <!-- AJE cards -->
+          <div class="aje-panel">
+            <div id="aje-cta" style="background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:12px;padding:16px 18px;margin-bottom:14px;text-align:center;animation:pulseGlow 1.4s ease-in-out infinite;border:2px solid #fbbf24;">
+              <div style="font-size:1.8rem;line-height:1;margin-bottom:6px;animation:bounce 1s ease-in-out infinite">👇</div>
+              <div style="font-weight:900;color:#fff;font-size:1.05rem;letter-spacing:.5px;text-shadow:0 1px 4px rgba(0,0,0,.3)">Click "Apply →" on each card!</div>
+              <div style="color:#fef3c7;font-size:.8rem;margin-top:4px;font-weight:600">Watch the trial balance change in real time</div>
+            </div>
+            <div style="font-size:.7rem;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px">Apply Adjusting Entries</div>
+
+            <div class="aje-card" id="aje-card-0" onclick="applyAJE(0)">
+              <div class="aje-num">AJE 1 — Deferral</div>
+              <div class="aje-badge badge-def">Supplies Used</div>
+              <div class="aje-entries">
+                <div class="dr">Dr  Supplies Expense &nbsp;&nbsp;&nbsp;1,500</div>
+                <div class="cr">Cr &nbsp;&nbsp;Advertising Supplies &nbsp;1,500</div>
+              </div>
+              <button class="apply-btn" id="aje-btn-0">Apply →</button>
+            </div>
+
+            <div class="aje-card" id="aje-card-1" onclick="applyAJE(1)">
+              <div class="aje-num">AJE 2 — Accrual</div>
+              <div class="aje-badge badge-acc">Interest Accrued</div>
+              <div class="aje-entries">
+                <div class="dr">Dr  Interest Expense &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;50</div>
+                <div class="cr">Cr &nbsp;&nbsp;Interest Payable &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;50</div>
+              </div>
+              <button class="apply-btn" id="aje-btn-1">Apply →</button>
+            </div>
+
+            <div class="aje-card" id="aje-card-2" onclick="applyAJE(2)">
+              <div class="aje-num">AJE 3 — Deferral</div>
+              <div class="aje-badge badge-def">Revenue Earned</div>
+              <div class="aje-entries">
+                <div class="dr">Dr  Unearned Revenue &nbsp;&nbsp;&nbsp;4,000</div>
+                <div class="cr">Cr &nbsp;&nbsp;Service Revenue &nbsp;&nbsp;&nbsp;&nbsp;4,000</div>
+              </div>
+              <button class="apply-btn" id="aje-btn-2">Apply →</button>
+            </div>
+
+            <button onclick="resetAJEs()" style="width:100%;padding:7px;border:1px solid #475569;border-radius:7px;background:transparent;color:#94a3b8;font-size:.72rem;font-weight:700;cursor:pointer;margin-top:2px;transition:all .2s" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='transparent'">↺ Reset to Unadjusted</button>
+            <div class="aje-hint" id="ajeHint">Click an entry above to apply it</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 7: Financial Statements -->
+      <div class="step-view" id="step-7">
+        <div class="step-hdr">
+          <div class="step-icon" style="background:#ede9fe">📄</div>
+          <div>
+            <div class="step-badge">Step 7 of 9</div>
+            <h2>Financial Statements</h2>
+            <p>Prepare the four statements <strong>in order</strong> — each feeds into the next.</p>
+          </div>
+        </div>
+        <div class="concept"><strong>Order matters!</strong> Net income → Retained Earnings → Balance Sheet. The statements are linked.</div>
+        <div class="fs-grid">
+          <div class="fs-card">
+            <div class="fs-hdr" style="background:var(--blue)">① Income Statement</div>
+            <div class="fs-sub">For the Month Ended October 31, 2022</div>
+            <div class="fs-body">
+              <div class="fs-section">Revenues</div>
+              <div class="fs-row"><span class="ind">Service Revenue</span><span class="fs-amt">$12,000</span></div>
+              <div class="fs-section">Expenses</div>
+              <div class="fs-row"><span class="ind">Supplies Expense</span><span class="fs-amt">1,500</span></div>
+              <div class="fs-row"><span class="ind">Interest Expense</span><span class="fs-amt">50</span></div>
+              <div class="fs-row subtotal"><span class="ind" style="padding-left:22px">Total Expenses</span><span class="fs-amt">1,550</span></div>
+              <div class="fs-row total"><span>Net Income</span><span class="fs-amt">$10,450</span></div>
+            </div>
+          </div>
+          <div class="fs-card">
+            <div class="fs-hdr" style="background:var(--teal)">② Retained Earnings</div>
+            <div class="fs-sub">For the Month Ended October 31, 2022</div>
+            <div class="fs-body">
+              <div class="fs-row"><span>Retained Earnings, Oct 1</span><span class="fs-amt">$0</span></div>
+              <div class="fs-row"><span class="ind" style="color:var(--green)">Add: Net Income</span><span class="fs-amt" style="color:var(--green)">10,450</span></div>
+              <div class="fs-row total"><span>Retained Earnings, Oct 31</span><span class="fs-amt">$10,450</span></div>
+              <div style="margin-top:12px;padding:9px;background:#f0fdf4;border-radius:6px;font-size:.7rem;color:#166534">↑ $10,450 flows directly into the Balance Sheet below.</div>
+            </div>
+          </div>
+          <div class="fs-card">
+            <div class="fs-hdr" style="background:var(--green)">③ Balance Sheet</div>
+            <div class="fs-sub">October 31, 2022</div>
+            <div class="fs-body">
+              <div class="fs-section">Assets</div>
+              <div class="fs-row"><span class="ind">Cash</span><span class="fs-amt">$32,500</span></div>
+              <div class="fs-row"><span class="ind">Advertising Supplies</span><span class="fs-amt">1,000</span></div>
+              <div class="fs-row total"><span>Total Assets</span><span class="fs-amt">$33,500</span></div>
+              <div class="fs-section">Liabilities</div>
+              <div class="fs-row"><span class="ind">Notes Payable</span><span class="fs-amt">$5,000</span></div>
+              <div class="fs-row"><span class="ind">Interest Payable</span><span class="fs-amt">50</span></div>
+              <div class="fs-row"><span class="ind">Unearned Service Revenue</span><span class="fs-amt">8,000</span></div>
+              <div class="fs-row subtotal"><span class="ind" style="padding-left:22px">Total Liab.</span><span class="fs-amt">13,050</span></div>
+              <div class="fs-section">Stockholders' Equity</div>
+              <div class="fs-row"><span class="ind">Common Stock</span><span class="fs-amt">10,000</span></div>
+              <div class="fs-row"><span class="ind" style="color:var(--blue)">Retained Earnings</span><span class="fs-amt" style="color:var(--blue)">10,450</span></div>
+              <div class="fs-row subtotal"><span class="ind" style="padding-left:22px">Total SE</span><span class="fs-amt">20,450</span></div>
+              <div class="fs-row total"><span>Total Liab. + SE</span><span class="fs-amt">$33,500</span></div>
+              <div style="text-align:center;margin-top:6px;font-size:1.1rem">⚖️ Balanced!</div>
+            </div>
+          </div>
+          <div class="fs-card">
+            <div class="fs-hdr" style="background:var(--purple)">④ Statement of Cash Flows</div>
+            <div class="fs-sub">For the Month Ended October 31, 2022</div>
+            <div class="fs-body">
+              <div class="fs-section">Operating</div>
+              <div class="fs-row"><span class="ind">Cash from customers</span><span class="fs-amt">$20,000</span></div>
+              <div class="fs-row"><span class="ind" style="color:var(--red)">Cash paid for supplies</span><span class="fs-amt">(2,500)</span></div>
+              <div class="fs-row subtotal"><span class="ind" style="padding-left:22px">Net Operating</span><span class="fs-amt" style="color:var(--green)">17,500</span></div>
+              <div class="fs-section">Financing</div>
+              <div class="fs-row"><span class="ind">Proceeds — common stock</span><span class="fs-amt">10,000</span></div>
+              <div class="fs-row"><span class="ind">Proceeds — note payable</span><span class="fs-amt">5,000</span></div>
+              <div class="fs-row subtotal"><span class="ind" style="padding-left:22px">Net Financing</span><span class="fs-amt" style="color:var(--green)">15,000</span></div>
+              <div class="fs-row total"><span>Ending Cash</span><span class="fs-amt">$32,500</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 8: Closing -->
+      <div class="step-view" id="step-8">
+        <div class="step-hdr">
+          <div class="step-icon" style="background:#fce7f3">🔒</div>
+          <div>
+            <div class="step-badge">Step 8 of 9</div>
+            <h2>Closing Entries</h2>
+            <p>Reset all <strong>temporary accounts</strong> (revenues, expenses) to zero so they start fresh next period. Permanent accounts carry their balances forward.</p>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+          <div style="background:#dbeafe;border:1.5px solid #93c5fd;border-radius:8px;padding:11px;font-size:.76rem">
+            <div style="font-weight:800;color:#1e40af;margin-bottom:3px">🔄 Temporary — Closed to $0</div>
+            <div style="color:#1e3a8a;line-height:1.8">Service Revenue · Supplies Expense<br>Interest Expense</div>
+          </div>
+          <div style="background:#d1fae5;border:1.5px solid #6ee7b7;border-radius:8px;padding:11px;font-size:.76rem">
+            <div style="font-weight:800;color:#065f46;margin-bottom:3px">✅ Permanent — Carry Forward</div>
+            <div style="color:#064e3b;line-height:1.8">Cash · Supplies · Notes Payable<br>Interest Payable · Unearned Rev. · Common Stock · Retained Earnings</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>Four Closing Entries — October 31, 2022</div>
+          <table class="jtbl">
+            <thead><tr><th>Date</th><th>Account</th><th style="text-align:right">Debit</th><th style="text-align:right">Credit</th></tr></thead>
+            <tbody>
+              <tr><td colspan="4" style="padding:4px 10px;background:#f0f9ff;font-size:.7rem;font-weight:700;color:#1e40af">① Close Revenue → Income Summary</td></tr>
+              <tr class="dr arow"><td class="edate">Oct 31</td><td>Service Revenue</td><td class="amt">12,000</td><td></td></tr>
+              <tr class="cr arow"><td></td><td style="padding-left:26px;font-style:italic;color:var(--gray4)">Income Summary</td><td></td><td class="amt" style="color:var(--gray4)">12,000</td></tr>
+              <tr class="esep"><td colspan="4"></td></tr>
+
+              <tr><td colspan="4" style="padding:4px 10px;background:#fff7ed;font-size:.7rem;font-weight:700;color:#c2410c">② Close Expenses → Income Summary</td></tr>
+              <tr class="dr arow"><td class="edate">Oct 31</td><td>Income Summary</td><td class="amt">1,550</td><td></td></tr>
+              <tr class="cr arow"><td></td><td style="padding-left:26px;font-style:italic;color:var(--gray4)">Supplies Expense</td><td></td><td class="amt" style="color:var(--gray4)">1,500</td></tr>
+              <tr class="cr arow"><td></td><td style="padding-left:26px;font-style:italic;color:var(--gray4)">Interest Expense</td><td></td><td class="amt" style="color:var(--gray4)">50</td></tr>
+              <tr class="esep"><td colspan="4"></td></tr>
+
+              <tr><td colspan="4" style="padding:4px 10px;background:#f0fdf4;font-size:.7rem;font-weight:700;color:#166534">③ Close Income Summary → Retained Earnings (Net Income = $10,450)</td></tr>
+              <tr class="dr arow"><td class="edate">Oct 31</td><td>Income Summary</td><td class="amt">10,450</td><td></td></tr>
+              <tr class="cr arow"><td></td><td style="padding-left:26px;font-style:italic;color:var(--gray4)">Retained Earnings</td><td></td><td class="amt" style="color:var(--gray4)">10,450</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--green)"></span>Flow of Closing Entries</div>
+          <div class="close-flow">
+            <div class="close-box"><div class="close-box-hdr" style="background:var(--amber)">Revenue</div><div class="close-box-body">Service Rev<br>$12,000 → $0</div></div>
+            <div class="close-arrow">↘</div>
+            <div class="close-box"><div class="close-box-hdr" style="background:var(--blue)">Income Summary</div><div class="close-box-body">Rev: 12,000<br>Exp: (1,550)<br>Net: $10,450</div></div>
+            <div class="close-arrow">→</div>
+            <div class="close-box"><div class="close-box-hdr" style="background:var(--green)">Retained Earnings</div><div class="close-box-body">$0 + $10,450<br>= $10,450</div></div>
+            <div class="close-arrow">↗</div>
+            <div class="close-box"><div class="close-box-hdr" style="background:var(--red)">Expenses</div><div class="close-box-body">All Expenses<br>$1,550 → $0</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 9: Post-Closing -->
+      <div class="step-view" id="step-9">
+        <div class="step-hdr">
+          <div class="step-icon" style="background:#ecfdf5">🏁</div>
+          <div>
+            <div class="step-badge">Step 9 of 9</div>
+            <h2>Post-Closing Trial Balance</h2>
+            <p>Final check — only <strong>permanent accounts</strong> remain. Temporary accounts are gone. The ledger is balanced and ready for November.</p>
+          </div>
+        </div>
+        <div class="concept">🎯 <strong>Cycle Complete!</strong> Pioneer Advertising carries its permanent balances into November. The $10,450 Retained Earnings represents October's accumulated profits.</div>
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>Post-Closing Trial Balance — October 31, 2022</div>
+          <table class="jtbl">
+            <thead><tr><th>Account (Permanent Only)</th><th style="text-align:right">Debit</th><th style="text-align:right">Credit</th></tr></thead>
+            <tbody>
+              <tr class="arow" style="animation-delay:.04s"><td>Cash</td><td class="amt">$32,500</td><td></td></tr>
+              <tr class="arow" style="animation-delay:.08s"><td>Advertising Supplies</td><td class="amt">1,000</td><td></td></tr>
+              <tr class="arow" style="animation-delay:.12s"><td>Notes Payable</td><td></td><td class="amt">$5,000</td></tr>
+              <tr class="arow" style="animation-delay:.16s"><td>Interest Payable</td><td></td><td class="amt">50</td></tr>
+              <tr class="arow" style="animation-delay:.20s"><td>Unearned Service Revenue</td><td></td><td class="amt">8,000</td></tr>
+              <tr class="arow" style="animation-delay:.24s"><td>Common Stock</td><td></td><td class="amt">10,000</td></tr>
+              <tr class="arow highlight-row" style="animation-delay:.28s"><td>Retained Earnings <span style="font-size:.63rem;color:var(--green)">← carries forward</span></td><td></td><td class="amt">10,450</td></tr>
+              <tr style="background:#f0fdf4" class="arow" style="animation-delay:.36s">
+                <td style="font-weight:800">TOTALS</td>
+                <td class="amt" style="font-weight:800;color:var(--green)">$33,500</td>
+                <td class="amt" style="font-weight:800;color:var(--green)">$33,500</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="font-size:.7rem;color:var(--gray3);margin-top:8px;font-style:italic">Service Revenue, Supplies Expense, and Interest Expense are absent — all closed to $0.</p>
+        </div>
+        <div style="background:linear-gradient(135deg,#1e3a8a,#0d9488);color:white;border-radius:11px;padding:18px;text-align:center;margin-top:4px">
+          <div style="font-size:1.2rem;font-weight:800;margin-bottom:7px">🎉 October Cycle Complete</div>
+          <div style="opacity:.85;font-size:.82rem;line-height:1.6">All 9 steps finished. November begins with permanent balances only.<br>Retained Earnings = $10,450 carries the month's profit forward.</div>
+          <div style="margin-top:10px;font-size:.72rem;opacity:.6;font-style:italic">Kieso, Weygandt &amp; Warfield · Intermediate Accounting 18th Ed. · Chapter 2</div>
+        </div>
+      </div>
+
+    </div><!-- end content -->
+  </div><!-- end layout -->
+
+  <!-- nav -->
+  <div class="nav">
+    <button class="nbtn nbtn-prev" id="btnPrev" onclick="navigate(-1)">← Previous</button>
+    <div class="nav-ind" id="navInd">Introduction</div>
+    <button class="nbtn nbtn-next" id="btnNext" onclick="navigate(1)">Next →</button>
+  </div>
+</div><!-- end shell -->
+
+<script>
+// ── Step definitions ──────────────────────────────────────────
+const STEPS = [
+  {id:0, label:'Introduction',              short:'Intro'},
+  {id:1, label:'Identify Transactions',     short:'Identify'},
+  {id:2, label:'Journalize',                short:'Journal'},
+  {id:3, label:'Post to Ledger',            short:'Post'},
+  {id:4, label:'Trial Balance',             short:'Trial Bal.'},
+  {id:5, label:'Adjusting Entries',         short:'Adjust'},
+  {id:6, label:'Adjusted Trial Balance',    short:'Adj. TB'},
+  {id:7, label:'Financial Statements',      short:'Fin. Stmts'},
+  {id:8, label:'Closing Entries',           short:'Close'},
+  {id:9, label:'Post-Closing Trial Balance',short:'Post-Close'},
+];
+
+let current = 0;
+
+// ── Build wheel nodes ─────────────────────────────────────────
+const wc = document.getElementById('wheelNodes');
+STEPS.slice(1).forEach((s, i) => {
+  const a = (i / 9) * 2 * Math.PI - Math.PI / 2;
+  const r = 80, cx = 115, cy = 115;
+  const x = cx + r * Math.cos(a) - 23;
+  const y = cy + r * Math.sin(a) - 23;
+  const n = document.createElement('div');
+  n.className = 'wnode'; n.id = `wn-${s.id}`;
+  n.style.cssText = `left:${x}px;top:${y}px;position:absolute`;
+  n.innerHTML = `<span class="wn">${s.id}</span><span style="font-size:.5rem;line-height:1.1">${s.short}</span>`;
+  n.onclick = () => goTo(s.id);
+  wc.appendChild(n);
+});
+
+// ── Build step list ───────────────────────────────────────────
+const sl = document.getElementById('stepList');
+STEPS.forEach(s => {
+  const el = document.createElement('div');
+  el.className = 'sitem'; el.id = `si-${s.id}`;
+  el.onclick = () => goTo(s.id);
+  el.innerHTML = `<div class="sbubble" id="sb-${s.id}">${s.id===0?'●':s.id}</div><div class="slabel">${s.label}</div>`;
+  sl.appendChild(el);
+});
+
+// ── Build progress bar ────────────────────────────────────────
+const pt = document.getElementById('progTrack');
+STEPS.forEach((s, i) => {
+  const p = document.createElement('div');
+  p.className = 'prog-step'; p.id = `ps-${s.id}`; p.onclick = () => goTo(s.id);
+  p.innerHTML = `<div class="prog-dot" id="pd-${s.id}">${s.id===0?'●':s.id}</div>${i<STEPS.length-1?'<div class="prog-line" id="pl-'+s.id+'"></div>':''}<div class="prog-label">${s.short}</div>`;
+  pt.appendChild(p);
+});
+
+// ── Build step pills (intro) ──────────────────────────────────
+const pp = document.getElementById('stepPills');
+if(pp) STEPS.slice(1).forEach(s => {
+  const el = document.createElement('div');
+  el.className = 'pill'; el.onclick = () => goTo(s.id);
+  el.innerHTML = `<span class="pill-n">${s.id}</span><span>${s.label}</span>`;
+  pp.appendChild(el);
+});
+
+// ── Navigation ────────────────────────────────────────────────
+function goTo(idx) {
+  document.getElementById(`step-${current}`).classList.remove('visible');
+  current = idx;
+  document.getElementById(`step-${current}`).classList.add('visible');
+  document.getElementById('contentPanel').scrollTo(0,0);
+  updateUI();
+}
+function navigate(d) { const n = current+d; if(n>=0 && n<STEPS.length) goTo(n); }
+
+function updateUI() {
+  STEPS.forEach(s => {
+    const wn = document.getElementById(`wn-${s.id}`);
+    const si = document.getElementById(`si-${s.id}`);
+    const ps = document.getElementById(`ps-${s.id}`);
+    const sb = document.getElementById(`sb-${s.id}`);
+    const pl = document.getElementById(`pl-${s.id}`);
+
+    const isActive = s.id === current;
+    const isDone   = s.id < current;
+
+    if(wn){ wn.className = 'wnode' + (isActive?' active':isDone&&s.id>0?' done':''); }
+    if(si){ si.className = 'sitem' + (isActive?' active':isDone?' done':''); }
+    if(ps){ ps.className = 'prog-step' + (isActive?' active':isDone?' done':''); }
+    if(sb){ sb.textContent = isDone ? '✓' : s.id===0 ? '●' : s.id; }
+    if(pl){ pl.style.background = isDone ? 'var(--teal)' : '#334155'; }
+  });
+  document.getElementById('btnPrev').disabled = current===0;
+  document.getElementById('btnNext').disabled = current===STEPS.length-1;
+  document.getElementById('navInd').textContent = current===0 ? 'Introduction' : `Step ${current} of 9 — ${STEPS[current].label}`;
+}
+
+// ── Adjusted Trial Balance — Interactive Diff ─────────────────
+// State: which AJEs have been applied
+const ajeApplied = [false, false, false];
+
+// TB row definitions
+// format: { id, account, dr, cr, drAdj, crAdj, type }
+// type: 'up'=balance increases after adj, 'down'=decreases, 'new'=new row added by AJE
+const TB_BASE = [
+  {id:'cash',     account:'Cash',                    dr:'32,500', cr:'',       drAdj:'32,500', crAdj:'',       ajeIdx:-1, change:null},
+  {id:'supplies', account:'Advertising Supplies',    dr:'2,500',  cr:'',       drAdj:'1,000',  crAdj:'',       ajeIdx:0,  change:'down'},
+  {id:'notes',    account:'Notes Payable',           dr:'',       cr:'5,000',  drAdj:'',       crAdj:'5,000',  ajeIdx:-1, change:null},
+  {id:'intpay',   account:'Interest Payable',        dr:'',       cr:'',       drAdj:'',       crAdj:'50',     ajeIdx:1,  change:'new-credit', newRow:true},
+  {id:'unearned', account:'Unearned Service Revenue',dr:'',       cr:'12,000', drAdj:'',       crAdj:'8,000',  ajeIdx:2,  change:'down'},
+  {id:'stock',    account:'Common Stock',            dr:'',       cr:'10,000', drAdj:'',       crAdj:'10,000', ajeIdx:-1, change:null},
+  {id:'svcrev',   account:'Service Revenue',         dr:'',       cr:'8,000',  drAdj:'',       crAdj:'12,000', ajeIdx:2,  change:'up'},
+  {id:'supexp',   account:'Supplies Expense',        dr:'',       cr:'',       drAdj:'1,500',  crAdj:'',       ajeIdx:0,  change:'new-debit',  newRow:true},
+  {id:'intexp',   account:'Interest Expense',        dr:'',       cr:'',       drAdj:'50',     crAdj:'',       ajeIdx:1,  change:'new-debit',  newRow:true},
+];
+
+function fmt(v) { return v === '' ? '' : v; }
+
+function renderTB() {
+  const tbody = document.getElementById('tbBody');
+  tbody.innerHTML = '';
+
+  // Which rows are visible: base rows always show; newRow rows only show if their AJE is applied
+  const visible = TB_BASE.filter(r => !r.newRow || ajeApplied[r.ajeIdx]);
+
+  // Compute current values for each row
+  visible.forEach(r => {
+    const applied = r.ajeIdx === -1 || ajeApplied[r.ajeIdx];
+    const dr = applied ? r.drAdj : r.dr;
+    const cr = applied ? r.crAdj : r.cr;
+
+    // Determine flash class
+    let rowClass = '';
+    let drClass = '', crClass = '';
+    if (r.ajeIdx !== -1 && ajeApplied[r.ajeIdx]) {
+      if (r.change === 'new-debit' || r.change === 'new-credit') {
+        rowClass = 'row-new'; drClass = 'val-new'; crClass = 'val-new';
+      } else if (r.change === 'up') {
+        rowClass = 'row-up'; crClass = 'val-up';
+      } else if (r.change === 'down') {
+        rowClass = 'row-down';
+        if (dr !== r.dr) drClass = 'val-down';
+        if (cr !== r.cr) crClass = 'val-down';
+      }
+    }
+
+    const tr = document.createElement('tr');
+    tr.id = `tbr-${r.id}`;
+    if (rowClass) tr.className = rowClass;
+    tr.innerHTML = `
+      <td>${r.account}</td>
+      <td class="amt ${drClass}">${dr ? '$' + dr : ''}</td>
+      <td class="amt ${crClass}">${cr ? '$' + cr : ''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Totals
+  // Unadjusted: Dr = 35,000 / Cr = 35,000
+  // After AJE1: Dr = 35,000 (supplies -1500, supexp +1500) / Cr = 35,000
+  // After AJE2: Dr = 35,050 (+50 intexp) / Cr = 35,050 (+50 intpay)
+  // After AJE3: Dr = 35,050 / Cr = 35,050 (unearned -4000, svcrev +4000)
+  let dr = 35000, cr = 35000;
+  if (ajeApplied[1]) { dr += 50; cr += 50; }
+
+  const fmtTotal = n => n.toLocaleString();
+  const totRow = document.createElement('tr');
+  totRow.className = 'total-row';
+  totRow.innerHTML = `<td style="font-weight:800">TOTALS</td><td class="amt" style="font-weight:800;color:var(--green)">$${fmtTotal(dr)}</td><td class="amt" style="font-weight:800;color:var(--green)">$${fmtTotal(cr)}</td>`;
+  tbody.appendChild(totRow);
+
+  // Update status label and title
+  const allDone = ajeApplied.every(Boolean);
+  const noneDone = ajeApplied.every(v => !v);
+  document.getElementById('tb-status').textContent = allDone ? '✅ Adjusted' : noneDone ? 'Unadjusted' : 'Partially Adjusted';
+  document.getElementById('tb-title').textContent = allDone
+    ? 'Pioneer Advertising — Adjusted Trial Balance — Oct 31, 2022'
+    : 'Pioneer Advertising — Unadjusted Trial Balance — Oct 31, 2022';
+}
+
+function applyAJE(idx) {
+  if (ajeApplied[idx]) return; // already applied
+  ajeApplied[idx] = true;
+
+  const card = document.getElementById(`aje-card-${idx}`);
+  const btn  = document.getElementById(`aje-btn-${idx}`);
+  card.classList.add('applied');
+  card.classList.remove('active-aje');
+  btn.textContent = 'Applied ✓';
+  btn.disabled = true;
+
+  const remaining = ajeApplied.filter(Boolean).length;
+  const hint = document.getElementById('ajeHint');
+  if (ajeApplied.every(Boolean)) {
+    hint.textContent = '✅ All adjustments applied!';
+    hint.style.color = 'var(--teal)';
+    const cta = document.getElementById('aje-cta');
+    if (cta) cta.style.display = 'none';
+  } else {
+    hint.textContent = `${remaining}/3 applied — keep going`;
+  }
+
+  renderTB();
+
+  // Flash newly changed rows
+  setTimeout(() => {
+    TB_BASE.filter(r => r.ajeIdx === idx || r.ajeIdx === idx).forEach(r => {
+      const el = document.getElementById(`tbr-${r.id}`);
+      if (el) { el.style.transition = 'background 1.5s'; }
+    });
+  }, 600);
+}
+
+function resetAJEs() {
+  ajeApplied[0] = ajeApplied[1] = ajeApplied[2] = false;
+  [0,1,2].forEach(i => {
+    const card = document.getElementById(`aje-card-${i}`);
+    const btn  = document.getElementById(`aje-btn-${i}`);
+    card.classList.remove('applied','active-aje');
+    btn.textContent = 'Apply →';
+    btn.disabled = false;
+  });
+  const hint = document.getElementById('ajeHint');
+  hint.textContent = 'Click an entry above to apply it';
+  hint.style.color = '';
+  renderTB();
+}
+
+// Initialise TB on load
+document.addEventListener('DOMContentLoaded', () => {
+  renderTB();
+  updateUI();
+});
+
+// Also render if step 6 is navigated to
+const origGoTo = goTo;
+
+// Keyboard nav
+document.addEventListener('keydown', e => {
+  if (e.key==='ArrowRight'||e.key==='ArrowDown') navigate(1);
+  if (e.key==='ArrowLeft' ||e.key==='ArrowUp')   navigate(-1);
+});
+
+updateUI();
+</script>
+</body>
+</html>

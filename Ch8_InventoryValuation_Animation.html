@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventory Valuation | Kieso Ch. 8</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.2rem; font-weight: 800; }
+  .header p  { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab  { padding: 11px 18px; font-size: .88rem; font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; }
+  .tab:hover  { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+  .panel { display: none; max-width: 960px; margin: 0 auto; padding: 24px 16px 90px; }
+  .panel.active { display: block; }
+
+  .sec-title { font-size: 1.35rem; font-weight: 800; margin-bottom: 8px; }
+  .sec-sub   { font-size: .97rem; color: #475569; margin-bottom: 22px; line-height: 1.7; }
+  .quote { background: white; border-left: 4px solid #3b82f6; border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: .95rem; color: #334155; line-height: 1.7; margin-bottom: 22px; }
+  .quote strong { color: #1d4ed8; }
+
+  /* ── Concept cards ── */
+  .concept-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  @media(max-width:560px) { .concept-grid { grid-template-columns: 1fr; } }
+  .concept-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.07); }
+  .concept-hdr  { padding: 12px 16px; color: white; font-weight: 800; font-size: .95rem; }
+  .concept-body { padding: 14px 16px; font-size: .87rem; color: #475569; line-height: 1.65; }
+  .concept-body strong { color: #1e293b; }
+  .lcnrv-card .concept-hdr   { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+  .formula { background: #1e293b; color: #fef3c7; padding: 10px 14px; border-radius: 8px; font-family: monospace; font-size: .9rem; text-align: center; margin: 10px 0; font-weight: 700; }
+
+  .principle-card { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; border-radius: 10px; padding: 14px 18px; margin-bottom: 22px; font-size: .92rem; color: #78350f; line-height: 1.65; }
+  .principle-card strong { color: #92400e; }
+
+  /* ── LCNRV Table ── */
+  .lc-table-wrap { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 3px 14px rgba(0,0,0,.08); margin-bottom: 14px; }
+  .lc-table-hdr { background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: white; padding: 12px 18px; }
+  .lc-table-hdr h3 { font-size: 1rem; font-weight: 900; }
+  .lc-table-hdr p  { font-size: .82rem; opacity: .85; margin-top: 2px; }
+  .lc-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .lc-table thead th { background: #f8fafc; padding: 10px 12px; font-size: .76rem; font-weight: 800; text-transform: uppercase; letter-spacing: .4px; color: #475569; border-bottom: 2px solid #e2e8f0; text-align: right; }
+  .lc-table thead th:first-child { text-align: left; }
+  .lc-table tbody td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-family: monospace; font-weight: 700; text-align: right; }
+  .lc-table tbody td:first-child { font-family: 'Segoe UI', sans-serif; text-align: left; color: #334155; }
+  .lc-table tbody tr.locked { opacity: .55; }
+  .lc-table tbody tr.active { background: #fef3c7; }
+  .lc-table tbody tr.done  { background: #f0fdf4; }
+  .lc-table .lc-cost.win   { color: #1d4ed8; font-weight: 900; background: #dbeafe; border-radius: 4px; padding: 4px 8px; display: inline-block; }
+  .lc-table .lc-nrv.win    { color: #15803d; font-weight: 900; background: #dcfce7; border-radius: 4px; padding: 4px 8px; display: inline-block; }
+  .lc-table .lc-lower      { color: #92400e; font-weight: 900; }
+  .lc-table .dm-mid        { color: #92400e; font-weight: 900; background: #fef3c7; border: 2px solid #f59e0b; border-radius: 4px; padding: 3px 7px; display: inline-block; }
+  .lc-table .dm-muted      { color: #94a3b8; }
+  .lc-table tbody td.dm-choice-cell  { background: #eff6ff; box-shadow: inset 0 0 0 2px #93c5fd; }
+  .lc-table tbody td.lcm-compare-cell { background: #fff7ed; box-shadow: inset 0 0 0 2px #fdba74; }
+  .lc-table .lc-wd-zero    { color: #94a3b8; }
+  .lc-table .lc-wd-real    { color: #b91c1c; font-weight: 900; }
+  .lc-totals-row td { background: #1e293b; color: white; font-weight: 900; font-size: .95rem; padding: 12px; border-bottom: none; }
+  .lc-totals-row td:first-child { text-align: left; }
+  .lc-totals-row .lc-wd-final { color: #fbbf24; }
+
+  /* ── JE Box ── */
+  .je-box { background: white; border-radius: 10px; padding: 16px 20px; box-shadow: 0 2px 10px rgba(0,0,0,.08); margin-top: 14px; display: none; }
+  .je-box.show { display: block; animation: rowIn .5s ease both; }
+  .je-box h4 { font-size: .95rem; font-weight: 800; margin-bottom: 10px; color: #1e293b; }
+  .je-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .je-table td { padding: 6px 8px; }
+  .je-dr { color: #1d4ed8; font-weight: 700; }
+  .je-cr { color: #15803d; font-weight: 700; padding-left: 24px; font-style: italic; }
+  .je-amt { text-align: right; font-family: monospace; font-weight: 700; }
+
+  /* ── Step controls (LCNRV) ── */
+  .step-ctrl { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; margin-top: 14px; }
+  .sc-btn { padding: 11px 22px; border-radius: 9px; border: none; font-weight: 700; font-size: .88rem; cursor: pointer; transition: all .15s; }
+  .sc-step {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white; font-weight: 900;
+    padding: 13px 24px; font-size: .92rem; min-width: 240px;
+    box-shadow: 0 4px 14px rgba(245,158,11,.45);
+    animation: stepPulse 1.6s ease-in-out infinite;
+  }
+  .sc-step:hover:not(:disabled) { background: linear-gradient(135deg, #d97706, #dc2626); transform: translateY(-1px); }
+  .sc-step:disabled { animation: none; box-shadow: none; background: #94a3b8; }
+  .sc-reset { background: #475569; color: white; padding: 9px 18px; font-size: .82rem; }
+  .sc-reset:hover { background: #334155; }
+  .sc-btn:disabled { opacity: .55; cursor: default; }
+  @keyframes stepPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(245,158,11,.45); }
+    50%      { box-shadow: 0 4px 20px rgba(239,68,68,.7), 0 0 0 4px rgba(245,158,11,.18); }
+  }
+
+  /* status (LCNRV) */
+  .status-card { background: white; border-radius: 10px; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); margin-bottom: 14px; font-size: .92rem; color: #334155; line-height: 1.6; border-left: 4px solid #3b82f6; min-height: 60px; }
+  .status-card strong { color: #1e293b; }
+
+  #tab-0 { padding-top: 16px; }
+  #tab-0 .sec-sub { margin-bottom: 10px; }
+  #tab-0 .step-ctrl { margin: 6px 0 10px; }
+  #tab-0 .status-card { padding: 10px 14px; margin-bottom: 10px; min-height: 48px; font-size: .86rem; line-height: 1.45; }
+  #tab-0 .principle-card { padding: 10px 14px; margin-bottom: 12px; font-size: .86rem; line-height: 1.45; }
+
+  @keyframes rowIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── Quiz ── */
+  .quiz-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .q-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .q-num  { font-size: .72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+  .q-text { font-size: 1rem; font-weight: 700; margin-bottom: 14px; }
+  .q-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .q-opt  { padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f8fafc; font-size: .88rem; font-weight: 600; cursor: pointer; transition: all .15s; text-align: left; color: #334155; }
+  .q-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .q-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-opt.wrong   { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
+  .q-opt:disabled { cursor: default; }
+  .q-explain { margin-top: 10px; font-size: .85rem; padding: 9px 13px; border-radius: 7px; display: none; }
+  .q-explain.show { display: block; }
+  .q-explain.ok  { background: #dcfce7; color: #15803d; }
+  .q-explain.bad { background: #fee2e2; color: #991b1b; }
+  .score-line { text-align: center; font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
+
+  /* ── Nav ── */
+  .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; }
+  .nav-btn { padding: 9px 22px; border-radius: 8px; border: none; font-weight: 700; font-size: .85rem; cursor: pointer; }
+  .nav-btn.prev { background: #1e293b; color: #94a3b8; }
+  .nav-btn.prev:hover:not(:disabled) { background: #334155; }
+  .nav-btn.nxt  { background: #3b82f6; color: white; }
+  .nav-btn.nxt:hover:not(:disabled)  { background: #2563eb; }
+  .nav-btn:disabled { opacity: .4; cursor: default; }
+  .nav-ind { font-size: .8rem; color: #64748b; font-weight: 600; }
+
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>📦 Inventory Valuation Issues</h1>
+  <p>Kieso, Weygandt &amp; Warfield · Intermediate Accounting 18th Ed. · Chapter 8 · Boc Apparel, Inc.</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab(0)">① LCNRV — Item by Item</div>
+  <div class="tab"        onclick="showTab(1)">② LCM — Cost vs Market</div>
+  <div class="tab"        onclick="showTab(2)">③ Self-Check</div>
+</div>
+
+<!-- ═══════════════════════════
+     TAB 0 — LCM (Lower of Cost or Market)
+═══════════════════════════ -->
+<div class="panel" id="tab-0">
+  <div class="sec-title">Lower of Cost or Market (LCM)</div>
+  <div class="sec-sub">
+    Unlike LCNRV, "market" here is more nuanced — it is the <strong style="font-size:1.18em;text-transform:uppercase;color:#b45309">middle</strong>
+    of three values: Replacement Cost, a Ceiling, and a Floor.
+  </div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="lcmStepBtn" onclick="lcmStep()">Step 1: Choose Designated Market →</button>
+    <button class="sc-btn sc-reset" onclick="resetLCM()">↺ Reset</button>
+  </div>
+
+  <div class="status-card" id="lcmStatus">
+    <strong>Ready to start:</strong> Click <em>Step 1: Choose Designated Market</em>. For each item we will first
+    choose the <em>middle number</em> out of Replacement Cost, Ceiling, and Floor. Then Step 2 compares that market with Cost and chooses the lower number.
+  </div>
+
+  <div class="principle-card">
+    <strong>The Designated Market Rule:</strong>
+    <div style="margin-top:6px;line-height:1.7">
+      <strong>Market = Replacement Cost</strong>, but bounded:<br>
+      &nbsp;&nbsp;• <strong>Ceiling</strong> = Net Realizable Value (Selling price − Completion &amp; selling costs)<br>
+      &nbsp;&nbsp;• <strong>Floor</strong> = NRV − Normal Profit Margin
+    </div>
+    <div style="margin-top:8px">
+      Then: <strong>compare Cost with the Designated Market and use whichever amount is lower.</strong>
+    </div>
+  </div>
+
+  <div class="lc-table-wrap">
+    <div class="lc-table-hdr">
+      <h3>Boc Apparel — LIFO Inventory at Year-End</h3>
+      <p>December 31, 2022 · Apply LCM item by item</p>
+    </div>
+    <div style="overflow-x:auto">
+    <table class="lc-table" id="lcmTable">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Cost</th>
+          <th>Repl. Cost</th>
+          <th>Ceiling (NRV)</th>
+          <th>Floor (NRV−NP)</th>
+          <th>Designated Market</th>
+          <th>LCM</th>
+          <th>Write-Down</th>
+        </tr>
+      </thead>
+      <tbody id="lcmBody"></tbody>
+      <tfoot>
+        <tr class="lc-totals-row">
+          <td>Totals</td>
+          <td id="lcmTotCost">$60,000</td>
+          <td colspan="4" style="background:#334155">—</td>
+          <td id="lcmTotLCM">—</td>
+          <td id="lcmTotWD" class="lc-wd-final">—</td>
+        </tr>
+      </tfoot>
+    </table>
+    </div>
+  </div>
+
+  <!-- Journal Entry -->
+  <div class="je-box" id="lcmJE">
+    <h4>Journal Entry — Year-End LCM Write-Down</h4>
+    <table class="je-table">
+      <tr><td style="width:80px;color:#64748b;font-size:.82rem">Dec. 31</td><td class="je-dr">Loss on Inventory Write-Down <span style="font-size:.7rem;color:#94a3b8">(IS)</span></td><td class="je-amt" style="color:#1d4ed8" id="lcmJEDr">—</td><td></td></tr>
+      <tr><td></td><td class="je-cr">Allowance to Reduce Inventory to Market <span style="font-size:.7rem;color:#94a3b8">(BS contra-asset)</span></td><td></td><td class="je-amt" style="color:#15803d" id="lcmJECr">—</td></tr>
+      <tr><td></td><td colspan="3" style="font-size:.78rem;color:#94a3b8;font-style:italic">To record decline in inventory value to designated market.</td></tr>
+    </table>
+    <div style="margin-top:10px;font-size:.82rem;color:#475569;line-height:1.55" id="lcmJEEffect"></div>
+  </div>
+
+  <div style="margin-top:18px;background:white;border-radius:10px;padding:14px 18px;box-shadow:0 2px 8px rgba(0,0,0,.07);font-size:.88rem;color:#475569;line-height:1.7">
+    <strong style="color:#1e293b">LCM vs LCNRV — when to use which?</strong>
+    Under current U.S. GAAP, <strong>LCM</strong> applies only to inventory measured using <strong>LIFO</strong>
+    or the <strong>Retail Inventory Method</strong>. All other inventory (FIFO, weighted average) uses the
+    simpler <strong>LCNRV</strong> rule shown in the previous tab. Under IFRS, LCNRV is always used.
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     TAB 1 — LCNRV Item by Item
+═══════════════════════════ -->
+<div class="panel active" id="tab-1">
+  <div class="sec-title">LCNRV — Apply Item by Item</div>
+  <div class="sec-sub">
+    Boc Apparel has 5 inventory categories at year-end. For each, compare <strong>Cost</strong> to
+    <strong>Net Realizable Value</strong> (NRV) and pick the lower. Click the button to step through each item
+    one at a time and watch the total write-down build.
+  </div>
+
+  <div class="lc-table-wrap">
+    <div class="lc-table-hdr">
+      <h3>Boc Apparel — Year-End Inventory</h3>
+      <p>December 31, 2022 · Apply LCNRV item by item</p>
+    </div>
+    <table class="lc-table" id="lcTable">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Cost</th>
+          <th>NRV</th>
+          <th>LCNRV</th>
+          <th>Write-Down</th>
+        </tr>
+      </thead>
+      <tbody id="lcBody"></tbody>
+      <tfoot>
+        <tr class="lc-totals-row">
+          <td>Totals</td>
+          <td id="totCost">$60,000</td>
+          <td id="totNRV">$56,200</td>
+          <td id="totLCNRV">—</td>
+          <td id="totWD" class="lc-wd-final">—</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="status-card" id="lcStatus">
+    <strong>Ready to start:</strong> Click <em>Apply LCNRV to Next Item</em> to compare each item's Cost vs NRV.
+    The lower of the two becomes the carrying value; the difference (if NRV is lower) is a write-down.
+  </div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="lcStepBtn" onclick="lcStep()">Apply LCNRV to Next Item →</button>
+    <button class="sc-btn sc-reset" onclick="resetLC()">↺ Reset</button>
+  </div>
+
+  <!-- Journal Entry -->
+  <div class="je-box" id="lcJE">
+    <h4>Journal Entry — Year-End Inventory Write-Down</h4>
+    <table class="je-table">
+      <tr><td style="width:80px;color:#64748b;font-size:.82rem">Dec. 31</td><td class="je-dr">Loss on Inventory Write-Down <span style="font-size:.7rem;color:#94a3b8">(IS)</span></td><td class="je-amt" style="color:#1d4ed8">4,300</td><td></td></tr>
+      <tr><td></td><td class="je-cr">Allowance to Reduce Inventory to NRV <span style="font-size:.7rem;color:#94a3b8">(BS contra-asset)</span></td><td></td><td class="je-amt" style="color:#15803d">4,300</td></tr>
+      <tr><td></td><td colspan="3" style="font-size:.78rem;color:#94a3b8;font-style:italic">To record decline in inventory value to LCNRV.</td></tr>
+    </table>
+    <div style="margin-top:10px;font-size:.82rem;color:#475569;line-height:1.55">
+      <strong style="color:#1e293b">Effect:</strong> Inventory is reported at $55,700 (= $60,000 cost − $4,300 allowance) on the Balance Sheet.
+      The $4,300 loss reduces Net Income on the Income Statement.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     TAB 3 — Quiz
+═══════════════════════════ -->
+<div class="panel" id="tab-3">
+  <div class="sec-title">Practice — Inventory Valuation</div>
+  <div class="sec-sub">Test your understanding of LCNRV and LCM inventory valuation.</div>
+  <div class="score-line">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <br>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</div>
+
+<!-- Nav -->
+<div class="nav-bar">
+  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>← Previous</button>
+  <span class="nav-ind" id="navInd">Tab 1 of 3 — LCNRV — Item by Item</span>
+  <button class="nav-btn nxt"  id="btnNext" onclick="navigate(1)">Next →</button>
+</div>
+
+<script>
+// ── Tabs ──
+const TABS = ['LCNRV — Item by Item','LCM — Cost vs Market','Self-Check'];
+const PANEL_ORDER = ['tab-1','tab-0','tab-3'];
+let cur = 0;
+function showTab(i) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === PANEL_ORDER[i]));
+  document.querySelectorAll('.tab').forEach((t,j)   => t.classList.toggle('active', j===i));
+  cur = i;
+  document.getElementById('btnPrev').disabled = i===0;
+  document.getElementById('btnNext').disabled = i===TABS.length-1;
+  document.getElementById('navInd').textContent = "Tab " + (i+1) + " of " + TABS.length + " — " + TABS[i];
+  if (i===2 && !quizBuilt) buildQuiz();
+}
+function navigate(d) { showTab(cur+d); }
+
+function fmt(n) { return '$' + n.toLocaleString('en-US'); }
+
+// ═══════════════════════════════════════════════
+// LCM — Lower of Cost or Market (with designated market)
+// ═══════════════════════════════════════════════
+const LCM_ITEMS = [
+  { name: 'Jeans',    cost: 12000, rc: 11500, ceiling: 14000, floor: 11000 },
+  { name: 'T-Shirts', cost:  8000, rc:  5500, ceiling:  7500, floor:  6500 },
+  { name: 'Jackets',  cost: 15000, rc: 16500, ceiling: 14000, floor: 12000 },
+  { name: 'Hats',     cost:  5000, rc:  5300, ceiling:  5500, floor:  4800 },
+  { name: 'Shoes',    cost: 20000, rc: 18500, ceiling: 19000, floor: 17000 },
+];
+
+function designatedMarket(item) {
+  // Middle of (RC, Ceiling, Floor): RC bounded by Floor and Ceiling
+  if (item.rc > item.ceiling) return { dm: item.ceiling, rule: 'Ceiling' };
+  if (item.rc < item.floor)   return { dm: item.floor,   rule: 'Floor' };
+  return { dm: item.rc, rule: 'Replacement Cost' };
+}
+
+let lcmStepIdx = 0;
+const LCM_TOTAL_STEPS = LCM_ITEMS.length * 2;
+
+function buildLCMTable() {
+  const tbody = document.getElementById('lcmBody');
+  tbody.innerHTML = '';
+  LCM_ITEMS.forEach((it, i) => {
+    const tr = document.createElement('tr');
+    tr.id = 'lcm-row-' + i;
+    tr.classList.add('locked');
+    tr.innerHTML =
+      '<td>' + it.name + '</td>' +
+      '<td>' + fmt(it.cost) + '</td>' +
+      '<td>' + fmt(it.rc) + '</td>' +
+      '<td>' + fmt(it.ceiling) + '</td>' +
+      '<td>' + fmt(it.floor) + '</td>' +
+      '<td id="lcm-dm-' + i + '">?</td>' +
+      '<td id="lcm-lcm-' + i + '">?</td>' +
+      '<td id="lcm-wd-' + i + '">?</td>';
+    tbody.appendChild(tr);
+  });
+
+  const totCost = LCM_ITEMS.reduce((s,i)=>s+i.cost, 0);
+  document.getElementById('lcmTotCost').textContent = fmt(totCost);
+  document.getElementById('lcmTotLCM').textContent  = '—';
+  document.getElementById('lcmTotWD').textContent   = '—';
+}
+
+function lcmCompletedItems() {
+  return Math.floor(lcmStepIdx / 2);
+}
+
+function lcmRunningTotals(count) {
+  let runLCM = 0, runWD = 0;
+  for (let k = 0; k < count; k++) {
+    const x = LCM_ITEMS[k];
+    const dmK = designatedMarket(x).dm;
+    const lcmK = Math.min(x.cost, dmK);
+    runLCM += lcmK;
+    runWD  += x.cost - lcmK;
+  }
+  return { runLCM, runWD };
+}
+
+function updateLCMRunningTotals(count) {
+  if (count <= 0) {
+    document.getElementById('lcmTotLCM').textContent = '—';
+    document.getElementById('lcmTotWD').textContent = '—';
+    return;
+  }
+  const totals = lcmRunningTotals(count);
+  document.getElementById('lcmTotLCM').textContent = fmt(totals.runLCM);
+  document.getElementById('lcmTotWD').textContent = totals.runWD > 0 ? fmt(totals.runWD) : '$0';
+}
+
+function finishLCM() {
+  document.getElementById('lcmStepBtn').disabled = true;
+  document.getElementById('lcmStepBtn').textContent = '✓ All Items Processed';
+  document.getElementById('lcmJE').classList.add('show');
+
+  const totalWD = LCM_ITEMS.reduce((s, x) => {
+    const dmX = designatedMarket(x).dm;
+    return s + (x.cost - Math.min(x.cost, dmX));
+  }, 0);
+  document.getElementById('lcmJEDr').textContent = totalWD.toLocaleString();
+  document.getElementById('lcmJECr').textContent = totalWD.toLocaleString();
+  const totalCost = LCM_ITEMS.reduce((s,x)=>s+x.cost, 0);
+  document.getElementById('lcmJEEffect').innerHTML =
+    '<strong style="color:#1e293b">Effect:</strong> Inventory is reported at ' + fmt(totalCost - totalWD) +
+    ' (= ' + fmt(totalCost) + ' cost − ' + fmt(totalWD) + ' allowance) on the Balance Sheet. ' +
+    'The ' + fmt(totalWD) + ' loss reduces Net Income.';
+}
+
+function lcmStep() {
+  if (lcmStepIdx >= LCM_TOTAL_STEPS) return;
+  const i = Math.floor(lcmStepIdx / 2);
+  const phase = lcmStepIdx % 2;
+  const it = LCM_ITEMS[i];
+  const dmInfo = designatedMarket(it);
+  const dm = dmInfo.dm;
+  const lcm = Math.min(it.cost, dm);
+  const wd  = it.cost - lcm;
+  const costWins = (it.cost <= dm);
+
+  const tr = document.getElementById('lcm-row-' + i);
+  tr.classList.remove('locked');
+  tr.classList.add('active');
+
+  const cells = tr.children;
+
+  if (phase === 0) {
+    cells[2].classList.add('dm-choice-cell');
+    cells[3].classList.add('dm-choice-cell');
+    cells[4].classList.add('dm-choice-cell');
+    cells[2].innerHTML = dmInfo.rule === 'Replacement Cost'
+      ? '<span class="dm-mid">' + fmt(it.rc) + '</span>'
+      : '<span class="dm-muted">' + fmt(it.rc) + '</span>';
+    cells[3].innerHTML = dmInfo.rule === 'Ceiling'
+      ? '<span class="dm-mid">' + fmt(it.ceiling) + '</span>'
+      : '<span class="dm-muted">' + fmt(it.ceiling) + '</span>';
+    cells[4].innerHTML = dmInfo.rule === 'Floor'
+      ? '<span class="dm-mid">' + fmt(it.floor) + '</span>'
+      : '<span class="dm-muted">' + fmt(it.floor) + '</span>';
+    cells[5].innerHTML = '<span class="lc-lower">' + fmt(dm) + '</span>';
+    cells[6].innerHTML = '?';
+    cells[7].innerHTML = '?';
+
+    const sorted = [it.rc, it.ceiling, it.floor].sort((a,b) => a-b);
+    document.getElementById('lcmStatus').innerHTML =
+      '<strong>Step 1 — ' + it.name + ':</strong> Choose the <strong>middle number</strong> out of Replacement Cost (' + fmt(it.rc) +
+      '), Ceiling (' + fmt(it.ceiling) + '), and Floor (' + fmt(it.floor) + '). Ordered low to high: ' +
+      fmt(sorted[0]) + ', <span class="lc-lower">' + fmt(sorted[1]) + '</span>, ' + fmt(sorted[2]) +
+      '. Therefore, Designated Market = <span class="lc-lower">' + fmt(dm) + '</span>.';
+
+    document.getElementById('lcmStepBtn').textContent = 'Step 2: Compare Market with Cost →';
+    lcmStepIdx++;
+    updateLCMRunningTotals(lcmCompletedItems());
+    return;
+  }
+
+  cells[2].classList.remove('dm-choice-cell');
+  cells[3].classList.remove('dm-choice-cell');
+  cells[4].classList.remove('dm-choice-cell');
+  cells[1].classList.add('lcm-compare-cell');
+  cells[5].classList.add('lcm-compare-cell');
+  cells[1].innerHTML = costWins
+    ? '<span class="lc-cost win">' + fmt(it.cost) + '</span>'
+    : fmt(it.cost);
+  cells[5].innerHTML = costWins
+    ? '<span class="lc-lower">' + fmt(dm) + '</span>'
+    : '<span class="lc-nrv win">' + fmt(dm) + '</span>';
+  cells[6].innerHTML = costWins
+    ? '<span class="lc-cost win">' + fmt(lcm) + '</span>'
+    : '<span class="lc-nrv win">' + fmt(lcm) + '</span>';
+  cells[7].innerHTML = wd > 0
+    ? '<span class="lc-wd-real">' + fmt(wd) + '</span>'
+    : '<span class="lc-wd-zero">$0</span>';
+
+  const lcmExplain = costWins
+    ? '<strong style="color:#1d4ed8">Cost is lower</strong>, so LCM = Cost and there is no write-down'
+    : '<strong style="color:#15803d">Designated Market is lower</strong>, so LCM = Market and the write-down is ' + fmt(wd);
+
+  document.getElementById('lcmStatus').innerHTML =
+    '<strong>Step 2 — ' + it.name + ':</strong> Compare Cost (' + fmt(it.cost) + ') with Designated Market (' + fmt(dm) +
+    '). The two orange cells are the only numbers being compared in this step. Choose the lower number: ' + lcmExplain + '.';
+
+  tr.classList.remove('active');
+  tr.classList.add('done');
+  lcmStepIdx++;
+  updateLCMRunningTotals(lcmCompletedItems());
+
+  if (lcmStepIdx >= LCM_TOTAL_STEPS) {
+    finishLCM();
+  } else {
+    const next = LCM_ITEMS[Math.floor(lcmStepIdx / 2)];
+    document.getElementById('lcmStepBtn').textContent = 'Step 1: Choose Designated Market for ' + next.name + ' →';
+  }
+}
+
+function resetLCM() {
+  lcmStepIdx = 0;
+  buildLCMTable();
+  document.getElementById('lcmStepBtn').disabled = false;
+  document.getElementById('lcmStepBtn').textContent = 'Step 1: Choose Designated Market →';
+  document.getElementById('lcmJE').classList.remove('show');
+  document.getElementById('lcmStatus').innerHTML =
+    '<strong>Ready to start:</strong> Click <em>Step 1: Choose Designated Market</em>. For each item we will first ' +
+    'choose the <em>middle number</em> out of Replacement Cost, Ceiling, and Floor. Then Step 2 compares that market with Cost and chooses the lower number.';
+}
+
+// ═══════════════════════════════════════════════
+// LCNRV
+// ═══════════════════════════════════════════════
+const ITEMS = [
+  { name: 'Jeans',      cost: 12000, nrv: 14000 },
+  { name: 'T-Shirts',   cost:  8000, nrv:  7000 },
+  { name: 'Jackets',    cost: 15000, nrv: 13800 },
+  { name: 'Hats',       cost:  5000, nrv:  5400 },
+  { name: 'Shoes',      cost: 20000, nrv: 16000 },
+];
+
+let lcStepIdx = 0;
+
+function buildLCTable() {
+  const tbody = document.getElementById('lcBody');
+  tbody.innerHTML = '';
+  ITEMS.forEach((it, i) => {
+    const tr = document.createElement('tr');
+    tr.id = 'lc-row-' + i;
+    tr.classList.add('locked');
+    tr.innerHTML =
+      '<td>' + it.name + '</td>' +
+      '<td>' + fmt(it.cost) + '</td>' +
+      '<td>' + fmt(it.nrv) + '</td>' +
+      '<td id="lc-lcnrv-' + i + '">?</td>' +
+      '<td id="lc-wd-' + i + '">?</td>';
+    tbody.appendChild(tr);
+  });
+
+  // totals
+  const totCost = ITEMS.reduce((s,i)=>s+i.cost, 0);
+  const totNRV  = ITEMS.reduce((s,i)=>s+i.nrv, 0);
+  document.getElementById('totCost').textContent = fmt(totCost);
+  document.getElementById('totNRV').textContent  = fmt(totNRV);
+  document.getElementById('totLCNRV').textContent = '—';
+  document.getElementById('totWD').textContent    = '—';
+}
+
+function lcStep() {
+  if (lcStepIdx >= ITEMS.length) return;
+  const i  = lcStepIdx;
+  const it = ITEMS[i];
+  const lcnrv = Math.min(it.cost, it.nrv);
+  const wd    = it.cost - lcnrv;
+  const costWins = (it.cost <= it.nrv);
+
+  // mark previous done
+  if (i > 0) {
+    const prev = document.getElementById('lc-row-' + (i-1));
+    prev.classList.remove('active');
+    prev.classList.add('done');
+  }
+
+  // current
+  const tr = document.getElementById('lc-row-' + i);
+  tr.classList.remove('locked');
+  tr.classList.add('active');
+
+  // Wrap winning side in a colored span
+  const cells = tr.children;
+  if (costWins) {
+    cells[1].innerHTML = '<span class="lc-cost win">' + fmt(it.cost) + '</span>';
+    cells[2].innerHTML = fmt(it.nrv);
+  } else {
+    cells[1].innerHTML = fmt(it.cost);
+    cells[2].innerHTML = '<span class="lc-nrv win">' + fmt(it.nrv) + '</span>';
+  }
+
+  cells[3].innerHTML = '<span class="lc-lower">' + fmt(lcnrv) + '</span>';
+  cells[4].innerHTML = wd > 0
+    ? '<span class="lc-wd-real">' + fmt(wd) + '</span>'
+    : '<span class="lc-wd-zero">$0</span>';
+
+  // status
+  const winnerText = costWins
+    ? '<strong style="color:#1d4ed8">Cost wins</strong> (NRV is higher) → no write-down needed'
+    : '<strong style="color:#15803d">NRV wins</strong> (NRV is lower) → write down by ' + fmt(wd);
+  document.getElementById('lcStatus').innerHTML =
+    '<strong>' + it.name + ':</strong> Cost = ' + fmt(it.cost) + ', NRV = ' + fmt(it.nrv) + '. ' + winnerText + '. ';
+
+  // running totals
+  let runLCNRV = 0, runWD = 0;
+  for (let k = 0; k <= i; k++) {
+    const x = ITEMS[k];
+    runLCNRV += Math.min(x.cost, x.nrv);
+    runWD    += x.cost - Math.min(x.cost, x.nrv);
+  }
+  document.getElementById('totLCNRV').textContent = fmt(runLCNRV);
+  document.getElementById('totWD').textContent    = runWD > 0 ? fmt(runWD) : '$0';
+
+  lcStepIdx++;
+
+  // Done?
+  if (lcStepIdx === ITEMS.length) {
+    document.getElementById('lc-row-' + (ITEMS.length-1)).classList.remove('active');
+    document.getElementById('lc-row-' + (ITEMS.length-1)).classList.add('done');
+    document.getElementById('lcStepBtn').disabled = true;
+    document.getElementById('lcStepBtn').textContent = '✓ All Items Processed';
+    document.getElementById('lcJE').classList.add('show');
+
+    // Update JE amounts based on actual write-down
+    const totalWD = ITEMS.reduce((s, x) => s + (x.cost - Math.min(x.cost, x.nrv)), 0);
+    const drCell = document.querySelector('#lcJE .je-table tr:nth-child(1) td:nth-child(3)');
+    const crCell = document.querySelector('#lcJE .je-table tr:nth-child(2) td:nth-child(4)');
+    drCell.textContent = totalWD.toLocaleString();
+    crCell.textContent = totalWD.toLocaleString();
+    const totalCost = ITEMS.reduce((s,x)=>s+x.cost, 0);
+    const reported = totalCost - totalWD;
+    const effectDiv = document.querySelector('#lcJE > div:last-child');
+    effectDiv.innerHTML =
+      '<strong style="color:#1e293b">Effect:</strong> Inventory is reported at ' + fmt(reported) +
+      ' (= ' + fmt(totalCost) + ' cost − ' + fmt(totalWD) + ' allowance) on the Balance Sheet. ' +
+      'The ' + fmt(totalWD) + ' loss reduces Net Income on the Income Statement.';
+  }
+}
+
+function resetLC() {
+  lcStepIdx = 0;
+  buildLCTable();
+  document.getElementById('lcStepBtn').disabled = false;
+  document.getElementById('lcStepBtn').textContent = 'Apply LCNRV to Next Item →';
+  document.getElementById('lcJE').classList.remove('show');
+  document.getElementById('lcStatus').innerHTML =
+    '<strong>Ready to start:</strong> Click <em>Apply LCNRV to Next Item</em> to compare each item\'s Cost vs NRV. ' +
+    'The lower of the two becomes the carrying value; the difference (if NRV is lower) is a write-down.';
+}
+
+// ═══════════════════════════════════════════════
+// QUIZ
+// ═══════════════════════════════════════════════
+let quizBuilt = false, score = 0;
+
+const QUESTIONS = [
+  {
+    q: "Under U.S. GAAP, when is the LCM (Lower of Cost or Market) rule used instead of LCNRV?",
+    correct: "When inventory is measured using LIFO or the Retail Inventory Method",
+    opts: [
+      "When inventory is measured using LIFO or the Retail Inventory Method",
+      "Always — LCM applies to all inventory under GAAP",
+      "Only for service companies",
+      "Only when prices have risen"
+    ],
+    exp: "Under current U.S. GAAP, LCM applies only to LIFO and Retail Inventory Method users. All other inventory (FIFO, weighted average) uses the simpler LCNRV rule. IFRS uses LCNRV for all inventory."
+  },
+  {
+    q: "Under LCM, the 'Designated Market' is determined by:",
+    correct: "Replacement Cost, bounded by Ceiling (NRV) and Floor (NRV − Normal Profit)",
+    opts: [
+      "Replacement Cost, bounded by Ceiling (NRV) and Floor (NRV − Normal Profit)",
+      "The current selling price of the inventory",
+      "Whatever value management decides",
+      "The original purchase invoice amount"
+    ],
+    exp: "Designated Market = the middle of three values: Replacement Cost, Ceiling (NRV), and Floor (NRV − normal profit). If RC is between the Ceiling and Floor, use RC. Otherwise, use whichever bound is closer."
+  },
+  {
+    q: "An item has Cost $10,000, RC $9,000, Ceiling $11,000, Floor $8,500. What is LCM?",
+    correct: "$9,000",
+    opts: ["$9,000", "$10,000", "$8,500", "$11,000"],
+    exp: "RC ($9,000) is between Floor ($8,500) and Ceiling ($11,000), so Designated Market = RC = $9,000. Then compare Cost ($10,000) with Designated Market ($9,000) and use the lower amount: $9,000."
+  },
+  {
+    q: "An item has Cost $10,000, RC $7,000, Ceiling $9,000, Floor $8,000. What is the Designated Market?",
+    correct: "$8,000 (Floor)",
+    opts: ["$8,000 (Floor)", "$7,000 (RC)", "$9,000 (Ceiling)", "$10,000 (Cost)"],
+    exp: "RC ($7,000) is BELOW the Floor ($8,000) — so use the Floor as the Designated Market. This prevents writing inventory down so far that the company could realize an above-normal profit when it later sells."
+  },
+  {
+    q: "What does the LCNRV rule require?",
+    correct: "Inventory is carried at the lower of cost or net realizable value",
+    opts: [
+      "Inventory is carried at the lower of cost or net realizable value",
+      "Inventory is carried at the higher of cost or net realizable value",
+      "Inventory is always carried at original cost",
+      "Inventory is always carried at current market price"
+    ],
+    exp: "LCNRV requires comparing each item's cost to its NRV (estimated selling price minus selling costs) and using the lower value. This reflects accounting conservatism."
+  },
+  {
+    q: "An item has Cost = $1,000 and NRV = $850. What is the carrying value under LCNRV?",
+    correct: "$850",
+    opts: ["$850", "$1,000", "$1,150", "$150"],
+    exp: "LCNRV picks the lower of cost ($1,000) and NRV ($850). The carrying value is $850 and a $150 write-down is recorded."
+  },
+  {
+    q: "How is Net Realizable Value (NRV) defined?",
+    correct: "Estimated selling price − estimated costs of completion and sale",
+    opts: [
+      "Estimated selling price − estimated costs of completion and sale",
+      "Original cost minus accumulated depreciation",
+      "The current replacement cost in the marketplace",
+      "Selling price plus expected profit margin"
+    ],
+    exp: "NRV is what the company can realistically receive net of any costs to complete production and sell the item — not the gross selling price."
+  },
+  {
+    q: "Boc has 5 items with total cost $60,000 and total LCNRV $55,700. The journal entry credits:",
+    correct: "Allowance to Reduce Inventory to NRV — $4,300",
+    opts: [
+      "Allowance to Reduce Inventory to NRV — $4,300",
+      "Inventory — $60,000",
+      "Sales Revenue — $4,300",
+      "Loss on Inventory — $4,300"
+    ],
+    exp: "The $4,300 difference is the write-down. We DEBIT Loss on Inventory Write-Down and CREDIT Allowance to Reduce Inventory to NRV (a contra-asset)."
+  },
+];
+
+function buildQuiz() {
+  quizBuilt = true;
+  const wrap = document.getElementById('quizWrap');
+  document.getElementById('total').textContent = QUESTIONS.length;
+  QUESTIONS.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML =
+      '<div class="q-num">Question ' + (qi+1) + ' of ' + QUESTIONS.length + '</div>' +
+      '<div class="q-text">' + q.q + '</div>' +
+      '<div class="q-opts">' + q.opts.map(o =>
+        '<button class="q-opt" onclick="answer(' + qi + ',this)">' + o + '</button>'
+      ).join('') + '</div>' +
+      '<div class="q-explain" id="qe-' + qi + '"></div>';
+    wrap.appendChild(card);
+  });
+}
+
+function answer(qi, btn) {
+  const card = btn.closest('.q-card');
+  if (card.dataset.done) return;
+  card.dataset.done = '1';
+  const q = QUESTIONS[qi];
+  const chosen = btn.textContent.trim();
+  card.querySelectorAll('.q-opt').forEach(b => {
+    b.disabled = true;
+    if (b.textContent.trim() === q.correct) b.classList.add('correct');
+    else b.classList.add('wrong');
+  });
+  const exp = document.getElementById('qe-' + qi);
+  exp.classList.add('show');
+  if (chosen === q.correct) {
+    score++;
+    exp.classList.add('ok');
+    exp.textContent = '✅ Correct! ' + q.exp;
+  } else {
+    exp.classList.add('bad');
+    exp.textContent = '❌ The answer is: ' + q.correct + '. ' + q.exp;
+  }
+  document.getElementById('score').textContent = score;
+}
+
+// Init
+buildLCMTable();
+buildLCTable();
+</script>
+</body>
+</html>

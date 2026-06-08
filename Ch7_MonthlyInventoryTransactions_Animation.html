@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 7 - Monthly Inventory Transactions</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f3f6fb;
+    color: #0f172a;
+    min-height: 100vh;
+    padding: 18px;
+  }
+  .wrap { max-width: 1320px; margin: 0 auto; }
+  .hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 58%, #0f766e 100%);
+    color: white;
+    border-radius: 18px;
+    padding: 22px 26px;
+    box-shadow: 0 12px 34px rgba(15, 23, 42, .18);
+    margin-bottom: 14px;
+  }
+  .eyebrow { font-size: .76rem; font-weight: 900; text-transform: uppercase; letter-spacing: .7px; opacity: .86; margin-bottom: 6px; }
+  h1 { font-size: clamp(1.55rem, 3vw, 2.35rem); line-height: 1.12; letter-spacing: 0; }
+  .hero-sub { margin-top: 8px; max-width: 980px; color: #dbeafe; font-weight: 700; line-height: 1.55; }
+
+  .fact-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 12px 0 16px;
+  }
+  .fact {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 11px 13px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .06);
+  }
+  .fact .label { color: #64748b; font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .55px; margin-bottom: 3px; }
+  .fact .value { font-size: 1.1rem; font-weight: 900; color: #0f172a; }
+  .fact .sub { color: #64748b; font-size: .75rem; font-weight: 700; margin-top: 2px; }
+
+  .tabs {
+    display: flex;
+    background: #0f172a;
+    padding: 0 18px;
+    gap: 6px;
+    overflow-x: auto;
+    border-bottom: 2px solid #1e293b;
+    margin-bottom: 16px;
+    z-index: 10;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, .16);
+  }
+  .tab-btn {
+    border: 0;
+    border-bottom: 4px solid transparent;
+    padding: 14px 20px 12px;
+    background: transparent;
+    color: #94a3b8;
+    font-weight: 850;
+    cursor: pointer;
+    transition: all .2s;
+    font-size: .94rem;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .tab-btn:hover { color: #dbeafe; background: rgba(30, 41, 59, .75); }
+  .tab-btn.active {
+    color: #bfdbfe;
+    background: #1e293b;
+    border-bottom-color: #60a5fa;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+  }
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadeIn .25s ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title { font-size: 1.32rem; font-weight: 900; margin: 4px 0 5px; color: #0f172a; }
+  .section-sub { color: #475569; font-weight: 700; line-height: 1.52; margin-bottom: 12px; max-width: 1060px; }
+  .rule-box {
+    background: linear-gradient(135deg, #dbeafe, #f0fdf4);
+    border: 3px solid #2563eb;
+    border-radius: 14px;
+    padding: 13px 16px;
+    margin: 12px 0;
+    color: #1e3a8a;
+    box-shadow: 0 4px 16px rgba(37, 99, 235, .15);
+    font-size: .94rem;
+    line-height: 1.5;
+    font-weight: 800;
+  }
+  .rule-box strong { color: #1d4ed8; font-weight: 900; }
+  .rule-box .hot { color: #b45309; }
+
+  .setup-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(330px, .85fr);
+    gap: 12px;
+    align-items: start;
+  }
+  .setup-table th, .setup-table td { font-size: .8rem; }
+  .setup-table td.qty, .setup-table td.cost {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-weight: 900;
+    text-align: right;
+    color: #0f172a;
+  }
+  .setup-table tr.buy td { background: #eff6ff; }
+  .setup-table tr.sell td { background: #fff7ed; }
+  .setup-table tr.begin td { background: #f0fdf4; }
+  .setup-note {
+    margin-top: 10px;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 12px;
+    color: #475569;
+    font-size: .84rem;
+    font-weight: 800;
+    line-height: 1.5;
+  }
+  .setup-layer-card {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 13px 14px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .06);
+  }
+  .setup-layer-title {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    color: #0f172a;
+    font-weight: 900;
+    margin-bottom: 10px;
+  }
+  .setup-layer-title small { color: #64748b; font-weight: 800; }
+  .setup-layer {
+    display: grid;
+    grid-template-columns: 82px minmax(0, 1fr) 82px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 9px;
+  }
+  .setup-layer:last-child { margin-bottom: 0; }
+  .setup-layer .tag {
+    color: #334155;
+    font-size: .78rem;
+    font-weight: 900;
+  }
+  .setup-layer .amt {
+    text-align: right;
+    color: #0f172a;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: .78rem;
+    font-weight: 900;
+  }
+  .setup-layer-track {
+    height: 32px;
+    border-radius: 9px;
+    overflow: hidden;
+    border: 1px solid #cbd5e1;
+    background: #e2e8f0;
+  }
+  .setup-layer-fill {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: .72rem;
+    font-weight: 900;
+  }
+  .setup-layer-fill.old { background: #2563eb; width: 100%; }
+  .setup-layer-fill.mid { background: #0f766e; width: 100%; }
+  .setup-layer-fill.new { background: #ea580c; width: 100%; }
+  .setup-equation {
+    display: grid;
+    grid-template-columns: repeat(5, auto);
+    justify-content: center;
+    align-items: center;
+    gap: 9px;
+    background: #0f172a;
+    color: white;
+    border-radius: 14px;
+    padding: 13px 15px;
+    margin: 12px 0;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .16);
+    font-weight: 900;
+  }
+  .setup-equation .num { color: #bfdbfe; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .setup-equation .op { color: #fbbf24; }
+  .question-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .question-card {
+    background: white;
+    border: 2px solid #dbe4f0;
+    border-radius: 12px;
+    padding: 12px 13px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .06);
+  }
+  .question-card .label {
+    color: #64748b;
+    font-size: .72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .55px;
+    margin-bottom: 4px;
+  }
+  .question-card .main { color: #0f172a; font-weight: 900; line-height: 1.35; }
+  .question-card .sub { color: #64748b; font-size: .78rem; font-weight: 750; line-height: 1.45; margin-top: 4px; }
+
+  .progress { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 12px 0; }
+  .pill {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 7px 5px;
+    text-align: center;
+    color: #64748b;
+    font-size: .68rem;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+  .pill.active { background: #fef3c7; color: #92400e; border-color: #f59e0b; }
+  .pill.done { background: #dcfce7; color: #166534; border-color: #86efac; }
+
+  .step-ctrl { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0 12px; }
+  .btn {
+    border: 0;
+    border-radius: 10px;
+    padding: 11px 16px;
+    font-weight: 900;
+    cursor: pointer;
+    color: white;
+    transition: .18s;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, .14);
+  }
+  .btn:hover:not(:disabled) { transform: translateY(-1px); }
+  .btn:disabled { opacity: .58; cursor: not-allowed; transform: none; }
+  .btn.primary { background: #1d4ed8; }
+  .btn.reset { background: #64748b; }
+
+  .status {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-left: 6px solid #1d4ed8;
+    border-radius: 12px;
+    padding: 12px 15px;
+    margin: 10px 0 12px;
+    color: #334155;
+    font-weight: 750;
+    line-height: 1.5;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .06);
+  }
+  .status strong { color: #0f172a; font-weight: 900; }
+  .status .hi { color: #b45309; font-weight: 900; }
+
+  .work-grid { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 12px; align-items: start; }
+  .card {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .06);
+    overflow: hidden;
+  }
+  .card-h {
+    padding: 11px 14px;
+    background: #f8fafc;
+    border-bottom: 2px solid #e2e8f0;
+    font-weight: 900;
+    color: #0f172a;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    align-items: baseline;
+  }
+  .card-h small { color: #64748b; font-weight: 800; font-size: .73rem; }
+  .card-b { padding: 12px 14px; }
+
+  .txn-list { display: flex; flex-direction: column; gap: 7px; }
+  .txn {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 9px 10px;
+    background: #f8fafc;
+    display: grid;
+    grid-template-columns: 58px 1fr;
+    gap: 9px;
+    align-items: center;
+    transition: .18s;
+  }
+  .txn.done { border-color: #86efac; background: #f0fdf4; }
+  .txn.active { border-color: #f59e0b; background: #fef3c7; box-shadow: 0 0 0 3px rgba(245, 158, 11, .16); }
+  .txn .date { font-family: ui-monospace, Menlo, Consolas, monospace; color: #475569; font-weight: 900; font-size: .78rem; }
+  .txn .main { color: #0f172a; font-weight: 900; font-size: .84rem; line-height: 1.25; }
+  .txn .sub { color: #64748b; font-weight: 700; font-size: .72rem; margin-top: 2px; }
+
+  .bucket {
+    background: white;
+    border: 2px solid #fdba74;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+  }
+  .bucket-title { display: flex; justify-content: space-between; gap: 8px; font-weight: 900; color: #7c2d12; margin-bottom: 8px; }
+  .bucket-track {
+    height: 30px;
+    background: #ffedd5;
+    border: 2px solid #fdba74;
+    border-radius: 9px;
+    overflow: hidden;
+  }
+  .bucket-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #fb923c, #ea580c);
+    color: white;
+    font-weight: 900;
+    font-size: .78rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: width .45s ease;
+    min-width: 0;
+    white-space: nowrap;
+  }
+  .bucket-note { margin-top: 7px; color: #7c2d12; font-size: .78rem; line-height: 1.45; font-weight: 800; }
+
+  .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .method-card { border: 2px solid #e2e8f0; border-radius: 14px; overflow: hidden; background: #f8fafc; }
+  .method-card.fifo { border-color: #93c5fd; }
+  .method-card.lifo { border-color: #fdba74; }
+  .method-head { padding: 10px 13px; color: white; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .method-card.fifo .method-head { background: linear-gradient(135deg, #1d4ed8, #2563eb); }
+  .method-card.lifo .method-head { background: linear-gradient(135deg, #c2410c, #ea580c); }
+  .method-head h3 { font-size: .98rem; font-weight: 900; }
+  .method-head small { opacity: .92; font-size: .72rem; font-weight: 800; }
+  .layers { padding: 11px 12px; }
+  .layer { margin-bottom: 10px; }
+  .layer:last-child { margin-bottom: 0; }
+  .layer-top { display: flex; justify-content: space-between; gap: 8px; color: #334155; font-weight: 900; font-size: .75rem; margin-bottom: 4px; }
+  .layer-top span:last-child { color: #64748b; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .track {
+    display: flex;
+    height: 33px;
+    border-radius: 9px;
+    overflow: hidden;
+    background: #e2e8f0;
+    border: 1px solid #cbd5e1;
+  }
+  .seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 0 4px;
+    font-size: .69rem;
+    font-weight: 900;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .seg.left { background: #bbf7d0; color: #14532d; }
+  .seg.sold { background: #fb923c; color: #7c2d12; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .35); }
+  .seg.now { background: #fb923c; color: #7c2d12; animation: saleGlow .55s ease both; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .45); }
+  .seg.future { background: #f1f5f9; color: #64748b; border: 1px dashed #94a3b8; }
+  .layer.adding .seg.left { animation: layerGrow .7s ease both; transform-origin: left center; }
+  @keyframes layerGrow { from { opacity: .25; transform: scaleX(.05); } to { opacity: 1; transform: scaleX(1); } }
+  @keyframes saleGlow {
+    0% { filter: saturate(.86); }
+    55% { filter: saturate(1.25); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .6), 0 0 0 3px rgba(251, 146, 60, .28); }
+    100% { filter: saturate(1); }
+  }
+  .calc {
+    border-top: 2px solid #e2e8f0;
+    background: white;
+    padding: 10px 12px;
+    color: #334155;
+    font-size: .82rem;
+    font-weight: 800;
+    line-height: 1.5;
+  }
+  .calc strong { color: #0f172a; }
+
+  .totals {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .total-card {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  .total-card .label { color: #64748b; font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
+  .total-card .value { font-family: ui-monospace, Menlo, Consolas, monospace; color: #0f172a; font-weight: 900; font-size: 1.05rem; margin-top: 3px; }
+  .total-card.cogs .value { color: #b91c1c; }
+  .total-card.end .value { color: #15803d; }
+
+  .ledger-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .ledger { background: white; border: 2px solid #e2e8f0; border-radius: 14px; overflow: hidden; }
+  .ledger.fifo { border-color: #93c5fd; }
+  .ledger.lifo { border-color: #fdba74; }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    background: #f8fafc;
+    color: #64748b;
+    text-align: left;
+    padding: 8px 9px;
+    font-size: .68rem;
+    text-transform: uppercase;
+    letter-spacing: .45px;
+    font-weight: 900;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  td {
+    padding: 8px 9px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: top;
+    font-size: .78rem;
+    font-weight: 750;
+    color: #334155;
+  }
+  td.money { text-align: right; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; color: #0f172a; }
+  tr.ledger-row { opacity: .35; transition: .2s; }
+  tr.ledger-row.show { opacity: 1; }
+  tr.ledger-row.focus td { background: #fef3c7 !important; box-shadow: inset 0 2px 0 #f59e0b, inset 0 -2px 0 #f59e0b; }
+  tr.sale td { background: #fff7ed; }
+  tr.purchase td { background: #eff6ff; }
+
+  .takeaway {
+    display: none;
+    background: #ecfdf5;
+    border: 2px solid #16a34a;
+    border-radius: 14px;
+    padding: 13px 16px;
+    margin-top: 12px;
+    color: #14532d;
+    font-weight: 800;
+    line-height: 1.5;
+  }
+  .takeaway.show { display: block; animation: fadeIn .25s ease both; }
+  .takeaway strong { color: #166534; font-weight: 900; }
+
+  @media (max-width: 980px) {
+    .fact-strip, .totals { grid-template-columns: repeat(2, 1fr); }
+    .work-grid, .method-grid, .ledger-grid, .setup-grid { grid-template-columns: 1fr; }
+    .progress { grid-template-columns: repeat(2, 1fr); }
+    .tabs { position: static; }
+  }
+  @media (max-width: 620px) {
+    body { padding: 10px; }
+    .hero { padding: 18px; }
+    .fact-strip, .totals, .question-grid { grid-template-columns: 1fr; }
+    .setup-equation { grid-template-columns: 1fr; text-align: center; }
+    .setup-layer { grid-template-columns: 1fr; }
+    .setup-layer .amt { text-align: left; }
+    .tab-btn { font-size: .82rem; padding: 10px 8px; }
+  }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+<div class="wrap">
+  <div class="hero">
+    <div class="eyebrow">Chapter 7 - Inventory cost flow assumptions</div>
+    <h1>January Inventory Transactions: FIFO vs LIFO</h1>
+    <div class="hero-sub">
+      Based on the Excel schedule: beginning inventory plus two purchases, three sales, and one month-end question.
+      The goal is to see why periodic and perpetual can give the same FIFO answer but different LIFO answers.
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tabBtn0" onclick="openTab(0)">① The Setup</button>
+    <button class="tab-btn" id="tabBtn1" onclick="openTab(1)">② FIFO vs LIFO (Periodic)</button>
+    <button class="tab-btn" id="tabBtn2" onclick="openTab(2)">③ FIFO vs LIFO (Perpetual)</button>
+  </div>
+
+  <div class="fact-strip">
+    <div class="fact"><div class="label">Goods available</div><div class="value">410 units</div><div class="sub">$2,520 total cost</div></div>
+    <div class="fact"><div class="label">Units sold</div><div class="value">300 units</div><div class="sub">80 + 120 + 100</div></div>
+    <div class="fact"><div class="label">Ending units</div><div class="value">110 units</div><div class="sub">410 available - 300 sold</div></div>
+    <div class="fact"><div class="label">Cost layers</div><div class="value">$5, $6, $7</div><div class="sub">prices rise during January</div></div>
+  </div>
+
+  <div class="panel active" id="tab0">
+    <div class="section-title">The Setup: one month of inventory activity</div>
+    <div class="section-sub">
+      Before choosing FIFO or LIFO, students need the same starting picture: what inventory was available, which units were sold,
+      and what question the inventory method is trying to answer.
+    </div>
+
+    <div class="rule-box">
+      <strong>Big picture:</strong> the company has <span class="hot">410 units available</span>, sells <span class="hot">300 units</span>,
+      and must assign costs between <span class="hot">COGS</span> and <span class="hot">ending inventory</span>.
+    </div>
+
+    <div class="setup-grid">
+      <div class="card">
+        <div class="card-h"><span>Transaction timeline from the Excel file</span><small>January</small></div>
+        <div class="card-b">
+          <table class="setup-table">
+            <thead>
+              <tr><th>Date</th><th>Transaction</th><th>Units</th><th>Unit amount</th><th>Total cost</th></tr>
+            </thead>
+            <tbody>
+              <tr class="begin"><td>Jan. 1</td><td>Beginning inventory</td><td class="qty">100</td><td class="cost">$5</td><td class="cost">$500</td></tr>
+              <tr class="sell"><td>Jan. 4</td><td>Sale</td><td class="qty">80</td><td class="cost">$8</td><td class="cost">revenue price</td></tr>
+              <tr class="buy"><td>Jan. 11</td><td>Purchase</td><td class="qty">150</td><td class="cost">$6</td><td class="cost">$900</td></tr>
+              <tr class="sell"><td>Jan. 13</td><td>Sale</td><td class="qty">120</td><td class="cost">$8.75</td><td class="cost">revenue price</td></tr>
+              <tr class="buy"><td>Jan. 20</td><td>Purchase</td><td class="qty">160</td><td class="cost">$7</td><td class="cost">$1,120</td></tr>
+              <tr class="sell"><td>Jan. 27</td><td>Sale</td><td class="qty">100</td><td class="cost">$9</td><td class="cost">revenue price</td></tr>
+            </tbody>
+          </table>
+          <div class="setup-note">
+            The sale prices help compute revenue, but they do not choose inventory cost. For COGS and ending inventory,
+            we use the inventory cost layers: $5, $6, and $7.
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-layer-card">
+        <div class="setup-layer-title"><span>Cost layers available for sale</span><small>$2,520 total</small></div>
+        <div class="setup-layer">
+          <div class="tag">Beginning</div>
+          <div class="setup-layer-track"><div class="setup-layer-fill old">100 units @ $5</div></div>
+          <div class="amt">$500</div>
+        </div>
+        <div class="setup-layer">
+          <div class="tag">Purchase 1</div>
+          <div class="setup-layer-track"><div class="setup-layer-fill mid">150 units @ $6</div></div>
+          <div class="amt">$900</div>
+        </div>
+        <div class="setup-layer">
+          <div class="tag">Purchase 2</div>
+          <div class="setup-layer-track"><div class="setup-layer-fill new">160 units @ $7</div></div>
+          <div class="amt">$1,120</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-equation">
+      <span class="num">410 units available</span>
+      <span class="op">-</span>
+      <span class="num">300 units sold</span>
+      <span class="op">=</span>
+      <span class="num">110 units in ending inventory</span>
+    </div>
+
+    <div class="question-grid">
+      <div class="question-card">
+        <div class="label">Question 1</div>
+        <div class="main">Which costs go to COGS?</div>
+        <div class="sub">FIFO sends oldest costs first. LIFO sends newest costs first.</div>
+      </div>
+      <div class="question-card">
+        <div class="label">Question 2</div>
+        <div class="main">When do we apply the cost flow rule?</div>
+        <div class="sub">Periodic waits until month-end. Perpetual applies the rule at each sale date.</div>
+      </div>
+      <div class="question-card">
+        <div class="label">Known total</div>
+        <div class="main">Goods available cost = $2,520</div>
+        <div class="sub">$500 beginning + $900 purchase + $1,120 purchase.</div>
+      </div>
+      <div class="question-card">
+        <div class="label">Main accounting split</div>
+        <div class="main">COGS + Ending Inventory = $2,520</div>
+        <div class="sub">Once we know ending inventory cost, COGS is the rest.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="tab1">
+    <div class="section-title">Periodic: collect the sales, then cost them once</div>
+    <div class="section-sub">
+      Under periodic inventory, sales during the month do not remove cost layers one by one. We collect the total units sold first,
+      then apply FIFO or LIFO once at month-end.
+    </div>
+
+    <div class="rule-box">
+      <strong>Periodic memory hook:</strong> sales go into a <span class="hot">bucket</span> during the month.
+      The cost flow rule is applied only after we know total units sold and ending units.
+    </div>
+
+    <div class="progress" id="periodicProgress">
+      <div class="pill active" id="p-pill-0">Start</div>
+      <div class="pill" id="p-pill-1">Jan. 1<br>Begin</div>
+      <div class="pill" id="p-pill-2">Jan. 4<br>Sale</div>
+      <div class="pill" id="p-pill-3">Jan. 11<br>Buy</div>
+      <div class="pill" id="p-pill-4">Jan. 13<br>Sale</div>
+      <div class="pill" id="p-pill-5">Jan. 20<br>Buy</div>
+      <div class="pill" id="p-pill-6">Jan. 27<br>Sale + End</div>
+    </div>
+
+    <div class="step-ctrl">
+      <button class="btn primary" id="periodicBtn" onclick="periodicStep()">Add Beginning Inventory</button>
+      <button class="btn reset" onclick="resetPeriodic()">Reset</button>
+    </div>
+
+    <div class="status" id="periodicStatus">
+      <strong>Ready.</strong> Start by adding the beginning inventory layer from Jan. 1.
+    </div>
+
+    <div class="work-grid">
+      <div class="card">
+        <div class="card-h"><span>January transactions</span><small>periodic handling</small></div>
+        <div class="card-b">
+          <div class="txn-list" id="periodicTxnList">
+            <div class="txn" id="ptxn-1"><div class="date">Jan. 1</div><div><div class="main">Beginning inventory</div><div class="sub">100 units @ $5</div></div></div>
+            <div class="txn" id="ptxn-2"><div class="date">Jan. 4</div><div><div class="main">Sale</div><div class="sub">80 units sold - put in bucket</div></div></div>
+            <div class="txn" id="ptxn-3"><div class="date">Jan. 11</div><div><div class="main">Purchase</div><div class="sub">150 units @ $6</div></div></div>
+            <div class="txn" id="ptxn-4"><div class="date">Jan. 13</div><div><div class="main">Sale</div><div class="sub">120 units sold - put in bucket</div></div></div>
+            <div class="txn" id="ptxn-5"><div class="date">Jan. 20</div><div><div class="main">Purchase</div><div class="sub">160 units @ $7</div></div></div>
+            <div class="txn" id="ptxn-6"><div class="date">Jan. 27</div><div><div class="main">Sale</div><div class="sub">100 units sold - put in bucket</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="bucket">
+          <div class="bucket-title"><span>Sales bucket</span><span id="periodicBucketText">0 / 300 units</span></div>
+          <div class="bucket-track"><div class="bucket-fill" id="periodicBucketFill"></div></div>
+          <div class="bucket-note" id="periodicBucketNote">No cost layer has been removed yet. Periodic waits until month-end.</div>
+        </div>
+
+        <div class="method-grid">
+          <div class="method-card fifo">
+            <div class="method-head"><h3>FIFO - Periodic</h3><small>oldest costs to COGS</small></div>
+            <div class="layers" id="periodicFifoLayers"></div>
+            <div class="calc" id="periodicFifoCalc"><strong>Waiting for month-end.</strong><br>FIFO is not applied until total sales are known.</div>
+          </div>
+          <div class="method-card lifo">
+            <div class="method-head"><h3>LIFO - Periodic</h3><small>newest costs to COGS</small></div>
+            <div class="layers" id="periodicLifoLayers"></div>
+            <div class="calc" id="periodicLifoCalc"><strong>Waiting for month-end.</strong><br>LIFO is not applied until total sales are known.</div>
+          </div>
+        </div>
+
+        <div class="totals">
+          <div class="total-card cogs"><div class="label">FIFO COGS</div><div class="value" id="pFifoCogs">?</div></div>
+          <div class="total-card end"><div class="label">FIFO ending inv.</div><div class="value" id="pFifoEnd">?</div></div>
+          <div class="total-card cogs"><div class="label">LIFO COGS</div><div class="value" id="pLifoCogs">?</div></div>
+          <div class="total-card end"><div class="label">LIFO ending inv.</div><div class="value" id="pLifoEnd">?</div></div>
+        </div>
+
+        <div class="takeaway" id="periodicTakeaway">
+          <strong>Periodic takeaway:</strong> the dates of the three sales do not change the periodic answer.
+          The month-end calculation only needs total units sold: 300 sold, 110 left.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="tab2">
+    <div class="section-title">Perpetual: each sale removes inventory immediately</div>
+    <div class="section-sub">
+      Under perpetual inventory, every sale records COGS on that sale date. That timing is the key reason LIFO perpetual can differ from LIFO periodic.
+    </div>
+
+    <div class="rule-box">
+      <strong>Perpetual memory hook:</strong> each sale can only use layers that already exist on that date.
+      On Jan. 4, the $6 and $7 layers are future purchases, so LIFO cannot use them yet.
+    </div>
+
+    <div class="progress">
+      <div class="pill active" id="r-pill-0">Start</div>
+      <div class="pill" id="r-pill-1">Jan. 4<br>Sale</div>
+      <div class="pill" id="r-pill-2">Jan. 11<br>Buy</div>
+      <div class="pill" id="r-pill-3">Jan. 13<br>Sale</div>
+      <div class="pill" id="r-pill-4">Jan. 20<br>Buy</div>
+      <div class="pill" id="r-pill-5">Jan. 27<br>Sale</div>
+      <div class="pill" id="r-pill-6">Compare</div>
+    </div>
+
+    <div class="step-ctrl">
+      <button class="btn primary" id="perpBtn" onclick="perpStep()">Show Jan. 4 Sale</button>
+      <button class="btn reset" onclick="resetPerp()">Reset</button>
+    </div>
+
+    <div class="status" id="perpStatus">
+      <strong>Ready.</strong> Beginning inventory is already on the shelf: 100 units @ $5.
+    </div>
+
+    <div class="work-grid">
+      <div class="card">
+        <div class="card-h"><span>January transactions</span><small>perpetual handling</small></div>
+        <div class="card-b">
+          <div class="txn-list">
+            <div class="txn done" id="rtxn-0"><div class="date">Jan. 1</div><div><div class="main">Beginning inventory</div><div class="sub">100 units @ $5</div></div></div>
+            <div class="txn" id="rtxn-1"><div class="date">Jan. 4</div><div><div class="main">Sale</div><div class="sub">remove 80 units immediately</div></div></div>
+            <div class="txn" id="rtxn-2"><div class="date">Jan. 11</div><div><div class="main">Purchase</div><div class="sub">add 150 units @ $6</div></div></div>
+            <div class="txn" id="rtxn-3"><div class="date">Jan. 13</div><div><div class="main">Sale</div><div class="sub">remove 120 units immediately</div></div></div>
+            <div class="txn" id="rtxn-4"><div class="date">Jan. 20</div><div><div class="main">Purchase</div><div class="sub">add 160 units @ $7</div></div></div>
+            <div class="txn" id="rtxn-5"><div class="date">Jan. 27</div><div><div class="main">Sale</div><div class="sub">remove 100 units immediately</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="method-grid">
+          <div class="method-card fifo">
+            <div class="method-head"><h3>FIFO - Perpetual</h3><small>oldest available first</small></div>
+            <div class="layers" id="perpFifoLayers"></div>
+            <div class="calc" id="perpFifoCalc"><strong>Ready.</strong><br>FIFO will remove from the oldest available layer at each sale.</div>
+          </div>
+          <div class="method-card lifo">
+            <div class="method-head"><h3>LIFO - Perpetual</h3><small>newest available first</small></div>
+            <div class="layers" id="perpLifoLayers"></div>
+            <div class="calc" id="perpLifoCalc"><strong>Ready.</strong><br>LIFO will remove from the newest layer that exists on the sale date.</div>
+          </div>
+        </div>
+
+        <div class="ledger-grid">
+          <div class="ledger fifo">
+            <div class="card-h"><span>FIFO perpetual ledger</span><small>balance after each event</small></div>
+            <table>
+              <thead><tr><th>Date</th><th>Activity</th><th>Inventory balance after</th><th>COGS</th></tr></thead>
+              <tbody>
+                <tr class="ledger-row show purchase" id="frow-0"><td>Jan. 1</td><td>Begin</td><td>100 @ $5 = $500</td><td class="money">-</td></tr>
+                <tr class="ledger-row sale" id="frow-1"><td>Jan. 4</td><td>Sell 80</td><td>20 @ $5 = $100</td><td class="money">$400</td></tr>
+                <tr class="ledger-row purchase" id="frow-2"><td>Jan. 11</td><td>Buy 150 @ $6</td><td>20 @ $5 + 150 @ $6 = $1,000</td><td class="money">-</td></tr>
+                <tr class="ledger-row sale" id="frow-3"><td>Jan. 13</td><td>Sell 120</td><td>50 @ $6 = $300</td><td class="money">$700</td></tr>
+                <tr class="ledger-row purchase" id="frow-4"><td>Jan. 20</td><td>Buy 160 @ $7</td><td>50 @ $6 + 160 @ $7 = $1,420</td><td class="money">-</td></tr>
+                <tr class="ledger-row sale" id="frow-5"><td>Jan. 27</td><td>Sell 100</td><td>110 @ $7 = $770</td><td class="money">$650</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ledger lifo">
+            <div class="card-h"><span>LIFO perpetual ledger</span><small>balance after each event</small></div>
+            <table>
+              <thead><tr><th>Date</th><th>Activity</th><th>Inventory balance after</th><th>COGS</th></tr></thead>
+              <tbody>
+                <tr class="ledger-row show purchase" id="lrow-0"><td>Jan. 1</td><td>Begin</td><td>100 @ $5 = $500</td><td class="money">-</td></tr>
+                <tr class="ledger-row sale" id="lrow-1"><td>Jan. 4</td><td>Sell 80</td><td>20 @ $5 = $100</td><td class="money">$400</td></tr>
+                <tr class="ledger-row purchase" id="lrow-2"><td>Jan. 11</td><td>Buy 150 @ $6</td><td>20 @ $5 + 150 @ $6 = $1,000</td><td class="money">-</td></tr>
+                <tr class="ledger-row sale" id="lrow-3"><td>Jan. 13</td><td>Sell 120</td><td>20 @ $5 + 30 @ $6 = $280</td><td class="money">$720</td></tr>
+                <tr class="ledger-row purchase" id="lrow-4"><td>Jan. 20</td><td>Buy 160 @ $7</td><td>20 @ $5 + 30 @ $6 + 160 @ $7 = $1,400</td><td class="money">-</td></tr>
+                <tr class="ledger-row sale" id="lrow-5"><td>Jan. 27</td><td>Sell 100</td><td>20 @ $5 + 30 @ $6 + 60 @ $7 = $700</td><td class="money">$700</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="totals">
+          <div class="total-card cogs"><div class="label">FIFO COGS</div><div class="value" id="rFifoCogs">?</div></div>
+          <div class="total-card end"><div class="label">FIFO ending inv.</div><div class="value" id="rFifoEnd">?</div></div>
+          <div class="total-card cogs"><div class="label">LIFO COGS</div><div class="value" id="rLifoCogs">?</div></div>
+          <div class="total-card end"><div class="label">LIFO ending inv.</div><div class="value" id="rLifoEnd">?</div></div>
+        </div>
+
+        <div class="takeaway" id="perpTakeaway">
+          <strong>Perpetual takeaway:</strong> FIFO still matches periodic, but LIFO changes.
+          Jan. 4 happened before the $6 and $7 layers existed, so perpetual LIFO had to use the $5 layer for that sale.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="nav-bar">
+  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>Previous</button>
+  <span class="nav-ind" id="navInd">Tab 1 of 3 — ① The Setup</span>
+  <button class="nav-btn nxt" id="btnNext" onclick="navigate(1)">Next</button>
+</div>
+
+<script>
+const TOTAL_COST = 2520;
+const TOTAL_SOLD = 300;
+let periodicIdx = 0;
+let perpIdx = 0;
+
+const periodicLabels = [
+  'Add Beginning Inventory',
+  'Record Jan. 4 Sale in Sales Bucket',
+  'Add Jan. 11 Purchase',
+  'Record Jan. 13 Sale in Sales Bucket',
+  'Add Jan. 20 Purchase',
+  'Record Jan. 27 Sale in Sales Bucket',
+  'Apply Periodic FIFO and LIFO',
+  'Periodic Complete'
+];
+
+const perpetualLabels = [
+  'Show Jan. 4 Sale',
+  'Add Jan. 11 Purchase',
+  'Show Jan. 13 Sale',
+  'Add Jan. 20 Purchase',
+  'Show Jan. 27 Sale',
+  'Reveal Final Comparison',
+  'Comparison Complete'
+];
+
+let currentTab = 0;
+function updateBottomNav() {
+  const buttons = Array.from(document.querySelectorAll('.tab-btn'));
+  const panels = Array.from(document.querySelectorAll('.panel'));
+  const label = buttons[currentTab]
+    ? buttons[currentTab].textContent.trim().replace(/^[①②③④⑤⑥⑦⑧⑨⑩]\s*/, '').replace(/^\d+\.\s*/, '')
+    : '';
+  const navInd = document.getElementById('navInd');
+  if (navInd) navInd.textContent = 'Tab ' + (currentTab + 1) + ' of ' + panels.length + ' — ' + label;
+  const prevBtn = document.getElementById('btnPrev');
+  const nextBtn = document.getElementById('btnNext');
+  if (prevBtn) prevBtn.disabled = currentTab === 0;
+  if (nextBtn) nextBtn.disabled = currentTab === panels.length - 1;
+}
+function openTab(index) {
+  const buttons = Array.from(document.querySelectorAll('.tab-btn'));
+  const panels = Array.from(document.querySelectorAll('.panel'));
+  currentTab = Math.max(0, Math.min(index, panels.length - 1));
+  buttons.forEach((btn, i) => btn.classList.toggle('active', i === currentTab));
+  panels.forEach((panel, i) => panel.classList.toggle('active', i === currentTab));
+  updateBottomNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function navigate(delta) { openTab(currentTab + delta); }
+updateBottomNav();
+
+function money(value) {
+  return '$' + value.toLocaleString('en-US');
+}
+
+function setPills(prefix, max, step) {
+  for (let i = 0; i <= max; i++) {
+    const pill = document.getElementById(prefix + '-pill-' + i);
+    if (!pill) continue;
+    pill.classList.toggle('active', i === step);
+    pill.classList.toggle('done', i < step);
+  }
+}
+
+function setTransactions(prefix, count, step) {
+  for (let i = 0; i <= count; i++) {
+    const row = document.getElementById(prefix + i);
+    if (!row) continue;
+    row.classList.toggle('active', i === step);
+    row.classList.toggle('done', i < step || (prefix === 'rtxn-' && i === 0));
+  }
+}
+
+function segment(cls, units, text) {
+  if (!units || units <= 0) return '';
+  return '<span class="seg ' + cls + '" style="flex:' + units + '">' + text + '</span>';
+}
+
+function layerHtml(row) {
+  const total = row.total || row.segments.reduce((sum, seg) => sum + seg.units, 0) || 1;
+  const className = 'layer' + (row.emphasis ? ' ' + row.emphasis : '');
+  return '<div class="' + className + '">' +
+    '<div class="layer-top"><span>' + row.label + '</span><span>' + row.meta + '</span></div>' +
+    '<div class="track">' + row.segments.map(seg => segment(seg.cls, seg.units, seg.text)).join('') + '</div>' +
+    '</div>';
+}
+
+function renderLayers(targetId, rows) {
+  document.getElementById(targetId).innerHTML = rows.map(layerHtml).join('');
+}
+
+function futureLayer(label, meta, units) {
+  return { label, meta, total: units, segments: [{ cls: 'future', units, text: 'not purchased yet' }] };
+}
+
+function leftLayer(label, meta, units, emphasis) {
+  return { label, meta, total: units, emphasis, segments: [{ cls: 'left', units, text: units + ' left' }] };
+}
+
+function periodicRows(step, method) {
+  const hasBeg = step >= 1;
+  const hasP2 = step >= 3;
+  const hasP3 = step >= 5;
+  if (step < 7) {
+    return [
+      hasBeg ? leftLayer('$5 layer', '100 units', 100) : futureLayer('$5 layer', '100 units', 100),
+      hasP2 ? leftLayer('$6 layer', '150 units', 150, step === 3 ? 'adding' : '') : futureLayer('$6 layer', '150 units', 150),
+      hasP3 ? leftLayer('$7 layer', '160 units', 160, step === 5 ? 'adding' : '') : futureLayer('$7 layer', '160 units', 160)
+    ];
+  }
+
+  if (method === 'fifo') {
+    return [
+      { label: '$5 layer', meta: '100 units', total: 100, segments: [{ cls: 'sold', units: 100, text: '100 to COGS' }] },
+      { label: '$6 layer', meta: '150 units', total: 150, segments: [{ cls: 'sold', units: 150, text: '150 to COGS' }] },
+      { label: '$7 layer', meta: '160 units', total: 160, segments: [
+        { cls: 'sold', units: 50, text: '50 to COGS' },
+        { cls: 'left', units: 110, text: '110 left' }
+      ] }
+    ];
+  }
+
+  return [
+    { label: '$5 layer', meta: '100 units', total: 100, segments: [{ cls: 'left', units: 100, text: '100 left' }] },
+    { label: '$6 layer', meta: '150 units', total: 150, segments: [
+      { cls: 'sold', units: 140, text: '140 to COGS' },
+      { cls: 'left', units: 10, text: '10 left' }
+    ] },
+    { label: '$7 layer', meta: '160 units', total: 160, segments: [{ cls: 'sold', units: 160, text: '160 to COGS' }] }
+  ];
+}
+
+function bucketUnitsForPeriodic(step) {
+  if (step >= 6) return 300;
+  if (step >= 4) return 200;
+  if (step >= 2) return 80;
+  return 0;
+}
+
+function updateBucket(units) {
+  const pct = Math.max(0, Math.min(100, units / TOTAL_SOLD * 100));
+  const fill = document.getElementById('periodicBucketFill');
+  fill.style.width = pct + '%';
+  fill.textContent = units > 0 ? units + ' units' : '';
+  document.getElementById('periodicBucketText').textContent = units + ' / 300 units';
+  document.getElementById('periodicBucketNote').textContent = units === 0
+    ? 'No cost layer has been removed yet. Periodic waits until month-end.'
+    : units < 300
+      ? units + ' units have been sold, but periodic still has not assigned costs to those sales.'
+      : 'All 300 sold units are now collected. Month-end costing can begin.';
+}
+
+function resetPeriodic() {
+  periodicIdx = 0;
+  updatePeriodic();
+}
+
+function periodicStep() {
+  if (periodicIdx >= 7) return;
+  periodicIdx++;
+  updatePeriodic();
+}
+
+function updatePeriodic() {
+  setPills('p', 6, Math.min(periodicIdx, 6));
+  setTransactions('ptxn-', 6, periodicIdx);
+  renderLayers('periodicFifoLayers', periodicRows(periodicIdx, 'fifo'));
+  renderLayers('periodicLifoLayers', periodicRows(periodicIdx, 'lifo'));
+  updateBucket(bucketUnitsForPeriodic(periodicIdx));
+
+  const btn = document.getElementById('periodicBtn');
+  btn.textContent = periodicLabels[periodicIdx] || periodicLabels[7];
+  btn.disabled = periodicIdx >= 7;
+
+  document.getElementById('periodicTakeaway').classList.toggle('show', periodicIdx >= 7);
+
+  if (periodicIdx < 7) {
+    document.getElementById('pFifoCogs').textContent = '?';
+    document.getElementById('pFifoEnd').textContent = '?';
+    document.getElementById('pLifoCogs').textContent = '?';
+    document.getElementById('pLifoEnd').textContent = '?';
+    document.getElementById('periodicFifoCalc').innerHTML = '<strong>Waiting for month-end.</strong><br>FIFO is not applied until total sales are known.';
+    document.getElementById('periodicLifoCalc').innerHTML = '<strong>Waiting for month-end.</strong><br>LIFO is not applied until total sales are known.';
+  }
+
+  const statuses = {
+    0: '<strong>Ready.</strong> Start by adding the beginning inventory layer from Jan. 1.',
+    1: '<strong>Jan. 1 beginning inventory:</strong> 100 units @ $5 are now in the cost pool.',
+    2: '<strong>Jan. 4 sale:</strong> 80 units go into the sales bucket. Under periodic, the cost layers stay untouched.',
+    3: '<strong>Jan. 11 purchase:</strong> add 150 units @ $6 to the cost pool.',
+    4: '<strong>Jan. 13 sale:</strong> add 120 more units to the sales bucket. Total sold so far = <span class="hi">200 units</span>.',
+    5: '<strong>Jan. 20 purchase:</strong> add 160 units @ $7. Total goods available = 410 units costing <span class="hi">$2,520</span>.',
+    6: '<strong>Jan. 27 sale:</strong> add 100 more units to the sales bucket. Total sold = <span class="hi">300 units</span>; ending units = 110.',
+    7: '<strong>Month-end periodic calculation:</strong> now apply FIFO and LIFO to the total 300 units sold.'
+  };
+  document.getElementById('periodicStatus').innerHTML = statuses[periodicIdx];
+
+  if (periodicIdx >= 7) {
+    document.getElementById('pFifoCogs').textContent = money(1750);
+    document.getElementById('pFifoEnd').textContent = money(770);
+    document.getElementById('pLifoCogs').textContent = money(1960);
+    document.getElementById('pLifoEnd').textContent = money(560);
+    document.getElementById('periodicFifoCalc').innerHTML =
+      '<strong>FIFO ending inventory:</strong> 110 newest units @ $7 = $770.<br><strong>COGS:</strong> $2,520 - $770 = $1,750.';
+    document.getElementById('periodicLifoCalc').innerHTML =
+      '<strong>LIFO ending inventory:</strong> 100 @ $5 + 10 @ $6 = $560.<br><strong>COGS:</strong> $2,520 - $560 = $1,960.';
+  }
+}
+
+function perpRows(step, method) {
+  if (step === 0) {
+    return [
+      leftLayer('$5 layer', '100 units', 100),
+      futureLayer('$6 layer', '150 units', 150),
+      futureLayer('$7 layer', '160 units', 160)
+    ];
+  }
+  if (step === 1) {
+    return [
+      { label: '$5 layer', meta: '100 units', total: 100, emphasis: 'selling', segments: [
+        { cls: 'now', units: 80, text: '80 sold' },
+        { cls: 'left', units: 20, text: '20 left' }
+      ] },
+      futureLayer('$6 layer', '150 units', 150),
+      futureLayer('$7 layer', '160 units', 160)
+    ];
+  }
+  if (step === 2) {
+    return [
+      { label: '$5 layer', meta: '100 units', total: 100, segments: [
+        { cls: 'sold', units: 80, text: '80 sold' },
+        { cls: 'left', units: 20, text: '20 left' }
+      ] },
+      leftLayer('$6 layer', '150 units', 150, 'adding'),
+      futureLayer('$7 layer', '160 units', 160)
+    ];
+  }
+  if (step === 3) {
+    if (method === 'fifo') {
+      return [
+        { label: '$5 layer', meta: '100 units', total: 100, emphasis: 'selling', segments: [
+          { cls: 'sold', units: 80, text: '80 sold' },
+          { cls: 'now', units: 20, text: '20 sold' }
+        ] },
+        { label: '$6 layer', meta: '150 units', total: 150, emphasis: 'selling', segments: [
+          { cls: 'now', units: 100, text: '100 sold' },
+          { cls: 'left', units: 50, text: '50 left' }
+        ] },
+        futureLayer('$7 layer', '160 units', 160)
+      ];
+    }
+    return [
+      { label: '$5 layer', meta: '100 units', total: 100, segments: [
+        { cls: 'sold', units: 80, text: '80 sold' },
+        { cls: 'left', units: 20, text: '20 left' }
+      ] },
+      { label: '$6 layer', meta: '150 units', total: 150, emphasis: 'selling', segments: [
+        { cls: 'now', units: 120, text: '120 sold' },
+        { cls: 'left', units: 30, text: '30 left' }
+      ] },
+      futureLayer('$7 layer', '160 units', 160)
+    ];
+  }
+  if (step === 4) {
+    if (method === 'fifo') {
+      return [
+        { label: '$5 layer', meta: '100 units', total: 100, segments: [{ cls: 'sold', units: 100, text: '100 sold' }] },
+        { label: '$6 layer', meta: '150 units', total: 150, segments: [
+          { cls: 'sold', units: 100, text: '100 sold' },
+          { cls: 'left', units: 50, text: '50 left' }
+        ] },
+        leftLayer('$7 layer', '160 units', 160, 'adding')
+      ];
+    }
+    return [
+      { label: '$5 layer', meta: '100 units', total: 100, segments: [
+        { cls: 'sold', units: 80, text: '80 sold' },
+        { cls: 'left', units: 20, text: '20 left' }
+      ] },
+      { label: '$6 layer', meta: '150 units', total: 150, segments: [
+        { cls: 'sold', units: 120, text: '120 sold' },
+        { cls: 'left', units: 30, text: '30 left' }
+      ] },
+      leftLayer('$7 layer', '160 units', 160, 'adding')
+    ];
+  }
+  if (method === 'fifo') {
+    return [
+      { label: '$5 layer', meta: '100 units', total: 100, segments: [{ cls: 'sold', units: 100, text: '100 sold' }] },
+      { label: '$6 layer', meta: '150 units', total: 150, emphasis: 'selling', segments: [
+        { cls: 'sold', units: 100, text: '100 sold' },
+        { cls: 'now', units: 50, text: '50 sold' }
+      ] },
+      { label: '$7 layer', meta: '160 units', total: 160, emphasis: 'selling', segments: [
+        { cls: 'now', units: 50, text: '50 sold' },
+        { cls: 'left', units: 110, text: '110 left' }
+      ] }
+    ];
+  }
+  return [
+    { label: '$5 layer', meta: '100 units', total: 100, segments: [
+      { cls: 'sold', units: 80, text: '80 sold' },
+      { cls: 'left', units: 20, text: '20 left' }
+    ] },
+    { label: '$6 layer', meta: '150 units', total: 150, segments: [
+      { cls: 'sold', units: 120, text: '120 sold' },
+      { cls: 'left', units: 30, text: '30 left' }
+    ] },
+    { label: '$7 layer', meta: '160 units', total: 160, emphasis: 'selling', segments: [
+      { cls: 'now', units: 100, text: '100 sold' },
+      { cls: 'left', units: 60, text: '60 left' }
+    ] }
+  ];
+}
+
+function setLedgerRows(step) {
+  for (let i = 1; i <= 5; i++) {
+    ['frow-', 'lrow-'].forEach(prefix => {
+      const row = document.getElementById(prefix + i);
+      row.classList.toggle('show', i <= step);
+      row.classList.toggle('focus', i === step);
+    });
+  }
+}
+
+function resetPerp() {
+  perpIdx = 0;
+  updatePerp();
+}
+
+function perpStep() {
+  if (perpIdx >= 6) return;
+  perpIdx++;
+  updatePerp();
+}
+
+function updatePerp() {
+  setPills('r', 6, perpIdx);
+  setTransactions('rtxn-', 5, perpIdx);
+  setLedgerRows(Math.min(perpIdx, 5));
+  renderLayers('perpFifoLayers', perpRows(Math.min(perpIdx, 5), 'fifo'));
+  renderLayers('perpLifoLayers', perpRows(Math.min(perpIdx, 5), 'lifo'));
+
+  const btn = document.getElementById('perpBtn');
+  btn.textContent = perpetualLabels[perpIdx] || perpetualLabels[6];
+  btn.disabled = perpIdx >= 6;
+
+  document.getElementById('perpTakeaway').classList.toggle('show', perpIdx >= 6);
+
+  const statuses = {
+    0: '<strong>Ready.</strong> Beginning inventory is already on the shelf: 100 units @ $5.',
+    1: '<strong>Jan. 4 sale:</strong> FIFO and LIFO both remove 80 units from the only layer available: <span class="hi">$5</span>.',
+    2: '<strong>Jan. 11 purchase:</strong> add 150 units @ $6. No new COGS is recorded on a purchase.',
+    3: '<strong>Jan. 13 sale:</strong> FIFO removes older costs first; LIFO removes the newest available $6 costs first.',
+    4: '<strong>Jan. 20 purchase:</strong> add 160 units @ $7. This new layer is now available for the Jan. 27 sale.',
+    5: '<strong>Jan. 27 sale:</strong> FIFO removes 50 @ $6 and 50 @ $7. LIFO removes 100 @ $7.',
+    6: '<strong>Final perpetual comparison:</strong> FIFO COGS = $1,750. LIFO COGS = $1,820 because each sale was costed on its own date.'
+  };
+  document.getElementById('perpStatus').innerHTML = statuses[perpIdx];
+
+  const fifoCalc = {
+    0: '<strong>Ready.</strong><br>FIFO will remove from the oldest available layer at each sale.',
+    1: '<strong>Jan. 4 COGS:</strong> 80 @ $5 = $400.<br>Ending layer: 20 @ $5.',
+    2: '<strong>Purchase added:</strong> 150 @ $6.<br>No COGS on a purchase.',
+    3: '<strong>Jan. 13 COGS:</strong> 20 @ $5 + 100 @ $6 = $700.<br>Ending layer: 50 @ $6.',
+    4: '<strong>Purchase added:</strong> 160 @ $7.<br>Available before Jan. 27: 50 @ $6 + 160 @ $7.',
+    5: '<strong>Jan. 27 COGS:</strong> 50 @ $6 + 50 @ $7 = $650.<br>Ending inventory: 110 @ $7 = $770.',
+    6: '<strong>Total FIFO COGS:</strong> $400 + $700 + $650 = $1,750.<br><strong>Ending inventory:</strong> $770.'
+  };
+  const lifoCalc = {
+    0: '<strong>Ready.</strong><br>LIFO will remove from the newest layer that exists on the sale date.',
+    1: '<strong>Jan. 4 COGS:</strong> 80 @ $5 = $400.<br>The $6 and $7 layers do not exist yet.',
+    2: '<strong>Purchase added:</strong> 150 @ $6.<br>Now LIFO can use the $6 layer for the next sale.',
+    3: '<strong>Jan. 13 COGS:</strong> 120 @ $6 = $720.<br>Ending inventory: 20 @ $5 + 30 @ $6.',
+    4: '<strong>Purchase added:</strong> 160 @ $7.<br>The $7 layer is newest for Jan. 27.',
+    5: '<strong>Jan. 27 COGS:</strong> 100 @ $7 = $700.<br>Ending inventory: 20 @ $5 + 30 @ $6 + 60 @ $7 = $700.',
+    6: '<strong>Total LIFO COGS:</strong> $400 + $720 + $700 = $1,820.<br><strong>Ending inventory:</strong> $700.'
+  };
+  document.getElementById('perpFifoCalc').innerHTML = fifoCalc[perpIdx];
+  document.getElementById('perpLifoCalc').innerHTML = lifoCalc[perpIdx];
+
+  if (perpIdx >= 6) {
+    document.getElementById('rFifoCogs').textContent = money(1750);
+    document.getElementById('rFifoEnd').textContent = money(770);
+    document.getElementById('rLifoCogs').textContent = money(1820);
+    document.getElementById('rLifoEnd').textContent = money(700);
+  } else {
+    document.getElementById('rFifoCogs').textContent = '?';
+    document.getElementById('rFifoEnd').textContent = '?';
+    document.getElementById('rLifoCogs').textContent = '?';
+    document.getElementById('rLifoEnd').textContent = '?';
+  }
+}
+
+resetPeriodic();
+resetPerp();
+</script>
+</body>
+</html>

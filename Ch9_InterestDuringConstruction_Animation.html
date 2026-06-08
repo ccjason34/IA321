@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 9 - Interest During Construction</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f3f6fb;
+    color: #0f172a;
+    min-height: 100vh;
+    padding: 18px;
+  }
+  .wrap { max-width: 1320px; margin: 0 auto; }
+  .hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 56%, #0f766e 100%);
+    color: white;
+    border-radius: 18px;
+    padding: 22px 26px;
+    box-shadow: 0 12px 34px rgba(15, 23, 42, .18);
+    margin-bottom: 0;
+  }
+  .eyebrow { font-size: .76rem; font-weight: 900; text-transform: uppercase; letter-spacing: .7px; opacity: .86; margin-bottom: 6px; }
+  h1 { font-size: clamp(1.55rem, 3vw, 2.35rem); line-height: 1.12; letter-spacing: 0; }
+  .hero-sub { margin-top: 8px; max-width: 980px; color: #dbeafe; font-weight: 700; line-height: 1.55; }
+
+  .tabs {
+    display: flex;
+    background: #0f172a;
+    padding: 0 18px;
+    gap: 6px;
+    overflow-x: auto;
+    border-bottom: 2px solid #1e293b;
+    margin-bottom: 16px;
+    z-index: 10;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, .16);
+  }
+  .tab-btn {
+    border: 0;
+    border-bottom: 4px solid transparent;
+    padding: 14px 20px 12px;
+    background: transparent;
+    color: #94a3b8;
+    font-weight: 850;
+    cursor: pointer;
+    transition: all .2s;
+    font-size: .94rem;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .tab-btn:hover { color: #dbeafe; background: rgba(30, 41, 59, .75); }
+  .tab-btn.active {
+    color: #bfdbfe;
+    background: #1e293b;
+    border-bottom-color: #60a5fa;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+  }
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadeIn .25s ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .fact-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 12px 0 16px;
+  }
+  .fact {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 11px 13px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .06);
+  }
+  .fact .label { color: #64748b; font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .55px; margin-bottom: 3px; }
+  .fact .value { font-size: 1.08rem; font-weight: 900; color: #0f172a; }
+  .fact .sub { color: #64748b; font-size: .75rem; font-weight: 700; margin-top: 2px; }
+
+  .section-title { font-size: 1.32rem; font-weight: 900; margin: 4px 0 5px; color: #0f172a; }
+  .section-sub { color: #475569; font-weight: 700; line-height: 1.52; margin-bottom: 12px; max-width: 1080px; }
+  .rule-box {
+    background: linear-gradient(135deg, #dbeafe, #f0fdf4);
+    border: 3px solid #2563eb;
+    border-radius: 14px;
+    padding: 13px 16px;
+    margin: 12px 0;
+    color: #1e3a8a;
+    box-shadow: 0 4px 16px rgba(37, 99, 235, .15);
+    font-size: .94rem;
+    line-height: 1.5;
+    font-weight: 800;
+  }
+  .rule-box strong { color: #1d4ed8; font-weight: 900; }
+  .rule-box .hot { color: #b45309; }
+
+  .grid-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(330px, .85fr); gap: 12px; align-items: start; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .card {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .06);
+    overflow: hidden;
+  }
+  .card-h {
+    padding: 11px 14px;
+    background: #f8fafc;
+    border-bottom: 2px solid #e2e8f0;
+    font-weight: 900;
+    color: #0f172a;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    align-items: baseline;
+  }
+  .card-h small { color: #64748b; font-weight: 800; font-size: .73rem; }
+  .card-b { padding: 12px 14px; }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    background: #f8fafc;
+    color: #64748b;
+    text-align: left;
+    padding: 8px 9px;
+    font-size: .68rem;
+    text-transform: uppercase;
+    letter-spacing: .45px;
+    font-weight: 900;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  td {
+    padding: 8px 9px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: top;
+    font-size: .8rem;
+    font-weight: 750;
+    color: #334155;
+  }
+  td.money, td.num { text-align: right; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; color: #0f172a; }
+  tr.buy td { background: #eff6ff; }
+  tr.debt td { background: #fff7ed; }
+  tr.focus td { background: #fef3c7 !important; box-shadow: inset 0 2px 0 #f59e0b, inset 0 -2px 0 #f59e0b; }
+  tr.dim { opacity: .35; }
+
+  .timeline {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .time-card {
+    background: white;
+    border: 2px solid #dbe4f0;
+    border-radius: 12px;
+    padding: 11px 12px;
+  }
+  .time-card.active { border-color: #f59e0b; background: #fef3c7; box-shadow: 0 0 0 3px rgba(245, 158, 11, .15); }
+  .time-date { color: #64748b; font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .45px; margin-bottom: 3px; }
+  .time-main { color: #0f172a; font-weight: 900; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .time-sub { color: #64748b; font-size: .75rem; font-weight: 750; line-height: 1.4; margin-top: 3px; }
+
+  .progress { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 12px 0; }
+  .progress.four { grid-template-columns: repeat(4, 1fr); }
+  .pill {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 7px 5px;
+    text-align: center;
+    color: #64748b;
+    font-size: .68rem;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+  .pill.active { background: #fef3c7; color: #92400e; border-color: #f59e0b; }
+  .pill.done { background: #dcfce7; color: #166534; border-color: #86efac; }
+
+  .step-ctrl { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0 12px; }
+  .btn {
+    border: 0;
+    border-radius: 10px;
+    padding: 11px 16px;
+    font-weight: 900;
+    cursor: pointer;
+    color: white;
+    transition: .18s;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, .14);
+  }
+  .btn:hover:not(:disabled) { transform: translateY(-1px); }
+  .btn:disabled { opacity: .58; cursor: not-allowed; transform: none; }
+  .btn.primary { background: #1d4ed8; }
+  .btn.reset { background: #64748b; }
+
+  .status {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-left: 6px solid #1d4ed8;
+    border-radius: 12px;
+    padding: 12px 15px;
+    margin: 10px 0 12px;
+    color: #334155;
+    font-weight: 750;
+    line-height: 1.5;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .06);
+  }
+  .status strong { color: #0f172a; font-weight: 900; }
+  .status .hi { color: #b45309; font-weight: 900; }
+
+  .waae-row {
+    display: grid;
+    grid-template-columns: 92px 120px minmax(120px, 1fr) 130px;
+    gap: 10px;
+    align-items: center;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    background: white;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    opacity: .34;
+    transition: .25s;
+  }
+  .waae-row.show { opacity: 1; }
+  .waae-row.focus { border-color: #f59e0b; background: #fef3c7; box-shadow: 0 0 0 3px rgba(245, 158, 11, .13); }
+  .waae-date { color: #0f172a; font-size: 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: .4px; }
+  .waae-money, .waae-total { font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; color: #0f172a; }
+  .waae-total { text-align: right; color: #166534; }
+  .month-track {
+    height: 30px;
+    border-radius: 9px;
+    background: #e2e8f0;
+    border: 1px solid #cbd5e1;
+    overflow: hidden;
+  }
+  .month-fill {
+    height: 100%;
+    background: #2563eb;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .72rem;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+  .total-box {
+    background: #0f172a;
+    color: white;
+    border-radius: 14px;
+    padding: 13px 15px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .16);
+    font-weight: 900;
+    margin-top: 10px;
+  }
+  .total-box .value { color: #bfdbfe; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1.24rem; }
+  .sum-box {
+    background: #ecfdf5;
+    border: 2px solid #16a34a;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-top: 10px;
+    color: #14532d;
+    font-weight: 900;
+    line-height: 1.5;
+  }
+  .sum-label { color: #166534; font-size: .72rem; text-transform: uppercase; letter-spacing: .55px; margin-bottom: 4px; }
+  .sum-equation {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    color: #0f172a;
+    font-size: .98rem;
+    overflow-wrap: anywhere;
+  }
+  .sum-equation .pending { color: #94a3b8; }
+  .sum-result {
+    margin-top: 5px;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    color: #166534;
+    font-size: 1.16rem;
+  }
+
+  .split-bar {
+    height: 42px;
+    display: flex;
+    overflow: hidden;
+    border-radius: 12px;
+    border: 2px solid #cbd5e1;
+    background: white;
+    margin: 10px 0;
+  }
+  .split-seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: .8rem;
+    font-weight: 900;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .split-seg.specific { background: #1d4ed8; flex: 750; }
+  .split-seg.other { background: #0f766e; flex: 70; }
+  .calc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .calc-chain { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 8px; }
+  .chain-arrow { display: none; }
+  @media (max-width: 760px) {
+    .calc-chain { grid-template-columns: 1fr; }
+  }
+  .calc-card {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 13px 14px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .06);
+  }
+  .calc-card.active { border-color: #f59e0b; background: #fffbeb; }
+  .calc-label { color: #64748b; font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
+  .calc-main { color: #0f172a; font-size: 1.05rem; font-weight: 900; font-family: ui-monospace, Menlo, Consolas, monospace; line-height: 1.4; }
+  .calc-sub { color: #64748b; font-size: .8rem; font-weight: 750; line-height: 1.45; margin-top: 5px; }
+
+  .compare-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; align-items: stretch; }
+  .compare-card {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .06);
+  }
+  .compare-card.pick { border-color: #16a34a; background: #ecfdf5; }
+  .compare-card.expense { border-color: #fca5a5; background: #fef2f2; }
+  .compare-value { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1.35rem; font-weight: 900; margin-top: 5px; }
+  .compare-card.pick .compare-value { color: #166534; }
+  .compare-card.expense .compare-value { color: #b91c1c; }
+
+  .journal {
+    background: white;
+    border: 2px solid #dbe4f0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .06);
+  }
+  .journal-row {
+    display: grid;
+    grid-template-columns: 1fr 130px 130px;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    align-items: center;
+    font-weight: 850;
+  }
+  .journal-row.h { background: #f8fafc; color: #64748b; font-size: .72rem; text-transform: uppercase; letter-spacing: .45px; font-weight: 900; }
+  .journal-row:last-child { border-bottom: 0; }
+  .journal-row .acct.indent { padding-left: 20px; color: #475569; }
+  .journal-row .dr, .journal-row .cr { text-align: right; font-family: ui-monospace, Menlo, Consolas, monospace; color: #0f172a; font-weight: 900; }
+
+  .building-stack {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 13px 14px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .06);
+  }
+  .stack-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-weight: 850;
+    color: #334155;
+  }
+  .stack-row:last-child { border-bottom: 0; }
+  .stack-row.total { color: #0f172a; font-weight: 900; border-top: 2px solid #0f172a; margin-top: 5px; }
+  .stack-row span:last-child { font-family: ui-monospace, Menlo, Consolas, monospace; color: #0f172a; font-weight: 900; }
+  .note {
+    background: #fff7ed;
+    border: 2px solid #fdba74;
+    border-radius: 12px;
+    color: #7c2d12;
+    padding: 10px 12px;
+    font-size: .84rem;
+    font-weight: 800;
+    line-height: 1.5;
+    margin-top: 10px;
+  }
+
+  .fact .value.pending { color: #94a3b8; }
+  .fact.solved { border-color: #16a34a; background: #ecfdf5; }
+  .fact.solved .value { color: #166534; }
+  .fact.solved .label { color: #166534; }
+
+  /* Calendar strip for WAAE month-counting */
+  .cal-strip {
+    display: grid;
+    grid-template-columns: 92px repeat(12, 1fr);
+    gap: 2px;
+    align-items: center;
+    margin-top: 6px;
+    font-size: .62rem;
+    font-weight: 900;
+  }
+  .cal-strip.header { color: #64748b; text-transform: uppercase; letter-spacing: .4px; }
+  .cal-strip.header .cal-cell { background: transparent; color: #64748b; padding: 2px 0; }
+  .cal-row-label { color: #475569; font-size: .68rem; font-weight: 900; text-align: right; padding-right: 6px; }
+  .cal-cell {
+    background: #f1f5f9;
+    color: #94a3b8;
+    text-align: center;
+    padding: 4px 0;
+    border-radius: 3px;
+  }
+  .cal-cell.on { background: #2563eb; color: white; }
+  .cal-cell.off { background: #fee2e2; color: #b91c1c; }
+
+  /* Bucket fill for specific-vs-other debt */
+  .bucket {
+    border: 2px solid #cbd5e1;
+    border-radius: 12px;
+    background: white;
+    overflow: hidden;
+    margin: 10px 0;
+  }
+  .bucket-h {
+    padding: 6px 12px;
+    background: #0f172a;
+    color: white;
+    font-weight: 900;
+    font-size: .82rem;
+    display: flex;
+    justify-content: space-between;
+  }
+  .bucket-layer {
+    padding: 12px 14px;
+    border-bottom: 1px dashed #e2e8f0;
+    display: grid;
+    grid-template-columns: 1fr 130px;
+    gap: 10px;
+    align-items: center;
+    font-weight: 850;
+    color: #475569;
+    opacity: .35;
+    transition: .3s;
+  }
+  .bucket-layer:last-child { border-bottom: 0; }
+  .bucket-layer.fill { opacity: 1; }
+  .bucket-layer.specific.fill { background: #dbeafe; color: #1e3a8a; }
+  .bucket-layer.excess.fill { background: #ccfbf1; color: #134e4a; }
+  .bucket-layer .layer-amt { font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; color: #0f172a; text-align: right; }
+
+  /* Other-debt rate derivation table */
+  .rate-derive {
+    margin-top: 8px;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .78rem;
+  }
+  .rate-derive td {
+    padding: 5px 7px;
+    border-bottom: 1px solid #e2e8f0;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-weight: 850;
+  }
+  .rate-derive tr.tot td {
+    border-top: 2px solid #0f172a;
+    border-bottom: 0;
+    color: #0f172a;
+    font-weight: 900;
+  }
+  .rate-derive tr.rate td {
+    background: #fef3c7;
+    color: #92400e;
+    font-weight: 900;
+  }
+
+  /* Lower-of bar comparison */
+  .compare-bars { margin-top: 10px; }
+  .cb-row {
+    display: grid;
+    grid-template-columns: 170px 1fr 110px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+    font-weight: 900;
+    font-size: .82rem;
+  }
+  .cb-label { color: #475569; }
+  .cb-track {
+    height: 26px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+    overflow: hidden;
+    position: relative;
+  }
+  .cb-fill {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    color: white;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: .78rem;
+    transition: width .5s;
+  }
+  .cb-fill.actual { background: linear-gradient(90deg, #b91c1c, #ef4444); }
+  .cb-fill.avoid { background: linear-gradient(90deg, #047857, #16a34a); }
+  .cb-fill.expense { background: linear-gradient(90deg, #fb923c, #f97316); }
+  .cb-tag { font-family: ui-monospace, Menlo, Consolas, monospace; color: #0f172a; }
+  .cb-bridge {
+    background: #fff7ed;
+    border: 2px dashed #fb923c;
+    border-radius: 10px;
+    padding: 9px 12px;
+    margin-top: 6px;
+    color: #7c2d12;
+    font-weight: 900;
+    font-size: .85rem;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+  }
+
+  @media (max-width: 980px) {
+    .fact-strip, .grid-3, .compare-grid, .calc-grid { grid-template-columns: repeat(2, 1fr); }
+    .grid-2 { grid-template-columns: 1fr; }
+    .timeline { grid-template-columns: repeat(2, 1fr); }
+    .waae-row { grid-template-columns: 1fr; }
+    .waae-total { text-align: left; }
+  }
+  @media (max-width: 640px) {
+    body { padding: 10px; }
+    .hero { padding: 18px; }
+    .fact-strip, .grid-3, .compare-grid, .calc-grid, .timeline { grid-template-columns: 1fr; }
+    .progress, .progress.four { grid-template-columns: repeat(2, 1fr); }
+    .journal-row { grid-template-columns: 1fr 90px 90px; }
+    .tab-btn { font-size: .82rem; padding: 12px 14px 10px; }
+  }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+<div class="wrap">
+  <div class="hero">
+    <div class="eyebrow">Chapter 9 - Acquisition and disposition of PP&E</div>
+    <h1>Interest During Construction</h1>
+    <div class="hero-sub">
+      Interest capitalization answers one question: how much borrowing cost becomes part of the asset instead of current-period interest expense?
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tabBtn0" onclick="openTab(0)">1. The Setup</button>
+    <button class="tab-btn" id="tabBtn1" onclick="openTab(1)">2. WAAE</button>
+    <button class="tab-btn" id="tabBtn2" onclick="openTab(2)">3. Avoidable Interest</button>
+    <button class="tab-btn" id="tabBtn3" onclick="openTab(3)">4. Capitalize + JE</button>
+  </div>
+
+  <div class="fact-strip">
+    <div class="fact"><div class="label">Construction payments (input)</div><div class="value">$1,500,000</div><div class="sub">paid during 2025</div></div>
+    <div class="fact" id="factWaae"><div class="label">Q1 · WAAE</div><div class="value" id="factWaaeVal">?</div><div class="sub">time-weighted payments</div></div>
+    <div class="fact" id="factAvoid"><div class="label">Q2 · Avoidable interest</div><div class="value" id="factAvoidVal">?</div><div class="sub">theoretical interest on WAAE</div></div>
+    <div class="fact" id="factCap"><div class="label">Q3 · Capitalized</div><div class="value" id="factCapVal">?</div><div class="sub">lower of avoidable or actual</div></div>
+  </div>
+
+  <div class="panel active" id="tab0">
+    <div class="section-title">The Setup: when can interest become part of the asset?</div>
+    <div class="section-sub">
+      The project is a building under construction. Because it takes time to get ready for use, interest during the construction period can be capitalized.
+    </div>
+
+    <div class="rule-box">
+      <strong>Capitalization period starts when three things are true:</strong>
+      expenditures are made, construction activities are in progress, and interest cost is being incurred.
+      It ends when the asset is substantially complete and ready for use.
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-h"><span>Project payments</span><small>Key Company example</small></div>
+        <div class="card-b">
+          <div class="timeline">
+            <div class="time-card"><div class="time-date">Jan. 1</div><div class="time-main">$210,000</div><div class="time-sub">includes $100,000 land and $110,000 building/CIP</div></div>
+            <div class="time-card"><div class="time-date">Mar. 1</div><div class="time-main">$300,000</div><div class="time-sub">building construction payment</div></div>
+            <div class="time-card"><div class="time-date">May 1</div><div class="time-main">$540,000</div><div class="time-sub">building construction payment</div></div>
+            <div class="time-card"><div class="time-date">Dec. 31</div><div class="time-main">$450,000</div><div class="time-sub">paid on final day; no time to incur interest in 2025</div></div>
+          </div>
+          <div class="note">
+            Even though the first payment includes land, the interest capitalization relates to the building project. The land is recorded separately, but the capitalized interest goes to Buildings.
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><span>Debt outstanding</span><small>interest sources</small></div>
+        <div class="card-b">
+          <table>
+            <thead><tr><th>Debt</th><th>Principal</th><th>Rate</th><th>Interest</th></tr></thead>
+            <tbody>
+              <tr class="debt"><td>Specific construction note</td><td class="money">$750,000</td><td class="num">15%</td><td class="money">$112,500</td></tr>
+              <tr><td>Other 5-year note</td><td class="money">$550,000</td><td class="num">10%</td><td class="money">$55,000</td></tr>
+              <tr><td>Other 10-year bonds</td><td class="money">$600,000</td><td class="num">12%</td><td class="money">$72,000</td></tr>
+              <tr><td><strong>Total principal (all debt)</strong></td><td class="money">$1,900,000</td><td></td><td class="money"></td></tr>
+              <tr style="background:#fef3c7"><td><strong>Actual interest (sum of interest column)</strong></td><td class="money"></td><td></td><td class="money"><strong>$239,500</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-3" style="margin-top:12px">
+      <div class="calc-card active">
+        <div class="calc-label">Question 1</div>
+        <div class="calc-main">Is this a qualifying asset?</div>
+        <div class="calc-sub">Yes. The building requires time to get ready for its intended use.</div>
+      </div>
+      <div class="calc-card active">
+        <div class="calc-label">Question 2</div>
+        <div class="calc-main">How much interest is avoidable?</div>
+        <div class="calc-sub">Compute WAAE, then apply the right borrowing rates.</div>
+      </div>
+      <div class="calc-card active">
+        <div class="calc-label">Question 3</div>
+        <div class="calc-main">How much is capitalized?</div>
+        <div class="calc-sub">Use the lower of avoidable interest or actual interest.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="tab1">
+    <div class="section-title">Step 1: weighted-average accumulated expenditures</div>
+    <div class="section-sub">
+      WAAE weights each construction payment by the portion of the year that the company could incur interest on that payment.
+    </div>
+
+    <div class="rule-box">
+      <strong>Memory hook:</strong> amount paid times months outstanding equals weighted-average accumulated expenditures.
+      A payment on December 31 gets <span class="hot">0 months</span> in the current year.
+    </div>
+
+    <div class="progress" id="waaeProgress">
+      <div class="pill active" id="w-pill-0">Start</div>
+      <div class="pill" id="w-pill-1">Jan. 1<br>12/12</div>
+      <div class="pill" id="w-pill-2">Mar. 1<br>10/12</div>
+      <div class="pill" id="w-pill-3">May 1<br>8/12</div>
+      <div class="pill" id="w-pill-4">Dec. 31<br>0/12</div>
+    </div>
+
+    <div class="step-ctrl">
+      <button class="btn primary" id="waaeBtn" onclick="waaeStep()">Add Jan. 1 Payment</button>
+      <button class="btn reset" onclick="resetWaae()">Reset</button>
+    </div>
+
+    <div class="status" id="waaeStatus">
+      <strong>Ready.</strong> Click to add the first construction payment and weight it by time outstanding.
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-h"><span>Build WAAE one payment at a time</span><small>payment x time</small></div>
+        <div class="card-b" id="waaeRows"></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><span>Why the months matter</span><small>interest time</small></div>
+        <div class="card-b">
+          <div class="timeline" id="waaeTimeline"></div>
+          <div class="note">
+            WAAE is not total cash paid. It is the portion of each payment that was outstanding long enough to generate interest during the year.
+          </div>
+          <div class="total-box">
+            <span>WAAE total</span>
+            <span class="value" id="waaeTotal">$0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="tab2">
+    <div class="section-title">Step 2: compute avoidable interest</div>
+    <div class="section-sub">
+      Avoidable interest is the theoretical interest on the weighted-average accumulated expenditures. Use the specific construction borrowing first, then the weighted-average rate on other debt.
+    </div>
+
+    <div class="rule-box">
+      <strong>Why two rates?</strong> The <span class="hot">specific construction note</span> was taken out for this project, so its rate directly applies — but only up to its principal of $750,000.
+      The remaining WAAE must come from somewhere too — the firm's <span class="hot">other existing debt</span>. Since money tied up in construction can't pay down that debt, we charge the leftover WAAE at the <strong>blended rate</strong> of those other borrowings.
+    </div>
+
+    <div class="progress four">
+      <div class="pill active" id="a-pill-0">Start</div>
+      <div class="pill" id="a-pill-1">Cover with<br>specific note</div>
+      <div class="pill" id="a-pill-2">Rate for<br>remaining</div>
+      <div class="pill" id="a-pill-3">Sum the<br>two layers</div>
+    </div>
+
+    <div class="step-ctrl">
+      <button class="btn primary" id="avoidBtn" onclick="avoidStep()">Apply Specific Borrowing</button>
+      <button class="btn reset" onclick="resetAvoid()">Reset</button>
+    </div>
+
+    <div class="status" id="avoidStatus">
+      <strong>Ready.</strong> Start with WAAE of <span class="hi">$820,000</span>. The specific construction note is $750,000.
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span>Fill the WAAE bucket — specific borrowing first, then other debt</span><small>$820,000 WAAE</small></div>
+      <div class="card-b">
+        <div class="bucket">
+          <div class="bucket-h"><span id="bucketHeaderMath">WAAE = $820,000</span><span>Filled in priority order ↓</span></div>
+          <div class="bucket-layer specific" id="bucketSpecific">
+            <div>
+              <div style="font-size:.8rem">① Specific construction note (15%)</div>
+              <div style="font-size:.72rem; font-weight:750; margin-top:2px">Fills first, up to its $750,000 principal</div>
+            </div>
+            <div class="layer-amt" id="bucketSpecificAmt">$750,000</div>
+          </div>
+          <div class="bucket-layer excess" id="bucketExcess">
+            <div>
+              <div style="font-size:.8rem">② Remaining WAAE → blended rate of other debt (11.04%)</div>
+              <div style="font-size:.72rem; font-weight:750; margin-top:2px">$820K WAAE − $750K specific = $70K remaining</div>
+            </div>
+            <div class="layer-amt" id="bucketExcessAmt">$70,000</div>
+          </div>
+        </div>
+        <div class="calc-chain">
+          <div class="calc-card" id="specificCard">
+            <div class="calc-label">Step ① Cover WAAE with the specific note (15%)</div>
+            <div class="calc-main" id="specificCalc">?</div>
+            <div class="calc-sub">The first $750,000 of WAAE is covered directly by the construction note.</div>
+          </div>
+          <div class="chain-arrow">↓</div>
+          <div class="calc-card" id="otherRateCard">
+            <div class="calc-label">What rate applies to the remaining $70,000?</div>
+            <div class="calc-main" id="otherRateCalc">?</div>
+            <table class="rate-derive" id="rateDerive" style="display:none">
+              <tr><td>Other 5-yr note</td><td style="text-align:right">$550,000 × 10%</td><td style="text-align:right">$55,000</td></tr>
+              <tr><td>Other 10-yr bonds</td><td style="text-align:right">$600,000 × 12%</td><td style="text-align:right">$72,000</td></tr>
+              <tr class="tot"><td>Totals</td><td style="text-align:right">$1,150,000</td><td style="text-align:right">$127,000</td></tr>
+              <tr class="rate"><td colspan="2">$127,000 ÷ $1,150,000 =</td><td style="text-align:right">11.04%</td></tr>
+            </table>
+          </div>
+          <div class="chain-arrow">↓</div>
+          <div class="calc-card" id="excessCard">
+            <div class="calc-label">Step ② Apply 11.04% to the remaining WAAE ($70,000)</div>
+            <div class="calc-main" id="excessCalc">?</div>
+            <div class="calc-sub">$820,000 WAAE − $750,000 specific = $70,000 leftover, charged at the blended rate.</div>
+          </div>
+          <div class="chain-arrow">↓</div>
+          <div class="calc-card" id="avoidableCard">
+            <div class="calc-label">Avoidable interest = Step ① + Step ②</div>
+            <div class="calc-main" id="avoidableCalc">?</div>
+            <div class="calc-sub">The theoretical interest the firm would have avoided by not building.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="card-h"><span>Debt outstanding</span><small>specific borrowing first, then other debt</small></div>
+      <table>
+        <thead><tr><th>Debt</th><th>Principal</th><th>Rate</th><th>Interest</th><th>Use in avoidable interest</th></tr></thead>
+        <tbody>
+          <tr class="debt"><td>Specific construction note</td><td class="money">$750,000</td><td class="num">15%</td><td class="money">$112,500</td><td>Used at its <strong>own rate</strong> for the first $750,000 of WAAE</td></tr>
+          <tr><td>Other 5-year note</td><td class="money">$550,000</td><td class="num">10%</td><td class="money">$55,000</td><td>Pooled into the blended "other-debt" rate</td></tr>
+          <tr><td>Other 10-year bonds</td><td class="money">$600,000</td><td class="num">12%</td><td class="money">$72,000</td><td>Pooled into the blended "other-debt" rate</td></tr>
+        </tbody>
+      </table>
+      <div class="note">
+        Other-debt weighted-average rate: ($55,000 + $72,000) / ($550,000 + $600,000) = <strong>11.04%</strong>.
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="tab3">
+    <div class="section-title">Step 3: choose lower amount and record the journal entry</div>
+    <div class="section-sub">
+      Actual interest is the ceiling. The company capitalizes the lower of actual interest and avoidable interest, then expenses the rest.
+    </div>
+
+    <div class="rule-box">
+      <strong>Final rule:</strong> capitalize the lower of <span class="hot">avoidable interest</span> or <span class="hot">actual interest</span>.
+      In this example, avoidable interest is lower, so $120,228 becomes part of the building cost.
+    </div>
+
+    <div class="progress four">
+      <div class="pill active" id="j-pill-0">Start</div>
+      <div class="pill" id="j-pill-1">Actual<br>Interest</div>
+      <div class="pill" id="j-pill-2">Choose<br>Lower</div>
+      <div class="pill" id="j-pill-3">Record<br>JE</div>
+    </div>
+
+    <div class="step-ctrl">
+      <button class="btn primary" id="journalBtn" onclick="journalStep()">Compute Actual Interest</button>
+      <button class="btn reset" onclick="resetJournal()">Reset</button>
+    </div>
+
+    <div class="status" id="journalStatus">
+      <strong>Ready.</strong> Compute actual interest first. Actual interest is the maximum amount that can be capitalized.
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card" id="actualCard">
+        <div class="calc-label">Actual interest (ceiling)</div>
+        <div class="compare-value" id="actualValue">?</div>
+        <div class="calc-sub">Sum of interest on <strong>every</strong> outstanding debt — specific + all others.</div>
+        <table class="rate-derive" id="actualDerive" style="display:none">
+          <tr><td>Specific construction note</td><td style="text-align:right">$750,000 × 15%</td><td style="text-align:right">$112,500</td></tr>
+          <tr><td>Other 5-yr note</td><td style="text-align:right">$550,000 × 10%</td><td style="text-align:right">$55,000</td></tr>
+          <tr><td>Other 10-yr bonds</td><td style="text-align:right">$600,000 × 12%</td><td style="text-align:right">$72,000</td></tr>
+          <tr class="tot"><td colspan="2">Actual interest</td><td style="text-align:right">$239,500</td></tr>
+        </table>
+      </div>
+      <div class="compare-card" id="avoidCompareCard">
+        <div class="calc-label">Avoidable interest</div>
+        <div class="compare-value" id="avoidCompareValue">?</div>
+        <div class="calc-sub">From the WAAE × rate calculation.</div>
+      </div>
+      <div class="compare-card pick" id="capitalizeCard">
+        <div class="calc-label">→ Capitalize the LOWER</div>
+        <div class="compare-value" id="capitalizeValue">?</div>
+        <div class="calc-sub">Goes to Buildings (depreciated over life).</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="card-h"><span>Visual: lower-of comparison</span><small>and where the excess goes</small></div>
+      <div class="card-b">
+        <div class="compare-bars" id="compareBars">
+          <div class="cb-row">
+            <div class="cb-label">Actual interest</div>
+            <div class="cb-track"><div class="cb-fill actual" id="cbActual" style="width:0%"></div></div>
+            <div class="cb-tag" id="cbActualTag">?</div>
+          </div>
+          <div class="cb-row">
+            <div class="cb-label">Avoidable interest ✓</div>
+            <div class="cb-track"><div class="cb-fill avoid" id="cbAvoid" style="width:0%"></div></div>
+            <div class="cb-tag" id="cbAvoidTag">?</div>
+          </div>
+          <div class="cb-row">
+            <div class="cb-label">Excess → Interest Expense</div>
+            <div class="cb-track"><div class="cb-fill expense" id="cbExpense" style="width:0%"></div></div>
+            <div class="cb-tag" id="cbExpenseTag">?</div>
+          </div>
+        </div>
+        <div class="cb-bridge" id="cbBridge" style="display:none">
+          $239,500 actual − $120,228 capitalized = <span style="color:#b91c1c">$119,272 to Interest Expense</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:12px">
+      <div class="journal">
+        <div class="journal-row h"><div>Account</div><div>Debit</div><div>Credit</div></div>
+        <div class="journal-row"><div class="acct">Buildings (capitalized interest)</div><div class="dr" id="jeBuilding">?</div><div class="cr"></div></div>
+        <div class="journal-row"><div class="acct">Interest Expense</div><div class="dr" id="jeExpense">?</div><div class="cr"></div></div>
+        <div class="journal-row"><div class="acct indent">Cash</div><div class="dr"></div><div class="cr" id="jeCash">?</div></div>
+      </div>
+
+      <div class="building-stack">
+        <div class="card-h" style="margin:-13px -14px 10px"><span>Building account after capitalization</span><small>land separate</small></div>
+        <div class="stack-row"><span>Jan. 1 building/CIP portion</span><span>$110,000</span></div>
+        <div class="stack-row"><span>Mar. 1 payment</span><span>$300,000</span></div>
+        <div class="stack-row"><span>May 1 payment</span><span>$540,000</span></div>
+        <div class="stack-row"><span>Dec. 31 payment</span><span>$450,000</span></div>
+        <div class="stack-row"><span>Capitalized interest</span><span id="stackInterest">?</span></div>
+        <div class="stack-row total"><span>Building cost</span><span id="stackTotal">?</span></div>
+        <div class="note">
+          Land of $100,000 from the Jan. 1 payment is recorded in Land. It is not depreciated with the building.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="nav-bar">
+  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>Previous</button>
+  <span class="nav-ind" id="navInd">Tab 1 of 4 — 1. The Setup</span>
+  <button class="nav-btn nxt" id="btnNext" onclick="navigate(1)">Next</button>
+</div>
+
+<script>
+const WAAE_ROWS = [
+  { date: 'Jan. 1', amount: 210000, months: 12, weighted: 210000 },
+  { date: 'Mar. 1', amount: 300000, months: 10, weighted: 250000 },
+  { date: 'May 1', amount: 540000, months: 8, weighted: 360000 },
+  { date: 'Dec. 31', amount: 450000, months: 0, weighted: 0 }
+];
+const WAAE_TOTAL = 820000;
+const SPECIFIC_INTEREST = 112500;
+const OTHER_INTEREST = 7728;
+const AVOIDABLE_INTEREST = 120228;
+const ACTUAL_INTEREST = 239500;
+const INTEREST_EXPENSE = 119272;
+const BUILDING_BEFORE_INTEREST = 1400000;
+const BUILDING_AFTER_INTEREST = 1520228;
+
+let waaeIdx = 0;
+let avoidIdx = 0;
+let journalIdx = 0;
+
+const waaeLabels = [
+  'Add Jan. 1 Payment',
+  'Add Mar. 1 Payment',
+  'Add May 1 Payment',
+  'Add Dec. 31 Payment',
+  'WAAE Complete'
+];
+const avoidLabels = [
+  '① Cover WAAE with the specific note',
+  '② Find the rate for the remaining $70K',
+  '③ Apply 11.04% and sum the layers',
+  'Avoidable interest computed ✓'
+];
+const journalLabels = [
+  'Compute Actual Interest',
+  'Choose Lower Amount',
+  'Show Journal Entry',
+  'Journal Entry Complete'
+];
+
+let currentTab = 0;
+function updateBottomNav() {
+  const buttons = Array.from(document.querySelectorAll('.tab-btn'));
+  const panels = Array.from(document.querySelectorAll('.panel'));
+  const label = buttons[currentTab]
+    ? buttons[currentTab].textContent.trim().replace(/^[①②③④⑤⑥⑦⑧⑨⑩]\s*/, '').replace(/^\d+\.\s*/, '')
+    : '';
+  const navInd = document.getElementById('navInd');
+  if (navInd) navInd.textContent = 'Tab ' + (currentTab + 1) + ' of ' + panels.length + ' — ' + label;
+  const prevBtn = document.getElementById('btnPrev');
+  const nextBtn = document.getElementById('btnNext');
+  if (prevBtn) prevBtn.disabled = currentTab === 0;
+  if (nextBtn) nextBtn.disabled = currentTab === panels.length - 1;
+}
+function openTab(index) {
+  const buttons = Array.from(document.querySelectorAll('.tab-btn'));
+  const panels = Array.from(document.querySelectorAll('.panel'));
+  currentTab = Math.max(0, Math.min(index, panels.length - 1));
+  buttons.forEach((btn, i) => btn.classList.toggle('active', i === currentTab));
+  panels.forEach((panel, i) => panel.classList.toggle('active', i === currentTab));
+  updateBottomNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function navigate(delta) { openTab(currentTab + delta); }
+updateBottomNav();
+
+function money(value) {
+  return '$' + Math.round(value).toLocaleString('en-US');
+}
+
+function setPills(prefix, max, step) {
+  for (let i = 0; i <= max; i++) {
+    const pill = document.getElementById(prefix + '-pill-' + i);
+    if (!pill) continue;
+    pill.classList.toggle('active', i === step);
+    pill.classList.toggle('done', i < step);
+  }
+}
+
+function waaeSumHtml(shown) {
+  const pieces = WAAE_ROWS.map((row, index) => {
+    if (index >= shown) return '<span class="pending">?</span>';
+    return money(row.weighted);
+  });
+  const total = WAAE_ROWS.slice(0, shown).reduce((sum, row) => sum + row.weighted, 0);
+  return '<div class="sum-box">' +
+    '<div class="sum-label">Add the weighted payments</div>' +
+    '<div class="sum-equation">' + pieces.join(' + ') + '</div>' +
+    '<div class="sum-result">= ' + money(total) + '</div>' +
+  '</div>';
+}
+
+function renderWaaeRows() {
+  const shown = WAAE_ROWS.slice(0, waaeIdx);
+  const total = shown.reduce((sum, row) => sum + row.weighted, 0);
+  const startMonths = [0, 2, 4, 11]; // Jan=0, Mar=2, May=4, Dec=11 (Dec 31 = end of Dec)
+  const MONTHS = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+  const calHeader = '<div class="cal-strip header"><div class="cal-row-label"></div>' +
+    MONTHS.map(m => '<div class="cal-cell">' + m + '</div>').join('') + '</div>';
+  document.getElementById('waaeRows').innerHTML = calHeader + WAAE_ROWS.map((row, index) => {
+    const show = index < waaeIdx;
+    const focus = index === waaeIdx - 1;
+    const width = row.months / 12 * 100;
+    const start = startMonths[index];
+    const cells = [];
+    for (let m = 0; m < 12; m++) {
+      let cls = 'cal-cell';
+      if (show) {
+        if (row.months === 0) {
+          cls += ' off';
+        } else if (m >= start) {
+          cls += ' on';
+        }
+      }
+      cells.push('<div class="' + cls + '"></div>');
+    }
+    const calLabel = show ? row.months + '/12' : '?';
+    return '<div class="waae-row ' + (show ? 'show ' : '') + (focus ? 'focus' : '') + '">' +
+      '<div class="waae-date">' + row.date + '</div>' +
+      '<div class="waae-money">' + money(row.amount) + '</div>' +
+      '<div class="month-track"><div class="month-fill" style="width:' + width + '%">' + row.months + '/12</div></div>' +
+      '<div class="waae-total">' + (show ? money(row.weighted) : '?') + '</div>' +
+    '</div>' +
+    '<div class="cal-strip"><div class="cal-row-label">' + calLabel + '</div>' + cells.join('') + '</div>';
+  }).join('') +
+  waaeSumHtml(waaeIdx) +
+  '<div class="total-box"><span>Running WAAE total</span><span class="value">' + money(total) + '</span></div>';
+
+  document.getElementById('waaeTimeline').innerHTML = WAAE_ROWS.map((row, index) =>
+    '<div class="time-card ' + (index === waaeIdx - 1 ? 'active' : '') + '">' +
+      '<div class="time-date">' + row.date + '</div>' +
+      '<div class="time-main">' + row.months + ' months</div>' +
+      '<div class="time-sub">' + money(row.amount) + ' x ' + row.months + '/12 = ' + money(row.weighted) + '</div>' +
+    '</div>'
+  ).join('');
+
+  document.getElementById('waaeTotal').textContent = money(total);
+}
+
+function resetWaae() {
+  waaeIdx = 0;
+  updateWaae();
+}
+
+function waaeStep() {
+  if (waaeIdx >= 4) return;
+  waaeIdx++;
+  updateWaae();
+}
+
+function updateWaae() {
+  setPills('w', 4, waaeIdx);
+  renderWaaeRows();
+  const btn = document.getElementById('waaeBtn');
+  btn.textContent = waaeLabels[waaeIdx] || waaeLabels[4];
+  btn.disabled = waaeIdx >= 4;
+  const messages = {
+    0: '<strong>Ready.</strong> Click to add the first construction payment and weight it by time outstanding.',
+    1: '<strong>Jan. 1 payment:</strong> outstanding all year, so $210,000 x 12/12 = <span class="hi">$210,000</span>.',
+    2: '<strong>Mar. 1 payment:</strong> outstanding 10 months, so $300,000 x 10/12 = <span class="hi">$250,000</span>.',
+    3: '<strong>May 1 payment:</strong> outstanding 8 months, so $540,000 x 8/12 = <span class="hi">$360,000</span>.',
+    4: '<strong>Dec. 31 payment:</strong> paid on the final day, so it has 0 months in 2025. WAAE total = <span class="hi">$820,000</span>.'
+  };
+  document.getElementById('waaeStatus').innerHTML = messages[waaeIdx];
+
+  // Fact strip
+  if (waaeIdx >= 4) {
+    document.getElementById('factWaaeVal').textContent = money(WAAE_TOTAL);
+    document.getElementById('factWaaeVal').classList.remove('pending');
+    document.getElementById('factWaae').classList.add('solved');
+  } else {
+    document.getElementById('factWaaeVal').textContent = '?';
+    document.getElementById('factWaaeVal').classList.add('pending');
+    document.getElementById('factWaae').classList.remove('solved');
+  }
+}
+
+function resetAvoid() {
+  avoidIdx = 0;
+  updateAvoid();
+}
+
+function avoidStep() {
+  if (avoidIdx >= 3) return;
+  avoidIdx++;
+  updateAvoid();
+}
+
+function updateAvoid() {
+  setPills('a', 3, avoidIdx);
+  const btn = document.getElementById('avoidBtn');
+  btn.textContent = avoidLabels[avoidIdx] || avoidLabels[3];
+  btn.disabled = avoidIdx >= 3;
+
+  document.getElementById('specificCard').classList.toggle('active', avoidIdx >= 1);
+  document.getElementById('otherRateCard').classList.toggle('active', avoidIdx >= 2);
+  document.getElementById('excessCard').classList.toggle('active', avoidIdx >= 3);
+  document.getElementById('avoidableCard').classList.toggle('active', avoidIdx >= 3);
+
+  document.getElementById('bucketSpecific').classList.toggle('fill', avoidIdx >= 1);
+  document.getElementById('bucketExcess').classList.toggle('fill', avoidIdx >= 3);
+  document.getElementById('rateDerive').style.display = avoidIdx >= 2 ? 'table' : 'none';
+
+  // Dynamic bucket header — show the WAAE = specific + remaining math as it builds
+  const bucketHdr = document.getElementById('bucketHeaderMath');
+  if (avoidIdx === 0) bucketHdr.textContent = 'WAAE = $820,000';
+  else if (avoidIdx === 1) bucketHdr.textContent = 'WAAE = $820,000 = $750,000 (specific) + ?';
+  else bucketHdr.textContent = 'WAAE = $820,000 = $750,000 (specific) + $70,000 (remaining)';
+
+  document.getElementById('specificCalc').textContent = avoidIdx >= 1 ? '$750,000 × 15% = $112,500' : '?';
+  document.getElementById('otherRateCalc').textContent = avoidIdx >= 2 ? '11.04% (derivation below)' : '?';
+  document.getElementById('excessCalc').textContent = avoidIdx >= 3 ? '$70,000 × 11.04% = $7,728' : '?';
+  document.getElementById('avoidableCalc').textContent = avoidIdx >= 3 ? '$112,500 + $7,728 = $120,228' : '?';
+
+  // Fact strip
+  if (avoidIdx >= 3) {
+    document.getElementById('factAvoidVal').textContent = money(AVOIDABLE_INTEREST);
+    document.getElementById('factAvoidVal').classList.remove('pending');
+    document.getElementById('factAvoid').classList.add('solved');
+  } else {
+    document.getElementById('factAvoidVal').textContent = '?';
+    document.getElementById('factAvoidVal').classList.add('pending');
+    document.getElementById('factAvoid').classList.remove('solved');
+  }
+
+  const messages = {
+    0: '<strong>Question:</strong> WAAE is <span class="hi">$820,000</span>. Does the specific construction note ($750,000) cover it all? Click to find out.',
+    1: '<strong>Step ① done.</strong> The specific note covers only $750,000 of the $820,000 WAAE — at 15%, that produces <span class="hi">$112,500</span>. There is still <span class="hi">$70,000</span> of WAAE uncovered.',
+    2: '<strong>Step ② setup.</strong> The leftover $70,000 isn\'t funded by a project-specific loan, so we charge it at the <span class="hi">blended rate</span> of the firm\'s other debt: <span class="hi">11.04%</span>.',
+    3: '<strong>Avoidable interest = ① + ②:</strong> $112,500 (specific) + $7,728 (remaining @ 11.04%) = <span class="hi">$120,228</span>.'
+  };
+  document.getElementById('avoidStatus').innerHTML = messages[avoidIdx];
+}
+
+function resetJournal() {
+  journalIdx = 0;
+  updateJournal();
+}
+
+function journalStep() {
+  if (journalIdx >= 3) return;
+  journalIdx++;
+  updateJournal();
+}
+
+function updateJournal() {
+  setPills('j', 3, journalIdx);
+  const btn = document.getElementById('journalBtn');
+  btn.textContent = journalLabels[journalIdx] || journalLabels[3];
+  btn.disabled = journalIdx >= 3;
+
+  document.getElementById('actualValue').textContent = journalIdx >= 1 ? money(ACTUAL_INTEREST) : '?';
+  document.getElementById('actualDerive').style.display = journalIdx >= 1 ? 'table' : 'none';
+  document.getElementById('avoidCompareValue').textContent = journalIdx >= 2 ? money(AVOIDABLE_INTEREST) : '?';
+  document.getElementById('capitalizeValue').textContent = journalIdx >= 2 ? money(AVOIDABLE_INTEREST) : '?';
+  document.getElementById('actualCard').classList.toggle('expense', journalIdx >= 1);
+  document.getElementById('avoidCompareCard').classList.toggle('pick', journalIdx >= 2);
+  document.getElementById('capitalizeCard').classList.toggle('pick', journalIdx >= 2);
+
+  document.getElementById('jeBuilding').textContent = journalIdx >= 3 ? money(AVOIDABLE_INTEREST) : '?';
+  document.getElementById('jeExpense').textContent = journalIdx >= 3 ? money(INTEREST_EXPENSE) : '?';
+  document.getElementById('jeCash').textContent = journalIdx >= 3 ? money(ACTUAL_INTEREST) : '?';
+  document.getElementById('stackInterest').textContent = journalIdx >= 3 ? money(AVOIDABLE_INTEREST) : '?';
+  document.getElementById('stackTotal').textContent = journalIdx >= 3 ? money(BUILDING_AFTER_INTEREST) : '?';
+
+  const messages = {
+    0: '<strong>Ready.</strong> Compute actual interest first. Actual interest is the maximum amount that can be capitalized.',
+    1: '<strong>Actual interest:</strong> total interest on <span class="hi">every</span> outstanding debt (specific + all others), each at its own rate. $112,500 + $55,000 + $72,000 = <span class="hi">$239,500</span>. This is the ceiling — you can never capitalize more than this.',
+    2: '<strong>Choose lower:</strong> avoidable interest of $120,228 is lower than actual interest of $239,500, so capitalize <span class="hi">$120,228</span>.',
+    3: '<strong>Journal entry:</strong> debit Buildings for capitalized interest, debit Interest Expense for the rest, and credit Cash for total interest paid.'
+  };
+  document.getElementById('journalStatus').innerHTML = messages[journalIdx];
+
+  // Lower-of bar comparison
+  const maxVal = ACTUAL_INTEREST;
+  const cbActual = document.getElementById('cbActual');
+  const cbAvoid = document.getElementById('cbAvoid');
+  const cbExpense = document.getElementById('cbExpense');
+  cbActual.style.width = journalIdx >= 1 ? '100%' : '0%';
+  cbActual.textContent = journalIdx >= 1 ? money(ACTUAL_INTEREST) : '';
+  document.getElementById('cbActualTag').textContent = journalIdx >= 1 ? 'ceiling' : '?';
+  cbAvoid.style.width = journalIdx >= 2 ? (AVOIDABLE_INTEREST / maxVal * 100) + '%' : '0%';
+  cbAvoid.textContent = journalIdx >= 2 ? money(AVOIDABLE_INTEREST) : '';
+  document.getElementById('cbAvoidTag').textContent = journalIdx >= 2 ? 'capitalize ✓' : '?';
+  cbExpense.style.width = journalIdx >= 2 ? (INTEREST_EXPENSE / maxVal * 100) + '%' : '0%';
+  cbExpense.textContent = journalIdx >= 2 ? money(INTEREST_EXPENSE) : '';
+  document.getElementById('cbExpenseTag').textContent = journalIdx >= 2 ? 'expense' : '?';
+  document.getElementById('cbBridge').style.display = journalIdx >= 2 ? 'block' : 'none';
+
+  // Fact strip
+  if (journalIdx >= 2) {
+    document.getElementById('factCapVal').textContent = money(AVOIDABLE_INTEREST);
+    document.getElementById('factCapVal').classList.remove('pending');
+    document.getElementById('factCap').classList.add('solved');
+  } else {
+    document.getElementById('factCapVal').textContent = '?';
+    document.getElementById('factCapVal').classList.add('pending');
+    document.getElementById('factCap').classList.remove('solved');
+  }
+}
+
+resetWaae();
+resetAvoid();
+resetJournal();
+</script>
+</body>
+</html>

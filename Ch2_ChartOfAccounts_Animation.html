@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chart of Accounts | Kieso Ch. 2</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.2rem; font-weight: 800; }
+  .header p  { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab  { padding: 11px 18px; font-size: .88rem; font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; }
+  .tab:hover  { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+  .panel { display: none; max-width: 900px; margin: 0 auto; padding: 24px 16px 90px; }
+  .panel.active { display: block; }
+
+  .sec-title { font-size: 1.35rem; font-weight: 800; color: #1e293b; margin-bottom: 8px; }
+  .sec-sub   { font-size: .97rem; color: #475569; margin-bottom: 20px; line-height: 1.7; }
+  .quote { background: white; border-left: 4px solid #3b82f6; border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: .95rem; color: #334155; line-height: 1.7; margin-bottom: 24px; }
+  .quote strong { color: #1d4ed8; }
+
+  /* ── Number line visual ── */
+  .num-line { display: flex; gap: 0; margin-bottom: 28px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+  .num-seg { flex: 1; padding: 14px 10px; text-align: center; cursor: pointer; transition: filter .15s, transform .15s; }
+  .num-seg:hover { filter: brightness(1.08); transform: translateY(-2px); }
+  .num-seg .seg-range { font-size: 1rem; font-weight: 900; }
+  .num-seg .seg-label { font-size: .72rem; font-weight: 700; margin-top: 3px; opacity: .85; }
+  .num-seg .seg-nb    { font-size: .65rem; margin-top: 4px; background: rgba(255,255,255,.25); border-radius: 3px; padding: 1px 5px; }
+
+  /* ── Category cards ── */
+  .cat-list { display: flex; flex-direction: column; gap: 12px; }
+  .cat-card { border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .cat-hdr  { display: flex; align-items: center; gap: 14px; padding: 14px 18px; cursor: pointer; user-select: none; }
+  .cat-hdr:hover { filter: brightness(.97); }
+  .cat-range { font-size: 1.05rem; font-weight: 900; font-family: monospace; min-width: 70px; }
+  .cat-name  { font-size: 1rem; font-weight: 800; flex: 1; }
+  .cat-nb    { font-size: .75rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+  .nb-dr     { background: #dbeafe; color: #1e40af; }
+  .nb-cr     { background: #dcfce7; color: #15803d; }
+  .cat-count { font-size: .75rem; opacity: .7; }
+  .cat-chevron { font-size: .9rem; transition: transform .25s; }
+  .cat-hdr.open .cat-chevron { transform: rotate(90deg); }
+
+  .cat-body { background: white; padding: 0; max-height: 0; overflow: hidden; transition: max-height .35s ease, padding .25s; }
+  .cat-body.open { max-height: 800px; padding: 12px 0; }
+
+  .acct-row { display: flex; align-items: center; gap: 12px; padding: 9px 20px; border-bottom: 1px solid #f1f5f9; font-size: .9rem; }
+  .acct-row:last-child { border-bottom: none; }
+  .acct-num  { font-family: monospace; font-weight: 800; font-size: .95rem; min-width: 38px; }
+  .acct-name { flex: 1; color: #334155; }
+  .acct-type { font-size: .7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+  .acct-note { font-size: .75rem; color: #94a3b8; font-style: italic; }
+
+  /* ── Gap callout ── */
+  .gap-card { background: #fefce8; border: 1.5px solid #fde68a; border-radius: 9px; padding: 14px 18px; font-size: .9rem; color: #78350f; line-height: 1.7; margin-top: 20px; }
+  .gap-card strong { color: #92400e; }
+
+  /* ── Financial statements linkage ── */
+  .fs-map { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 4px; }
+  @media(max-width:560px) { .fs-map { grid-template-columns: 1fr; } }
+  .fs-card { border-radius: 9px; overflow: hidden; }
+  .fs-card-hdr  { padding: 10px 14px; font-weight: 800; font-size: .9rem; }
+  .fs-card-body { background: white; padding: 12px 14px; font-size: .85rem; color: #475569; line-height: 1.8; }
+  .fs-accounts  { font-family: monospace; font-size: .82rem; }
+
+  /* ── Quiz ── */
+  .quiz-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .q-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .q-num  { font-size: .72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+  .q-text { font-size: 1rem; font-weight: 700; color: #1e293b; margin-bottom: 14px; }
+  .q-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .q-opt  { padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f8fafc; font-size: .88rem; font-weight: 600; cursor: pointer; transition: all .15s; color: #334155; text-align: left; }
+  .q-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .q-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-opt.wrong   { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
+  .q-opt:disabled { cursor: default; }
+  .q-explain { margin-top: 10px; font-size: .85rem; padding: 9px 13px; border-radius: 7px; display: none; }
+  .q-explain.show { display: block; }
+  .q-explain.ok  { background: #dcfce7; color: #15803d; }
+  .q-explain.bad { background: #fee2e2; color: #991b1b; }
+  .score-line { text-align: center; font-size: 1rem; font-weight: 800; color: #1e293b; margin-bottom: 6px; }
+
+  /* ── Nav ── */
+  .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; }
+  .nav-btn { padding: 9px 22px; border-radius: 8px; border: none; font-weight: 700; font-size: .85rem; cursor: pointer; }
+  .nav-btn.prev { background: #1e293b; color: #94a3b8; }
+  .nav-btn.prev:hover:not(:disabled) { background: #334155; }
+  .nav-btn.nxt  { background: #3b82f6; color: white; }
+  .nav-btn.nxt:hover:not(:disabled)  { background: #2563eb; }
+  .nav-btn:disabled { opacity: .4; cursor: default; }
+  .nav-ind { font-size: .8rem; color: #64748b; font-weight: 600; }
+
+  /* account type colors */
+  .c-asset   { background:#dbeafe; color:#1e40af; }
+  .c-liab    { background:#fce7f3; color:#9d174d; }
+  .c-equity  { background:#f3e8ff; color:#6b21a8; }
+  .c-rev     { background:#dcfce7; color:#15803d; }
+  .c-exp     { background:#fef9c3; color:#92400e; }
+  .c-other   { background:#f1f5f9; color:#475569; }
+
+  .seg-asset  { background:#1d4ed8; color:white; }
+  .seg-liab   { background:#9d174d; color:white; }
+  .seg-equity { background:#6b21a8; color:white; }
+  .seg-rev    { background:#15803d; color:white; }
+  .seg-exp    { background:#b45309; color:white; }
+  .seg-other  { background:#374151; color:white; }
+
+  @keyframes slideIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  .cat-card { animation: slideIn .3s ease both; }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>📋 Chart of Accounts</h1>
+  <p>Kieso, Weygandt &amp; Warfield · Intermediate Accounting 18th Ed. · Chapter 2 · Pioneer Advertising</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab(0)">① The Numbering System</div>
+  <div class="tab"        onclick="showTab(1)">② Pioneer's Full Chart</div>
+  <div class="tab"        onclick="showTab(2)">③ Links to Financial Statements</div>
+  <div class="tab"        onclick="showTab(3)">④ Self-Check</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 0 — Numbering System
+══════════════════════════════════════ -->
+<div class="panel active" id="tab-0">
+  <div class="sec-title">The Account Numbering System</div>
+  <div class="sec-sub">
+    Companies assign a number to every account. The first digit tells you immediately what type of account it is —
+    like a postal code for the ledger. Pioneer Advertising uses a 3-digit system with ranges for each category.
+  </div>
+
+  <div class="quote">
+    <strong>From the textbook:</strong> "Companies arrange the ledger in the sequence in which they present the
+    accounts in the financial statements, beginning with the balance sheet accounts. Each account is numbered
+    for easier identification. <strong>Gaps are left</strong> to permit the insertion of new accounts as needed."
+  </div>
+
+  <!-- Visual number line -->
+  <div style="font-size:.8rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Click any segment to learn more ↓</div>
+  <div class="num-line" id="numLine">
+    <div class="num-seg seg-asset"  onclick="scrollToCard(0)"><div class="seg-range">100s</div><div class="seg-label">Assets</div><div class="seg-nb">Dr. Normal</div></div>
+    <div class="num-seg seg-liab"   onclick="scrollToCard(1)"><div class="seg-range">200s</div><div class="seg-label">Liabilities</div><div class="seg-nb">Cr. Normal</div></div>
+    <div class="num-seg seg-equity" onclick="scrollToCard(2)"><div class="seg-range">300s</div><div class="seg-label">Equity</div><div class="seg-nb">Cr. Normal</div></div>
+    <div class="num-seg seg-rev"    onclick="scrollToCard(3)"><div class="seg-range">400s</div><div class="seg-label">Revenues</div><div class="seg-nb">Cr. Normal</div></div>
+    <div class="num-seg seg-exp"    onclick="scrollToCard(4)"><div class="seg-range">500–799</div><div class="seg-label">Expenses</div><div class="seg-nb">Dr. Normal</div></div>
+    <div class="num-seg seg-other"  onclick="scrollToCard(5)"><div class="seg-range">800–999</div><div class="seg-label">Other</div><div class="seg-nb">Mixed</div></div>
+  </div>
+
+  <!-- Expandable category cards -->
+  <div class="cat-list" id="catList0">
+
+    <div class="cat-card" id="card-0" style="animation-delay:.05s">
+      <div class="cat-hdr c-asset" onclick="toggleCat(this)">
+        <span class="cat-range">101–199</span>
+        <span class="cat-name">Assets</span>
+        <span class="cat-nb nb-dr">Debit Normal</span>
+        <span class="cat-count">7 accounts</span>
+        <span class="cat-chevron">›</span>
+      </div>
+      <div class="cat-body">
+        <div class="acct-row"><span class="acct-num c-asset" style="background:transparent;color:#1d4ed8">101</span><span class="acct-name">Cash</span><span class="acct-note">Most liquid — always first</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#1d4ed8">112</span><span class="acct-name">Accounts Receivable</span><span class="acct-note">Money owed by customers</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#1d4ed8">113</span><span class="acct-name">Allowance for Doubtful Accounts</span><span class="acct-note">Contra asset — reduces A/R</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#1d4ed8">126</span><span class="acct-name">Supplies</span><span class="acct-note">Gap 114–125 left for future accounts</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#1d4ed8">130</span><span class="acct-name">Prepaid Insurance</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#1d4ed8">157</span><span class="acct-name">Equipment</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#1d4ed8">158</span><span class="acct-name">Accumulated Depreciation — Equipment</span><span class="acct-note">Contra asset</span></div>
+      </div>
+    </div>
+
+    <div class="cat-card" id="card-1" style="animation-delay:.10s">
+      <div class="cat-hdr c-liab" onclick="toggleCat(this)">
+        <span class="cat-range">200–299</span>
+        <span class="cat-name">Liabilities</span>
+        <span class="cat-nb nb-cr">Credit Normal</span>
+        <span class="cat-count">5 accounts</span>
+        <span class="cat-chevron">›</span>
+      </div>
+      <div class="cat-body">
+        <div class="acct-row"><span class="acct-num" style="color:#9d174d">200</span><span class="acct-name">Notes Payable</span><span class="acct-note">Formal written promise to pay</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#9d174d">201</span><span class="acct-name">Accounts Payable</span><span class="acct-note">Amounts owed to suppliers</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#9d174d">209</span><span class="acct-name">Unearned Service Revenue</span><span class="acct-note">Cash received before service performed</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#9d174d">212</span><span class="acct-name">Salaries and Wages Payable</span><span class="acct-note">Earned by employees, not yet paid</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#9d174d">230</span><span class="acct-name">Interest Payable</span><span class="acct-note">Accrued but unpaid interest</span></div>
+      </div>
+    </div>
+
+    <div class="cat-card" id="card-2" style="animation-delay:.15s">
+      <div class="cat-hdr c-equity" onclick="toggleCat(this)">
+        <span class="cat-range">300–399</span>
+        <span class="cat-name">Stockholders' Equity</span>
+        <span class="cat-nb nb-cr">Credit Normal</span>
+        <span class="cat-count">4 accounts</span>
+        <span class="cat-chevron">›</span>
+      </div>
+      <div class="cat-body">
+        <div class="acct-row"><span class="acct-num" style="color:#6b21a8">311</span><span class="acct-name">Common Stock</span><span class="acct-note">Owners' investment in the company</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#6b21a8">320</span><span class="acct-name">Retained Earnings</span><span class="acct-note">Accumulated profits kept in the business</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#6b21a8">332</span><span class="acct-name">Dividends</span><span class="acct-note">Distributions to owners — Debit normal (reduces equity)</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#6b21a8">350</span><span class="acct-name">Income Summary</span><span class="acct-note">Temporary — used only during closing entries</span></div>
+      </div>
+    </div>
+
+    <div class="cat-card" id="card-3" style="animation-delay:.20s">
+      <div class="cat-hdr c-rev" onclick="toggleCat(this)">
+        <span class="cat-range">400–499</span>
+        <span class="cat-name">Revenues</span>
+        <span class="cat-nb nb-cr">Credit Normal</span>
+        <span class="cat-count">1 account</span>
+        <span class="cat-chevron">›</span>
+      </div>
+      <div class="cat-body">
+        <div class="acct-row"><span class="acct-num" style="color:#15803d">400</span><span class="acct-name">Service Revenue</span><span class="acct-note">Pioneer earns revenue by providing advertising services</span></div>
+        <div class="acct-row" style="background:#f0fdf4"><span class="acct-num" style="color:#94a3b8">401–499</span><span class="acct-name" style="color:#94a3b8;font-style:italic">Reserved — gaps for future revenue accounts</span></div>
+      </div>
+    </div>
+
+    <div class="cat-card" id="card-4" style="animation-delay:.25s">
+      <div class="cat-hdr c-exp" onclick="toggleCat(this)">
+        <span class="cat-range">500–799</span>
+        <span class="cat-name">Expenses</span>
+        <span class="cat-nb nb-dr">Debit Normal</span>
+        <span class="cat-count">7 accounts</span>
+        <span class="cat-chevron">›</span>
+      </div>
+      <div class="cat-body">
+        <div class="acct-row"><span class="acct-num" style="color:#92400e">631</span><span class="acct-name">Supplies Expense</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#92400e">711</span><span class="acct-name">Depreciation Expense</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#92400e">722</span><span class="acct-name">Insurance Expense</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#92400e">726</span><span class="acct-name">Salaries and Wages Expense</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#92400e">729</span><span class="acct-name">Rent Expense</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#92400e">732</span><span class="acct-name">Utilities Expense</span></div>
+        <div class="acct-row"><span class="acct-num" style="color:#92400e">750</span><span class="acct-name">Bad Debt Expense</span></div>
+      </div>
+    </div>
+
+    <div class="cat-card" id="card-5" style="animation-delay:.30s">
+      <div class="cat-hdr c-other" onclick="toggleCat(this)">
+        <span class="cat-range">800–999</span>
+        <span class="cat-name">Other Revenues &amp; Expenses</span>
+        <span class="cat-nb" style="background:#e2e8f0;color:#475569">Mixed</span>
+        <span class="cat-count">1 account</span>
+        <span class="cat-chevron">›</span>
+      </div>
+      <div class="cat-body">
+        <div class="acct-row"><span class="acct-num" style="color:#475569">905</span><span class="acct-name">Interest Expense</span><span class="acct-note">Non-operating expense — below operating income on income statement</span></div>
+        <div class="acct-row" style="background:#f8fafc"><span class="acct-num" style="color:#94a3b8">800s</span><span class="acct-name" style="color:#94a3b8;font-style:italic">Other revenues (e.g. interest earned, gains)</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="gap-card">
+    <strong>Why are there gaps in the numbering?</strong><br>
+    Notice that accounts jump from 101 → 112 → 113 → 126 → 130 → 157. These gaps are intentional.
+    If Pioneer later needs a "Prepaid Rent" account, it can insert account 131 without renumbering everything.
+    The same logic applies in every category — the chart of accounts is designed to grow.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 1 — Full Chart (visual grid)
+══════════════════════════════════════ -->
+<div class="panel" id="tab-1">
+  <div class="sec-title">Pioneer Advertising — Full Chart of Accounts</div>
+  <div class="sec-sub">
+    The complete ledger organized exactly as it appears in Illustration 2.10. Accounts follow the
+    financial statement order: Balance Sheet first (Assets → Liabilities → Equity), then Income Statement (Revenues → Expenses).
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+    <div>
+      <div style="background:#1d4ed8;color:white;border-radius:8px 8px 0 0;padding:10px 16px;font-weight:800;font-size:.9rem">🏦 Assets (101–199)</div>
+      <div style="background:white;border-radius:0 0 8px 8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+        <div style="background:#dbeafe;padding:6px 16px;font-size:.75rem;font-weight:700;color:#1d4ed8">BALANCE SHEET · Normal Balance: DEBIT</div>
+        <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#1d4ed8;min-width:34px">101</span><span>Cash</span></div>
+        <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#1d4ed8;min-width:34px">112</span><span>Accounts Receivable</span></div>
+        <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#1d4ed8;min-width:34px">113</span><span>Allowance for Doubtful Accounts</span></div>
+        <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#1d4ed8;min-width:34px">126</span><span>Supplies</span></div>
+        <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#1d4ed8;min-width:34px">130</span><span>Prepaid Insurance</span></div>
+        <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#1d4ed8;min-width:34px">157</span><span>Equipment</span></div>
+        <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#1d4ed8;min-width:34px">158</span><span>Accumulated Depreciation — Equipment</span></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div>
+        <div style="background:#9d174d;color:white;border-radius:8px 8px 0 0;padding:10px 16px;font-weight:800;font-size:.9rem">📋 Liabilities (200–299)</div>
+        <div style="background:white;border-radius:0 0 8px 8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+          <div style="background:#fce7f3;padding:6px 16px;font-size:.75rem;font-weight:700;color:#9d174d">BALANCE SHEET · Normal Balance: CREDIT</div>
+          <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#9d174d;min-width:34px">200</span><span>Notes Payable</span></div>
+          <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#9d174d;min-width:34px">201</span><span>Accounts Payable</span></div>
+          <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#9d174d;min-width:34px">209</span><span>Unearned Service Revenue</span></div>
+          <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#9d174d;min-width:34px">212</span><span>Salaries &amp; Wages Payable</span></div>
+          <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#9d174d;min-width:34px">230</span><span>Interest Payable</span></div>
+        </div>
+      </div>
+      <div>
+        <div style="background:#6b21a8;color:white;border-radius:8px 8px 0 0;padding:10px 16px;font-weight:800;font-size:.9rem">🏛️ Stockholders' Equity (300–399)</div>
+        <div style="background:white;border-radius:0 0 8px 8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+          <div style="background:#f3e8ff;padding:6px 16px;font-size:.75rem;font-weight:700;color:#6b21a8">BALANCE SHEET · Normal Balance: CREDIT</div>
+          <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#6b21a8;min-width:34px">311</span><span>Common Stock</span></div>
+          <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#6b21a8;min-width:34px">320</span><span>Retained Earnings</span></div>
+          <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#6b21a8;min-width:34px">332</span><span>Dividends</span></div>
+          <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#6b21a8;min-width:34px">350</span><span>Income Summary</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div style="background:#15803d;color:white;border-radius:8px 8px 0 0;padding:10px 16px;font-weight:800;font-size:.9rem">💰 Revenues (400–499)</div>
+      <div style="background:white;border-radius:0 0 8px 8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+        <div style="background:#dcfce7;padding:6px 16px;font-size:.75rem;font-weight:700;color:#15803d">INCOME STATEMENT · Normal Balance: CREDIT</div>
+        <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#15803d;min-width:34px">400</span><span>Service Revenue</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div style="background:#b45309;color:white;border-radius:8px 8px 0 0;padding:10px 16px;font-weight:800;font-size:.9rem">📉 Expenses (500–799) &amp; Other (800–999)</div>
+      <div style="background:white;border-radius:0 0 8px 8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+        <div style="background:#fef9c3;padding:6px 16px;font-size:.75rem;font-weight:700;color:#92400e">INCOME STATEMENT · Normal Balance: DEBIT</div>
+        <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#92400e;min-width:34px">631</span><span>Supplies Expense</span></div>
+        <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#92400e;min-width:34px">711</span><span>Depreciation Expense</span></div>
+        <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#92400e;min-width:34px">722</span><span>Insurance Expense</span></div>
+        <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#92400e;min-width:34px">726</span><span>Salaries &amp; Wages Expense</span></div>
+        <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#92400e;min-width:34px">729</span><span>Rent Expense</span></div>
+        <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#92400e;min-width:34px">732</span><span>Utilities Expense</span></div>
+        <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#92400e;min-width:34px">750</span><span>Bad Debt Expense</span></div>
+        <div style="display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid #f1f5f9;font-size:.88rem"><span style="font-family:monospace;font-weight:800;color:#92400e;min-width:34px">905</span><span>Interest Expense <span style="color:#94a3b8;font-style:italic">(Other — non-operating)</span></span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 2 — Financial Statement Links
+══════════════════════════════════════ -->
+<div class="panel" id="tab-2">
+  <div class="sec-title">How the Chart Links to Financial Statements</div>
+  <div class="sec-sub">
+    The account numbering mirrors the order in which accounts appear on the financial statements.
+    Balance Sheet accounts come first (100s–300s), then Income Statement accounts (400s–900s).
+  </div>
+
+  <div class="quote">
+    <strong>Key insight:</strong> Every account belongs to exactly one financial statement. Knowing the account number tells you
+    <em>which statement</em> it appears on and <em>which side</em> (debit or credit) is its normal balance.
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+    <div style="border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08)">
+      <div style="background:#1e293b;color:white;padding:12px 16px;font-weight:800;font-size:.95rem">📊 Balance Sheet</div>
+      <div style="background:white;padding:14px 16px">
+        <div style="font-size:.82rem;color:#475569;margin-bottom:10px">Reports what the company <strong>owns</strong> and <strong>owes</strong> at a point in time.</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="background:#dbeafe;border-radius:6px;padding:10px 12px">
+            <div style="font-weight:800;color:#1d4ed8;font-size:.85rem;margin-bottom:4px">Assets — 100s</div>
+            <div style="font-family:monospace;font-size:.78rem;color:#1e40af">101 Cash, 112 Accts Rec., 126 Supplies, 157 Equipment…</div>
+          </div>
+          <div style="background:#fce7f3;border-radius:6px;padding:10px 12px">
+            <div style="font-weight:800;color:#9d174d;font-size:.85rem;margin-bottom:4px">Liabilities — 200s</div>
+            <div style="font-family:monospace;font-size:.78rem;color:#9d174d">200 Notes Pay., 201 Accts Pay., 209 Unearned Rev…</div>
+          </div>
+          <div style="background:#f3e8ff;border-radius:6px;padding:10px 12px">
+            <div style="font-weight:800;color:#6b21a8;font-size:.85rem;margin-bottom:4px">Stockholders' Equity — 300s</div>
+            <div style="font-family:monospace;font-size:.78rem;color:#6b21a8">311 Common Stock, 320 Retained Earnings, 332 Dividends…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08)">
+      <div style="background:#1e293b;color:white;padding:12px 16px;font-weight:800;font-size:.95rem">📈 Income Statement</div>
+      <div style="background:white;padding:14px 16px">
+        <div style="font-size:.82rem;color:#475569;margin-bottom:10px">Reports <strong>revenues</strong> and <strong>expenses</strong> over a period of time.</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="background:#dcfce7;border-radius:6px;padding:10px 12px">
+            <div style="font-weight:800;color:#15803d;font-size:.85rem;margin-bottom:4px">Revenues — 400s</div>
+            <div style="font-family:monospace;font-size:.78rem;color:#15803d">400 Service Revenue</div>
+          </div>
+          <div style="background:#fef9c3;border-radius:6px;padding:10px 12px">
+            <div style="font-weight:800;color:#92400e;font-size:.85rem;margin-bottom:4px">Expenses — 500–799</div>
+            <div style="font-family:monospace;font-size:.78rem;color:#92400e">631 Supplies Exp., 726 Salaries Exp., 729 Rent Exp…</div>
+          </div>
+          <div style="background:#f1f5f9;border-radius:6px;padding:10px 12px">
+            <div style="font-weight:800;color:#475569;font-size:.85rem;margin-bottom:4px">Other — 800–999</div>
+            <div style="font-family:monospace;font-size:.78rem;color:#475569">905 Interest Expense (non-operating)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Flow diagram -->
+  <div style="margin-top:20px;background:white;border-radius:10px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+    <div style="font-weight:800;font-size:.9rem;color:#1e293b;margin-bottom:14px;text-align:center">How Account Numbers Flow into Financial Statements</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;font-size:.85rem">
+      <div style="background:#dbeafe;border-radius:6px;padding:8px 14px;text-align:center"><div style="font-weight:800;color:#1d4ed8">100s</div><div style="color:#1e40af;font-size:.75rem">Assets</div></div>
+      <div style="color:#94a3b8;font-size:1.2rem">→</div>
+      <div style="background:#fce7f3;border-radius:6px;padding:8px 14px;text-align:center"><div style="font-weight:800;color:#9d174d">200s</div><div style="color:#9d174d;font-size:.75rem">Liabilities</div></div>
+      <div style="color:#94a3b8;font-size:1.2rem">→</div>
+      <div style="background:#f3e8ff;border-radius:6px;padding:8px 14px;text-align:center"><div style="font-weight:800;color:#6b21a8">300s</div><div style="color:#6b21a8;font-size:.75rem">Equity</div></div>
+      <div style="color:#94a3b8;font-size:.9rem;font-weight:700;padding:4px 6px;background:#e2e8f0;border-radius:4px">Balance Sheet</div>
+      <div style="color:#94a3b8;font-size:1.2rem">|</div>
+      <div style="background:#dcfce7;border-radius:6px;padding:8px 14px;text-align:center"><div style="font-weight:800;color:#15803d">400s</div><div style="color:#15803d;font-size:.75rem">Revenues</div></div>
+      <div style="color:#94a3b8;font-size:1.2rem">→</div>
+      <div style="background:#fef9c3;border-radius:6px;padding:8px 14px;text-align:center"><div style="font-weight:800;color:#92400e">500–799</div><div style="color:#92400e;font-size:.75rem">Expenses</div></div>
+      <div style="color:#94a3b8;font-size:.9rem;font-weight:700;padding:4px 6px;background:#e2e8f0;border-radius:4px">Income Stmt</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 3 — Quiz
+══════════════════════════════════════ -->
+<div class="panel" id="tab-3">
+  <div class="sec-title">Practice — Account Classification</div>
+  <div class="sec-sub">Look at the account number or name and identify its category and which financial statement it belongs to.</div>
+  <div class="score-line">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <br>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</div>
+
+<!-- Nav bar -->
+<div class="nav-bar">
+  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>← Previous</button>
+  <span class="nav-ind" id="navInd">Tab 1 of 4</span>
+  <button class="nav-btn nxt"  id="btnNext" onclick="navigate(1)">Next →</button>
+</div>
+
+<script>
+const TABS = ['The Numbering System','Pioneer\'s Full Chart','Links to Financial Statements','Self-Check'];
+let cur = 0;
+
+function showTab(i) {
+  document.querySelectorAll('.panel').forEach((p,j) => p.classList.toggle('active', j===i));
+  document.querySelectorAll('.tab').forEach((t,j) => t.classList.toggle('active', j===i));
+  cur = i;
+  document.getElementById('btnPrev').disabled = i===0;
+  document.getElementById('btnNext').disabled = i===TABS.length-1;
+  document.getElementById('navInd').textContent = `Tab ${i+1} of ${TABS.length} — ${TABS[i]}`;
+  if (i===3 && !quizBuilt) buildQuiz();
+}
+function navigate(d) { showTab(cur+d); }
+
+function toggleCat(hdr) {
+  hdr.classList.toggle('open');
+  hdr.nextElementSibling.classList.toggle('open');
+}
+
+function scrollToCard(idx) {
+  showTab(0);
+  setTimeout(() => {
+    const card = document.getElementById('card-'+idx);
+    const hdr  = card.querySelector('.cat-hdr');
+    if (!hdr.classList.contains('open')) toggleCat(hdr);
+    card.scrollIntoView({ behavior:'smooth', block:'center' });
+  }, 80);
+}
+
+// ── Quiz ──────────────────────────────────────
+let quizBuilt = false, score = 0;
+
+const QUESTIONS = [
+  { q:'Account #101 — what type is it?', correct:'Asset (100s)', opts:['Asset (100s)','Liability (200s)','Equity (300s)','Revenue (400s)'], exp:'Account numbers in the 100s are always Assets. #101 is Cash.' },
+  { q:'Account #209 — what type is it?', correct:'Liability (200s)', opts:['Asset (100s)','Liability (200s)','Revenue (400s)','Expense (500s+)'], exp:'200s are Liabilities. #209 is Unearned Service Revenue — cash received before services are performed.' },
+  { q:'Account #726 — what type is it?', correct:'Expense (500–799)', opts:['Asset (100s)','Equity (300s)','Revenue (400s)','Expense (500–799)'], exp:'500–799 are Expenses. #726 is Salaries and Wages Expense.' },
+  { q:'Which financial statement shows account #311 (Common Stock)?', correct:'Balance Sheet', opts:['Balance Sheet','Income Statement','Statement of Cash Flows','Retained Earnings Statement'], exp:'Common Stock (300s) is an equity account — it appears on the Balance Sheet.' },
+  { q:'Account #400 (Service Revenue) — which statement and what normal balance?', correct:'Income Statement / Credit', opts:['Balance Sheet / Debit','Balance Sheet / Credit','Income Statement / Debit','Income Statement / Credit'], exp:'Revenue accounts (400s) are on the Income Statement. Revenue has a Credit normal balance.' },
+  { q:'Where would a new "Prepaid Rent" account most likely be numbered?', correct:'130–156 (gap in 100s)', opts:['130–156 (gap in 100s)','200–208 (gap in 200s)','350–399 (gap in 300s)','500–630 (gap in 500s)'], exp:'Prepaid Rent is a prepaid asset. Assets are in the 100s. A gap exists between #130 (Prepaid Insurance) and #157 (Equipment) for exactly this purpose.' },
+  { q:'Account #332 (Dividends) — what is its normal balance?', correct:'Debit', opts:['Debit','Credit'], exp:'Dividends reduce equity. Even though it\'s in the 300s (equity), it has a Debit normal balance because it reduces the owner\'s claim.' },
+  { q:'Account #905 (Interest Expense) — what type is it?', correct:'Other Expense (900s)', opts:['Asset (100s)','Liability (200s)','Expense (500–799)','Other Expense (900s)'], exp:'#905 is in the 900s — Other Expenses. Interest expense is non-operating, so it\'s reported separately below operating income.' },
+];
+
+function buildQuiz() {
+  quizBuilt = true;
+  const wrap = document.getElementById('quizWrap');
+  document.getElementById('total').textContent = QUESTIONS.length;
+  QUESTIONS.forEach((q,qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML = `
+      <div class="q-num">Question ${qi+1} of ${QUESTIONS.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="q-opts">${q.opts.map(o=>`<button class="q-opt" onclick="answer(${qi},'${o.replace(/'/g,"\\'")}',this)">${o}</button>`).join('')}</div>
+      <div class="q-explain" id="qe-${qi}"></div>
+    `;
+    wrap.appendChild(card);
+  });
+}
+
+function answer(qi, chosen, btn) {
+  const card = btn.closest('.q-card');
+  if (card.dataset.done) return;
+  card.dataset.done = '1';
+  const q = QUESTIONS[qi];
+  card.querySelectorAll('.q-opt').forEach(b => {
+    b.disabled = true;
+    if (b.textContent === q.correct) b.classList.add('correct');
+    else b.classList.add('wrong');
+  });
+  const exp = document.getElementById('qe-'+qi);
+  exp.classList.add('show');
+  if (chosen === q.correct) {
+    score++;
+    exp.classList.add('ok');
+    exp.textContent = '✅ Correct! ' + q.exp;
+  } else {
+    exp.classList.add('bad');
+    exp.textContent = '❌ The answer is: ' + q.correct + '. ' + q.exp;
+  }
+  document.getElementById('score').textContent = score;
+}
+</script>
+</body>
+</html>

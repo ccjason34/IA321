@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basic Journal Entries | Kieso Ch. 2</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f1f5f9; font-family: "Segoe UI", system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.22rem; font-weight: 800; letter-spacing: 0; }
+  .header p { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab { padding: 11px 18px; font-size: .88rem; font-weight: 700; color: #64748b; cursor: pointer; border: 0; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; background: transparent; font-family: inherit; }
+  .tab:hover { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+  .panel { display: none; max-width: 1080px; margin: 0 auto; padding: 22px 16px 90px; }
+  .panel.active { display: block; }
+  .sec-title { font-size: 1.34rem; font-weight: 800; margin-bottom: 8px; }
+  .sec-sub { font-size: .96rem; color: #475569; margin-bottom: 18px; line-height: 1.65; max-width: 940px; }
+
+  .rule-box { background: linear-gradient(135deg, #dbeafe, #ecfdf5); border: 2px solid #2563eb; border-radius: 12px; padding: 14px 18px; margin-bottom: 18px; color: #1e3a8a; font-size: .94rem; line-height: 1.6; font-weight: 750; }
+  .rule-box strong { color: #1d4ed8; font-weight: 900; }
+  .rule-box .trap { color: #b45309; font-weight: 900; }
+  .memory-band { background: #fffbeb; border: 2px solid #f59e0b; border-radius: 12px; padding: 13px 16px; margin: -4px 0 18px; color: #78350f; font-size: .92rem; line-height: 1.55; font-weight: 800; }
+  .memory-band strong { color: #92400e; font-weight: 900; }
+  .memory-band .mini { display: inline-block; background: #1e293b; color: #fef3c7; border-radius: 7px; padding: 3px 8px; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; margin: 2px 3px; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+  @media(max-width:880px) { .grid-2 { grid-template-columns: 1fr; } }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media(max-width:820px) { .grid-3 { grid-template-columns: 1fr; } }
+
+  .card { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border: 1px solid #e2e8f0; }
+  .card-h { background: #1e293b; color: white; padding: 12px 15px; font-weight: 900; font-size: .9rem; }
+  .card-b { padding: 14px 16px; }
+
+  .rule-card { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border-top: 5px solid #cbd5e1; }
+  .rule-card.asset { border-top-color: #2563eb; }
+  .rule-card.liability { border-top-color: #f59e0b; }
+  .rule-card.equity { border-top-color: #0f766e; }
+  .rule-card.expense { border-top-color: #ef4444; }
+  .rule-card.revenue { border-top-color: #16a34a; }
+  .rule-card.asset-like { box-shadow: 0 0 0 3px rgba(37,99,235,.12), 0 3px 12px rgba(0,0,0,.08); }
+  .rule-card .h { padding: 12px 15px 6px; font-weight: 900; color: #0f172a; }
+  .rule-card .b { padding: 0 15px 14px; color: #475569; font-size: .88rem; line-height: 1.55; font-weight: 750; }
+  .mini-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .82rem; }
+  .mini-table td { padding: 7px 8px; border: 1px solid #e2e8f0; text-align: center; font-weight: 900; }
+  .mini-table .debit { background: #eff6ff; color: #1d4ed8; }
+  .mini-table .credit { background: #fffbeb; color: #b45309; }
+
+  .equation { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 8px; align-items: stretch; margin-bottom: 18px; }
+  @media(max-width:700px) { .equation { grid-template-columns: 1fr; } .eq-op { display: none; } }
+  .eq-box { background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 14px; text-align: center; box-shadow: 0 3px 12px rgba(0,0,0,.06); }
+  .eq-label { font-size: .72rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .55px; margin-bottom: 5px; }
+  .eq-main { font-size: 1.15rem; font-weight: 900; color: #0f172a; }
+  .eq-sub { margin-top: 5px; font-size: .8rem; color: #64748b; font-weight: 750; line-height: 1.35; }
+  .eq-op { display: flex; align-items: center; justify-content: center; color: #64748b; font-weight: 900; font-size: 1.2rem; }
+
+  .step-ctrl { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; margin: 0 0 14px; }
+  .sc-btn { padding: 10px 20px; border-radius: 9px; border: none; font-weight: 800; font-size: .85rem; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .sc-step { background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; font-weight: 900; padding: 13px 24px; min-width: 240px; box-shadow: 0 4px 14px rgba(245,158,11,.38); animation: stepPulse 1.6s ease-in-out infinite; }
+  .sc-step:hover:not(:disabled) { background: linear-gradient(135deg, #d97706, #dc2626); transform: translateY(-1px); }
+  .sc-step:disabled { animation: none; box-shadow: none; background: #94a3b8; }
+  .sc-reset { background: #475569; color: white; padding: 9px 18px; font-size: .82rem; }
+  .sc-reset:hover { background: #334155; }
+  .sc-small { border: 2px solid #e2e8f0; background: #f8fafc; color: #334155; padding: 9px 13px; }
+  .sc-small.active { background: #dbeafe; border-color: #3b82f6; color: #1d4ed8; }
+  .sc-btn:disabled { opacity: .58; cursor: default; }
+  @keyframes stepPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(245,158,11,.38); }
+    50% { box-shadow: 0 4px 20px rgba(239,68,68,.66), 0 0 0 4px rgba(245,158,11,.16); }
+  }
+
+  .status-card { background: white; border-radius: 10px; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); margin-bottom: 14px; font-size: .92rem; color: #334155; line-height: 1.6; border-left: 4px solid #3b82f6; min-height: 64px; }
+  .status-card strong { color: #1e293b; }
+  .status-card .calc { display: inline-block; background: #fef3c7; color: #92400e; padding: 2px 10px; border-radius: 6px; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; margin-top: 4px; }
+
+  .scenario-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+  @media(max-width:850px) { .scenario-strip { grid-template-columns: 1fr 1fr; } }
+  @media(max-width:560px) { .scenario-strip { grid-template-columns: 1fr; } }
+  .scenario { border: 2px solid #e2e8f0; background: white; border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: .16s; }
+  .scenario:hover { border-color: #3b82f6; background: #eff6ff; }
+  .scenario.active { border-color: #f59e0b; background: #fffbeb; box-shadow: 0 0 0 3px rgba(245,158,11,.14); }
+  .scenario .label { color: #64748b; font-size: .68rem; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .scenario .text { color: #0f172a; font-weight: 850; line-height: 1.35; font-size: .86rem; }
+
+  .analysis-list { display: grid; gap: 9px; }
+  .analysis-row { display: grid; grid-template-columns: 118px 1fr; gap: 10px; border: 2px solid #e2e8f0; border-radius: 10px; background: #f8fafc; padding: 10px 12px; opacity: .28; transition: .2s; }
+  .analysis-row.active { opacity: 1; background: #fef3c7; border-color: #f59e0b; }
+  .analysis-row.done { opacity: 1; background: #f0fdf4; border-color: #86efac; }
+  .analysis-key { color: #64748b; font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
+  .analysis-text { color: #334155; font-size: .88rem; line-height: 1.45; font-weight: 750; }
+  .analysis-text strong { color: #0f172a; }
+
+  .journal-layout { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr); gap: 14px; align-items: start; }
+  @media(max-width:900px) { .journal-layout { grid-template-columns: 1fr; } }
+  .journal { width: 100%; border-collapse: collapse; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .86rem; }
+  .journal th { background: #f8fafc; color: #64748b; text-align: left; padding: 8px; font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; }
+  .journal th.dr, .journal th.cr, .journal td.dr, .journal td.cr { text-align: right; width: 110px; }
+  .journal td { padding: 8px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+  .journal tr.hidden { opacity: .2; }
+  .journal tr.active td { background: #fef3c7; }
+  .journal tr.done td { background: #f0fdf4; }
+  .journal .indent { padding-left: 28px; }
+  .journal .dr, .journal .cr { color: #0f172a; font-weight: 900; white-space: nowrap; }
+
+  .why-panel { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border: 1px solid #e2e8f0; }
+  .why-head { background: #0f766e; color: white; padding: 12px 15px; font-weight: 900; font-size: .9rem; }
+  .why-body { padding: 14px 16px; }
+  .why-rule-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+  @media(max-width:560px) { .why-rule-grid { grid-template-columns: 1fr; } }
+  .why-rule { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 9px; padding: 9px 10px; }
+  .why-rule.active { background: #fef3c7; border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.14); }
+  .why-rule .tag { font-size: .66rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .45px; margin-bottom: 4px; }
+  .why-rule .text { font-size: .8rem; color: #334155; font-weight: 800; line-height: 1.35; }
+  .why-rule.active .tag { color: #92400e; }
+  .why-card { display: none; border-radius: 10px; padding: 12px 14px; border: 2px solid #e2e8f0; background: #f8fafc; color: #334155; line-height: 1.55; font-size: .88rem; font-weight: 750; }
+  .why-card.active { display: block; animation: fadeWhy .25s ease both; }
+  .why-card strong { color: #0f172a; font-weight: 900; }
+  .why-card .mini { display: block; margin-top: 8px; background: #1e293b; color: #fef3c7; border-radius: 7px; padding: 8px 10px; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; font-size: .78rem; }
+  .why-card.debit { border-color: #2563eb; background: #eff6ff; }
+  .why-card.credit { border-color: #f59e0b; background: #fffbeb; }
+  @keyframes fadeWhy { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .takeaway { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 2px solid #16a34a; border-radius: 12px; padding: 14px 18px; margin-top: 16px; font-size: .92rem; color: #14532d; line-height: 1.6; }
+  .takeaway strong { color: #166534; }
+
+  .quiz-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .score { background: white; border-radius: 10px; padding: 12px 16px; box-shadow: 0 2px 8px rgba(0,0,0,.07); font-weight: 900; color: #1e293b; margin-bottom: 14px; }
+  .q-card { background: white; border-radius: 12px; padding: 15px 17px; box-shadow: 0 2px 8px rgba(0,0,0,.07); border: 1px solid #e2e8f0; }
+  .q-num { font-size: .72rem; color: #64748b; font-weight: 900; text-transform: uppercase; letter-spacing: .55px; margin-bottom: 6px; }
+  .q-text { font-weight: 850; color: #1e293b; margin-bottom: 11px; line-height: 1.45; }
+  .q-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .q-opt { border: 2px solid #e2e8f0; background: #f8fafc; color: #334155; border-radius: 8px; padding: 9px 12px; font-size: .84rem; font-weight: 850; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .q-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .q-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+  .q-opt:disabled { cursor: default; }
+  .explain { display: none; margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #f8fafc; color: #475569; font-size: .84rem; line-height: 1.55; font-weight: 700; }
+  .explain.show { display: block; }
+
+  .nav { position: fixed; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,.96); padding: 10px 16px; display: flex; justify-content: center; gap: 10px; box-shadow: 0 -4px 18px rgba(15,23,42,.22); }
+  .nav button { border: 0; border-radius: 8px; padding: 9px 18px; font-weight: 900; cursor: pointer; color: white; background: #334155; font-family: inherit; }
+  .nav button:hover { background: #475569; }
+  .nav button.primary { background: #2563eb; }
+  .nav button.primary:hover { background: #1d4ed8; }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>Basic Journal Entries</h1>
+  <p>Kieso, Weygandt &amp; Warfield &middot; Intermediate Accounting 18th Ed. &middot; Chapter 2 &middot; Analyze, Journalize, Post</p>
+</div>
+
+<div class="tabs" role="tablist" aria-label="Basic journal entry lesson tabs">
+  <button class="tab active" role="tab" aria-selected="true" onclick="showTab(0)">1. Debit/Credit Rules</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(1)">2. Analyze First</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(2)">3. Build Entries</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(3)">4. Self-Check</button>
+</div>
+
+<section class="panel active">
+  <div class="sec-title">A Journal Entry Starts With Account Behavior</div>
+  <div class="sec-sub">Students usually memorize debits and credits too early. A better first question is: what account changed, and did it increase or decrease?</div>
+
+  <div class="rule-box">
+    <strong>Three-step habit:</strong> identify the accounts, decide whether each account increases or decreases, then apply the account's debit/credit rule. <span class="trap">Trap:</span> debit does not always mean increase, and credit does not always mean decrease.
+  </div>
+
+  <div class="memory-band">
+    <strong>Important pattern:</strong> Expenses and dividends move like assets. They increase with <span class="mini">debits</span> and decrease with <span class="mini">credits</span>. That is why many teachers group them as <strong>A + E + D</strong>: Assets, Expenses, Dividends.
+  </div>
+
+  <div class="equation">
+    <div class="eq-box">
+      <div class="eq-label">Assets</div>
+      <div class="eq-main">Debit increases</div>
+      <div class="eq-sub">Cash, supplies, equipment, receivables</div>
+    </div>
+    <div class="eq-op">=</div>
+    <div class="eq-box">
+      <div class="eq-label">Liabilities</div>
+      <div class="eq-main">Credit increases</div>
+      <div class="eq-sub">Accounts payable, notes payable, unearned revenue</div>
+    </div>
+    <div class="eq-op">+</div>
+    <div class="eq-box">
+      <div class="eq-label">Equity</div>
+      <div class="eq-main">Credit increases</div>
+      <div class="eq-sub">Common stock and retained earnings side</div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="rule-card asset asset-like">
+      <div class="h">Assets</div>
+      <div class="b">Assets increase on the left side.
+        <table class="mini-table"><tr><td class="debit">Debit +</td><td class="credit">Credit -</td></tr></table>
+      </div>
+    </div>
+    <div class="rule-card liability">
+      <div class="h">Liabilities</div>
+      <div class="b">Liabilities increase on the right side.
+        <table class="mini-table"><tr><td class="debit">Debit -</td><td class="credit">Credit +</td></tr></table>
+      </div>
+    </div>
+    <div class="rule-card equity">
+      <div class="h">Equity and Common Stock</div>
+      <div class="b">Owner/shareholder claims increase with credits.
+        <table class="mini-table"><tr><td class="debit">Debit -</td><td class="credit">Credit +</td></tr></table>
+      </div>
+    </div>
+    <div class="rule-card revenue">
+      <div class="h">Revenue</div>
+      <div class="b">Revenue increases equity, so revenue increases with credits.
+        <table class="mini-table"><tr><td class="debit">Debit -</td><td class="credit">Credit +</td></tr></table>
+      </div>
+    </div>
+    <div class="rule-card expense asset-like">
+      <div class="h">Expenses</div>
+      <div class="b">Expenses decrease equity, but they move like assets: increase with debits.
+        <table class="mini-table"><tr><td class="debit">Debit +</td><td class="credit">Credit -</td></tr></table>
+      </div>
+    </div>
+    <div class="rule-card equity asset-like">
+      <div class="h">Dividends</div>
+      <div class="b">Dividends decrease equity, but they also move like assets: increase with debits.
+        <table class="mini-table"><tr><td class="debit">Debit +</td><td class="credit">Credit -</td></tr></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway"><strong>Student shortcut:</strong> Assets, expenses, and dividends move together: debit to increase, credit to decrease. Liabilities, equity, and revenues move the opposite way: credit to increase, debit to decrease.</div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Analyze the Transaction Before Writing the Entry</div>
+  <div class="sec-sub">Use the same questions every time: what happened, which accounts changed, did each account increase or decrease, and which side records that change?</div>
+
+  <div class="scenario-strip">
+    <div class="scenario active" onclick="selectScenario(0)">
+      <div class="label">Transaction 1</div>
+      <div class="text">Owner invests $10,000 cash for common stock.</div>
+    </div>
+    <div class="scenario" onclick="selectScenario(1)">
+      <div class="label">Transaction 2</div>
+      <div class="text">Company buys supplies for $1,200 cash.</div>
+    </div>
+    <div class="scenario" onclick="selectScenario(2)">
+      <div class="label">Transaction 3</div>
+      <div class="text">Company performs $3,000 services on account.</div>
+    </div>
+    <div class="scenario" onclick="selectScenario(3)">
+      <div class="label">Transaction 4</div>
+      <div class="text">Company pays $800 rent for the month.</div>
+    </div>
+  </div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="analysisBtn" onclick="nextAnalysis()">Show Question 1</button>
+    <button class="sc-btn sc-reset" onclick="resetAnalysis()">Reset</button>
+  </div>
+  <div class="status-card" id="analysisStatus">Ready: choose a transaction, then walk through the analysis before looking at the journal entry.</div>
+
+  <div class="card">
+    <div class="card-h" id="analysisTitle">Transaction 1 Analysis</div>
+    <div class="card-b">
+      <div class="analysis-list">
+        <div class="analysis-row" id="aRow0"><div class="analysis-key">What happened?</div><div class="analysis-text" id="aText0"></div></div>
+        <div class="analysis-row" id="aRow1"><div class="analysis-key">Account 1</div><div class="analysis-text" id="aText1"></div></div>
+        <div class="analysis-row" id="aRow2"><div class="analysis-key">Account 2</div><div class="analysis-text" id="aText2"></div></div>
+        <div class="analysis-row" id="aRow3"><div class="analysis-key">Entry logic</div><div class="analysis-text" id="aText3"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Build the Journal Entry and Explain Each Side</div>
+  <div class="sec-sub">Each transaction is revealed one line at a time. The explanation panel tells students why that account is debited or credited.</div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-small active" onclick="selectEntry(0)">Investment</button>
+    <button class="sc-btn sc-small" onclick="selectEntry(1)">Supplies</button>
+    <button class="sc-btn sc-small" onclick="selectEntry(2)">Service Revenue</button>
+    <button class="sc-btn sc-small" onclick="selectEntry(3)">Rent</button>
+    <button class="sc-btn sc-small" onclick="selectEntry(4)">Collect A/R</button>
+    <button class="sc-btn sc-small" onclick="selectEntry(5)">Purchase on Account</button>
+    <button class="sc-btn sc-small" onclick="selectEntry(6)">Pay A/P</button>
+    <button class="sc-btn sc-small" onclick="selectEntry(7)">Depreciation</button>
+  </div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="journalBtn" onclick="nextJournal()">Show Debit</button>
+    <button class="sc-btn sc-reset" onclick="resetJournal()">Reset</button>
+  </div>
+  <div class="status-card" id="journalStatus">Ready: start with the debit line. Ask which account increased or decreased.</div>
+
+  <div class="journal-layout">
+    <div class="card">
+      <div class="card-h" id="journalTitle">Owner Investment</div>
+      <div class="card-b">
+        <table class="journal">
+          <thead><tr><th>Account</th><th class="dr">Debit</th><th class="cr">Credit</th></tr></thead>
+          <tbody id="journalBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="why-panel">
+      <div class="why-head">Why Debit or Credit?</div>
+      <div class="why-body">
+        <div class="why-rule-grid" id="ruleGrid"></div>
+        <div class="why-card active" id="whyIntro">Click Show Debit. The explanation will focus only on the line currently being revealed.</div>
+        <div class="why-card debit" id="whyDebit"></div>
+        <div class="why-card credit" id="whyCredit"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway"><strong>Best habit:</strong> Do not start with debit or credit. Start with the account and the direction of change. The debit/credit answer follows from that.</div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Check Your Understanding</div>
+  <div class="sec-sub">Check whether students can explain the debit or credit, not just choose the right side.</div>
+  <div class="score">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</section>
+
+<div class="nav">
+  <button id="btnPrev" onclick="prevTab()">Previous</button>
+  <span class="nav-ind" id="navInd"></span>
+  <button class="primary" id="btnNext" onclick="nextTab()">Next</button>
+</div>
+
+<script>
+const tabs = Array.from(document.querySelectorAll('.tab'));
+const panels = Array.from(document.querySelectorAll('.panel'));
+let currentTab = 0;
+let quizBuilt = false;
+
+function showTab(i) {
+  currentTab = Math.max(0, Math.min(i, panels.length - 1));
+  panels.forEach((p, idx) => p.classList.toggle('active', idx === currentTab));
+  tabs.forEach((t, idx) => {
+    t.classList.toggle('active', idx === currentTab);
+    t.setAttribute('aria-selected', idx === currentTab ? 'true' : 'false');
+  });
+  updateBottomNav();
+  if (currentTab === 3 && !quizBuilt) buildQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function updateBottomNav() {
+  const navInd = document.getElementById('navInd');
+  const label = tabs[currentTab]
+    ? tabs[currentTab].textContent.trim().replace(/^[①②③④⑤⑥⑦⑧⑨⑩]\s*/, '').replace(/^\d+\.\s*/, '')
+    : '';
+  if (navInd) navInd.textContent = 'Tab ' + (currentTab + 1) + ' of ' + panels.length + ' — ' + label;
+  const prevBtn = document.getElementById('btnPrev');
+  const nextBtn = document.getElementById('btnNext');
+  if (prevBtn) prevBtn.disabled = currentTab === 0;
+  if (nextBtn) nextBtn.disabled = currentTab === panels.length - 1;
+}
+function nextTab() { showTab(currentTab + 1); }
+function prevTab() { showTab(currentTab - 1); }
+updateBottomNav();
+
+const transactions = [
+  {
+    short: 'Investment',
+    title: 'Transaction 1 Analysis',
+    text: 'Owner invests $10,000 cash for common stock.',
+    analysis: [
+      'The company receives cash and issues ownership shares.',
+      '<strong>Cash increases.</strong> Cash is an asset. Assets increase with debits.',
+      '<strong>Common Stock increases.</strong> Common stock is equity. Equity increases with credits.',
+      'Debit Cash $10,000 and credit Common Stock $10,000.'
+    ],
+    journalTitle: 'Owner Investment',
+    debit: ['Cash', '$10,000'],
+    credit: ['Common Stock', '$10,000'],
+    rules: [
+      ['Debit rule for Cash', 'Cash is an asset. Assets increase with debits.'],
+      ['Credit rule for Common Stock', 'Common Stock is equity. Equity increases with credits.'],
+      ['Transaction match', 'The company received cash and gave ownership shares.'],
+      ['Balance check', '$10,000 debit equals $10,000 credit.']
+    ],
+    whyDebit: '<strong>Debit Cash.</strong> Cash came into the company. Cash is an asset, and assets increase with debits.<span class="mini">Asset increases -> debit Cash</span>',
+    whyCredit: '<strong>Credit Common Stock.</strong> The company issued ownership shares. Equity increased, and equity increases with credits.<span class="mini">Equity increases -> credit Common Stock</span>'
+  },
+  {
+    short: 'Supplies',
+    title: 'Transaction 2 Analysis',
+    text: 'Company buys supplies for $1,200 cash.',
+    analysis: [
+      'The company trades one asset for another asset.',
+      '<strong>Supplies increases.</strong> Supplies is an asset. Assets increase with debits.',
+      '<strong>Cash decreases.</strong> Cash is an asset. Assets decrease with credits.',
+      'Debit Supplies $1,200 and credit Cash $1,200.'
+    ],
+    journalTitle: 'Purchase Supplies for Cash',
+    debit: ['Supplies', '$1,200'],
+    credit: ['Cash', '$1,200'],
+    rules: [
+      ['Debit rule for Supplies', 'Supplies is an asset. Assets increase with debits.'],
+      ['Credit rule for Cash', 'Cash is an asset. Assets decrease with credits.'],
+      ['Transaction match', 'The company received supplies and paid cash.'],
+      ['Balance check', '$1,200 debit equals $1,200 credit.']
+    ],
+    whyDebit: '<strong>Debit Supplies.</strong> Supplies came into the company. Supplies is an asset, and assets increase with debits.<span class="mini">Asset increases -> debit Supplies</span>',
+    whyCredit: '<strong>Credit Cash.</strong> Cash left the company. Cash is an asset, and assets decrease with credits.<span class="mini">Asset decreases -> credit Cash</span>'
+  },
+  {
+    short: 'Service Revenue',
+    title: 'Transaction 3 Analysis',
+    text: 'Company performs $3,000 services on account.',
+    analysis: [
+      'The company earns revenue now and will collect cash later.',
+      '<strong>Accounts Receivable increases.</strong> Receivable is an asset. Assets increase with debits.',
+      '<strong>Service Revenue increases.</strong> Revenue increases equity. Revenue increases with credits.',
+      'Debit Accounts Receivable $3,000 and credit Service Revenue $3,000.'
+    ],
+    journalTitle: 'Services Performed on Account',
+    debit: ['Accounts Receivable', '$3,000'],
+    credit: ['Service Revenue', '$3,000'],
+    rules: [
+      ['Debit rule for Accounts Receivable', 'Accounts Receivable is an asset. Assets increase with debits.'],
+      ['Credit rule for Service Revenue', 'Revenue increases equity, so revenue increases with credits.'],
+      ['Transaction match', 'The company earned revenue and will collect cash later.'],
+      ['Balance check', '$3,000 debit equals $3,000 credit.']
+    ],
+    whyDebit: '<strong>Debit Accounts Receivable.</strong> The customer owes the company money. Receivables are assets, and assets increase with debits.<span class="mini">Asset increases -> debit Accounts Receivable</span>',
+    whyCredit: '<strong>Credit Service Revenue.</strong> The company earned revenue. Revenue increases equity, and revenue increases with credits.<span class="mini">Revenue increases -> credit Service Revenue</span>'
+  },
+  {
+    short: 'Rent',
+    title: 'Transaction 4 Analysis',
+    text: 'Company pays $800 rent for the month.',
+    analysis: [
+      'The company uses rent service this month and pays cash.',
+      '<strong>Rent Expense increases.</strong> Expenses increase with debits because they reduce equity.',
+      '<strong>Cash decreases.</strong> Cash is an asset. Assets decrease with credits.',
+      'Debit Rent Expense $800 and credit Cash $800.'
+    ],
+    journalTitle: 'Pay Monthly Rent',
+    debit: ['Rent Expense', '$800'],
+    credit: ['Cash', '$800'],
+    rules: [
+      ['Debit rule for Rent Expense', 'Expenses move like assets. Expenses increase with debits.'],
+      ['Credit rule for Cash', 'Cash is an asset. Assets decrease with credits.'],
+      ['Transaction match', 'The company used rent service and paid cash.'],
+      ['Balance check', '$800 debit equals $800 credit.']
+    ],
+    whyDebit: '<strong>Debit Rent Expense.</strong> The rent was used this month, so an expense increased. Expenses increase with debits.<span class="mini">Expense increases -> debit Rent Expense</span>',
+    whyCredit: '<strong>Credit Cash.</strong> Cash was paid out. Cash is an asset, and assets decrease with credits.<span class="mini">Asset decreases -> credit Cash</span>'
+  },
+  {
+    short: 'Collect A/R',
+    title: 'Transaction 5 Analysis',
+    text: 'Company collects $3,000 cash from a customer who previously bought services on account.',
+    analysis: [
+      'The company receives cash and removes the customer receivable.',
+      '<strong>Cash increases.</strong> Cash is an asset. Assets increase with debits.',
+      '<strong>Accounts Receivable decreases.</strong> Receivable is an asset. Assets decrease with credits.',
+      'Debit Cash $3,000 and credit Accounts Receivable $3,000.'
+    ],
+    journalTitle: 'Collect Accounts Receivable',
+    debit: ['Cash', '$3,000'],
+    credit: ['Accounts Receivable', '$3,000'],
+    rules: [
+      ['Debit rule for Cash', 'Cash is an asset. Assets increase with debits.'],
+      ['Credit rule for Accounts Receivable', 'Accounts Receivable is an asset. Assets decrease with credits.'],
+      ['Transaction match', 'The company collected cash and no longer has the receivable.'],
+      ['Balance check', '$3,000 debit equals $3,000 credit.']
+    ],
+    whyDebit: '<strong>Debit Cash.</strong> Cash came in from the customer. Cash is an asset, and assets increase with debits.<span class="mini">Asset increases -> debit Cash</span>',
+    whyCredit: '<strong>Credit Accounts Receivable.</strong> The customer no longer owes this amount. Receivables are assets, and assets decrease with credits.<span class="mini">Asset decreases -> credit Accounts Receivable</span>'
+  },
+  {
+    short: 'Purchase on Account',
+    title: 'Transaction 6 Analysis',
+    text: 'Company buys $2,500 supplies on account.',
+    analysis: [
+      'The company receives supplies now and will pay later.',
+      '<strong>Supplies increases.</strong> Supplies is an asset. Assets increase with debits.',
+      '<strong>Accounts Payable increases.</strong> Payable is a liability. Liabilities increase with credits.',
+      'Debit Supplies $2,500 and credit Accounts Payable $2,500.'
+    ],
+    journalTitle: 'Purchase Supplies on Account',
+    debit: ['Supplies', '$2,500'],
+    credit: ['Accounts Payable', '$2,500'],
+    rules: [
+      ['Debit rule for Supplies', 'Supplies is an asset. Assets increase with debits.'],
+      ['Credit rule for Accounts Payable', 'Accounts Payable is a liability. Liabilities increase with credits.'],
+      ['Transaction match', 'The company received supplies and created an obligation to pay.'],
+      ['Balance check', '$2,500 debit equals $2,500 credit.']
+    ],
+    whyDebit: '<strong>Debit Supplies.</strong> Supplies came into the company. Supplies is an asset, and assets increase with debits.<span class="mini">Asset increases -> debit Supplies</span>',
+    whyCredit: '<strong>Credit Accounts Payable.</strong> The company now owes a supplier. Payables are liabilities, and liabilities increase with credits.<span class="mini">Liability increases -> credit Accounts Payable</span>'
+  },
+  {
+    short: 'Pay A/P',
+    title: 'Transaction 7 Analysis',
+    text: 'Company pays $2,500 cash on its account payable.',
+    analysis: [
+      'The company pays cash and reduces the amount owed to the supplier.',
+      '<strong>Accounts Payable decreases.</strong> Payable is a liability. Liabilities decrease with debits.',
+      '<strong>Cash decreases.</strong> Cash is an asset. Assets decrease with credits.',
+      'Debit Accounts Payable $2,500 and credit Cash $2,500.'
+    ],
+    journalTitle: 'Pay Accounts Payable',
+    debit: ['Accounts Payable', '$2,500'],
+    credit: ['Cash', '$2,500'],
+    rules: [
+      ['Debit rule for Accounts Payable', 'Accounts Payable is a liability. Liabilities decrease with debits.'],
+      ['Credit rule for Cash', 'Cash is an asset. Assets decrease with credits.'],
+      ['Transaction match', 'The company reduced what it owes and paid cash.'],
+      ['Balance check', '$2,500 debit equals $2,500 credit.']
+    ],
+    whyDebit: '<strong>Debit Accounts Payable.</strong> The company owes less after paying the supplier. Liabilities decrease with debits.<span class="mini">Liability decreases -> debit Accounts Payable</span>',
+    whyCredit: '<strong>Credit Cash.</strong> Cash left the company. Cash is an asset, and assets decrease with credits.<span class="mini">Asset decreases -> credit Cash</span>'
+  },
+  {
+    short: 'Depreciation',
+    title: 'Transaction 8 Analysis',
+    text: 'Company records $600 depreciation on equipment for the month.',
+    analysis: [
+      'The company records use of equipment during the period.',
+      '<strong>Depreciation Expense increases.</strong> Expenses move like assets. Expenses increase with debits.',
+      '<strong>Accumulated Depreciation increases.</strong> It is a contra-asset with a normal credit balance.',
+      'Debit Depreciation Expense $600 and credit Accumulated Depreciation $600.'
+    ],
+    journalTitle: 'Record Monthly Depreciation',
+    debit: ['Depreciation Expense', '$600'],
+    credit: ['Accumulated Depreciation', '$600'],
+    rules: [
+      ['Debit rule for Depreciation Expense', 'Expenses move like assets. Expenses increase with debits.'],
+      ['Credit rule for Accumulated Depreciation', 'Accumulated Depreciation is a contra-asset. Contra-assets increase with credits.'],
+      ['Transaction match', 'The entry records asset use without paying cash.'],
+      ['Balance check', '$600 debit equals $600 credit.']
+    ],
+    whyDebit: '<strong>Debit Depreciation Expense.</strong> Equipment was used this month, so expense increased. Expenses increase with debits.<span class="mini">Expense increases -> debit Depreciation Expense</span>',
+    whyCredit: '<strong>Credit Accumulated Depreciation.</strong> This contra-asset tracks the portion of equipment cost already used. Contra-assets increase with credits.<span class="mini">Contra-asset increases -> credit Accumulated Depreciation</span>'
+  }
+];
+
+let selectedScenario = 0;
+let analysisStep = -1;
+
+function selectScenario(i) {
+  selectedScenario = i;
+  document.querySelectorAll('.scenario').forEach((el, idx) => el.classList.toggle('active', idx === i));
+  resetAnalysis();
+}
+
+function resetAnalysis() {
+  analysisStep = -1;
+  const tx = transactions[selectedScenario];
+  document.getElementById('analysisTitle').textContent = tx.title;
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('aText' + i).innerHTML = tx.analysis[i];
+    document.getElementById('aRow' + i).className = 'analysis-row';
+  }
+  document.getElementById('analysisStatus').innerHTML = '<strong>' + tx.text + '</strong><br>Ready: identify what happened before deciding debit or credit.';
+  document.getElementById('analysisBtn').disabled = false;
+  document.getElementById('analysisBtn').textContent = 'Show Question 1';
+}
+
+function nextAnalysis() {
+  analysisStep++;
+  for (let i = 0; i < 4; i++) {
+    const row = document.getElementById('aRow' + i);
+    if (i < analysisStep) row.className = 'analysis-row done';
+    if (i === analysisStep) row.className = 'analysis-row active';
+  }
+  const labels = ['What happened?', 'Which account is debited?', 'Which account is credited?', 'What is the entry?'];
+  if (analysisStep < 4) {
+    document.getElementById('analysisStatus').innerHTML = '<strong>' + labels[analysisStep] + '</strong><br>' + transactions[selectedScenario].analysis[analysisStep];
+    document.getElementById('analysisBtn').textContent = analysisStep === 3 ? 'Finish' : 'Show Question ' + (analysisStep + 2);
+  } else {
+    for (let i = 0; i < 4; i++) document.getElementById('aRow' + i).className = 'analysis-row done';
+    document.getElementById('analysisStatus').innerHTML = '<strong>Complete.</strong> Now the journal entry is just the written version of this analysis.';
+    document.getElementById('analysisBtn').disabled = true;
+  }
+}
+
+let selectedEntry = 0;
+let journalStep = -1;
+
+function renderJournal() {
+  const tx = transactions[selectedEntry];
+  document.getElementById('journalTitle').textContent = tx.journalTitle;
+  document.getElementById('journalBody').innerHTML =
+    '<tr class="hidden" id="jRow0"><td>' + tx.debit[0] + '</td><td class="dr">' + tx.debit[1] + '</td><td class="cr"></td></tr>' +
+    '<tr class="hidden" id="jRow1"><td class="indent">' + tx.credit[0] + '</td><td class="dr"></td><td class="cr">' + tx.credit[1] + '</td></tr>';
+  document.getElementById('whyDebit').innerHTML = tx.whyDebit;
+  document.getElementById('whyCredit').innerHTML = tx.whyCredit;
+  renderRuleGrid(-1);
+}
+
+function renderRuleGrid(activeIdx) {
+  const tx = transactions[selectedEntry];
+  document.getElementById('ruleGrid').innerHTML = tx.rules.map((rule, idx) =>
+    '<div class="why-rule' + (idx === activeIdx ? ' active' : '') + '">' +
+      '<div class="tag">' + rule[0] + '</div>' +
+      '<div class="text">' + rule[1] + '</div>' +
+    '</div>'
+  ).join('');
+}
+
+function selectEntry(i) {
+  selectedEntry = i;
+  document.querySelectorAll('.sc-small').forEach((btn, idx) => btn.classList.toggle('active', idx === i));
+  renderJournal();
+  resetJournal();
+}
+
+function showWhyCard(id) {
+  ['whyIntro','whyDebit','whyCredit'].forEach(cardId => {
+    document.getElementById(cardId).classList.toggle('active', cardId === id);
+  });
+}
+
+function resetJournal() {
+  journalStep = -1;
+  ['jRow0','jRow1'].forEach(id => document.getElementById(id).className = 'hidden');
+  renderRuleGrid(-1);
+  showWhyCard('whyIntro');
+  document.getElementById('journalStatus').innerHTML = '<strong>' + transactions[selectedEntry].text + '</strong><br>Ready: start with the debit line. Ask which account increased or decreased.';
+  document.getElementById('journalBtn').disabled = false;
+  document.getElementById('journalBtn').textContent = 'Show Debit';
+}
+
+function nextJournal() {
+  journalStep++;
+  const rows = ['jRow0','jRow1'];
+  rows.forEach((id, idx) => {
+    const row = document.getElementById(id);
+    if (idx < journalStep) row.className = 'done';
+    if (idx === journalStep) row.className = 'active';
+  });
+  if (journalStep === 0) {
+    renderRuleGrid(0);
+    showWhyCard('whyDebit');
+    document.getElementById('journalStatus').innerHTML = transactions[selectedEntry].whyDebit;
+    document.getElementById('journalBtn').textContent = 'Show Credit';
+  } else if (journalStep === 1) {
+    renderRuleGrid(1);
+    showWhyCard('whyCredit');
+    document.getElementById('journalStatus').innerHTML = transactions[selectedEntry].whyCredit;
+    document.getElementById('journalBtn').textContent = 'Finish';
+  } else {
+    renderRuleGrid(3);
+    rows.forEach(id => document.getElementById(id).className = 'done');
+    document.getElementById('journalStatus').innerHTML = '<strong>Complete.</strong> The debit equals the credit, and the entry tells the same story as the transaction.';
+    document.getElementById('journalBtn').disabled = true;
+  }
+}
+
+let score = 0;
+const questions = [
+  {
+    q: 'The company receives $10,000 cash from an owner in exchange for common stock. Why is Cash debited?',
+    opts: ['Cash is an asset and assets increase with debits', 'Cash is revenue and revenue increases with debits', 'Cash is equity and equity increases with debits', 'Cash is a liability and liabilities decrease with debits'],
+    a: 0,
+    exp: 'Cash is an asset. When an asset increases, debit it.'
+  },
+  {
+    q: 'In the same owner investment, why is Common Stock credited?',
+    opts: ['Equity increased, and equity increases with credits', 'Cash decreased, and assets decrease with credits', 'Expense increased, and expenses increase with credits', 'Revenue was earned, and revenue increases with credits'],
+    a: 0,
+    exp: 'Common Stock is an equity account. Equity increases with credits.'
+  },
+  {
+    q: 'The company buys supplies for cash. Why is Supplies debited?',
+    opts: ['Supplies is an asset that increased', 'Supplies is an expense that decreased', 'Supplies is a liability that increased', 'Supplies is equity that decreased'],
+    a: 0,
+    exp: 'Supplies is an asset, and the company now has more supplies.'
+  },
+  {
+    q: 'The company buys supplies for cash. Why is Cash credited?',
+    opts: ['Cash is an asset that decreased', 'Cash is a liability that increased', 'Cash is revenue that increased', 'Cash is equity that decreased'],
+    a: 0,
+    exp: 'Cash is an asset. When cash goes out, the asset decreases, so credit Cash.'
+  },
+  {
+    q: 'The company performs services on account. Why is Accounts Receivable debited?',
+    opts: ['The customer now owes the company, so an asset increased', 'The company paid cash, so an asset decreased', 'The company incurred an expense', 'The company increased a liability'],
+    a: 0,
+    exp: 'Accounts Receivable is the right to collect cash later. That right is an asset.'
+  },
+  {
+    q: 'The company performs services on account. Why is Service Revenue credited?',
+    opts: ['Revenue increased, and revenue increases with credits', 'Revenue decreased, and revenue decreases with credits', 'Cash increased, and cash increases with credits', 'Expense increased, and expenses increase with credits'],
+    a: 0,
+    exp: 'Revenue increases equity, so revenue has a credit normal balance.'
+  },
+  {
+    q: 'The company pays $800 rent for the month. Why is Rent Expense debited?',
+    opts: ['Expense increased, and expenses increase with debits', 'Cash increased, and cash increases with debits', 'Liability decreased, and liabilities decrease with debits', 'Revenue decreased, and revenue decreases with debits'],
+    a: 0,
+    exp: 'Rent for the current month is an expense. Expenses increase with debits.'
+  },
+  {
+    q: 'Which statement is the best habit for basic journal entries?',
+    opts: ['Identify accounts and direction of change before choosing debit or credit', 'Always debit cash first', 'Always credit revenue first', 'Choose debit for good things and credit for bad things'],
+    a: 0,
+    exp: 'The account type and increase/decrease direction determine debit or credit.'
+  },
+  {
+    q: 'The company collects cash from a customer who previously bought on account. Why is Accounts Receivable credited?',
+    opts: ['The receivable asset decreased', 'The receivable asset increased', 'A liability increased', 'Revenue was earned again'],
+    a: 0,
+    exp: 'The revenue was already recorded earlier. Collection reduces the receivable asset, and assets decrease with credits.'
+  },
+  {
+    q: 'The company buys supplies on account. Why is Accounts Payable credited?',
+    opts: ['A liability increased', 'An asset decreased', 'An expense increased', 'Revenue increased'],
+    a: 0,
+    exp: 'Accounts Payable is the amount owed to suppliers. Liabilities increase with credits.'
+  },
+  {
+    q: 'The company pays an account payable. Why is Accounts Payable debited?',
+    opts: ['A liability decreased', 'A liability increased', 'Cash increased', 'An expense increased'],
+    a: 0,
+    exp: 'Paying the supplier reduces what the company owes. Liabilities decrease with debits.'
+  },
+  {
+    q: 'The company records depreciation. Why is Accumulated Depreciation credited?',
+    opts: ['It is a contra-asset that increases with credits', 'It is an expense that increases with credits', 'It is cash paid for equipment', 'It is revenue earned from equipment'],
+    a: 0,
+    exp: 'Accumulated Depreciation is a contra-asset. Contra-assets carry credit balances and increase with credits.'
+  }
+];
+
+function buildQuiz() {
+  quizBuilt = true;
+  document.getElementById('total').textContent = questions.length;
+  const wrap = document.getElementById('quizWrap');
+  questions.forEach((item, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML =
+      '<div class="q-num">Question ' + (qi + 1) + ' of ' + questions.length + '</div>' +
+      '<div class="q-text">' + item.q + '</div>' +
+      '<div class="q-opts">' + item.opts.map((opt, oi) =>
+        '<button class="q-opt" onclick="answerQ(' + qi + ',' + oi + ', this)">' + opt + '</button>'
+      ).join('') + '</div>' +
+      '<div class="explain" id="exp' + qi + '"></div>';
+    wrap.appendChild(card);
+  });
+}
+
+function answerQ(qi, oi, btn) {
+  const item = questions[qi];
+  const buttons = btn.parentElement.querySelectorAll('button');
+  if (buttons[0].disabled) return;
+  buttons.forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === item.a) b.classList.add('correct');
+  });
+  const exp = document.getElementById('exp' + qi);
+  if (oi === item.a) {
+    score++;
+    btn.classList.add('correct');
+    exp.textContent = 'Correct. ' + item.exp;
+  } else {
+    btn.classList.add('wrong');
+    exp.textContent = 'The answer is: ' + item.opts[item.a] + '. ' + item.exp;
+  }
+  exp.classList.add('show');
+  document.getElementById('score').textContent = score;
+}
+
+renderJournal();
+resetAnalysis();
+resetJournal();
+</script>
+</body>
+</html>

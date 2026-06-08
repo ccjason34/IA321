@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Allowance Method for Bad Debts | Kieso Ch. 6</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.2rem; font-weight: 800; }
+  .header p  { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab  { padding: 11px 18px; font-size: .88rem; font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; }
+  .tab:hover  { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+  .panel { display: none; max-width: 960px; margin: 0 auto; padding: 24px 16px 90px; }
+  .panel.active { display: block; }
+
+  .sec-title { font-size: 1.35rem; font-weight: 800; margin-bottom: 8px; }
+  .sec-sub   { font-size: .97rem; color: #475569; margin-bottom: 20px; line-height: 1.7; }
+  .quote { background: white; border-left: 4px solid #3b82f6; border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: .95rem; color: #334155; line-height: 1.7; margin-bottom: 22px; }
+  .quote strong { color: #1d4ed8; }
+
+  /* Concept cards */
+  .concept-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+  @media(max-width:760px) { .concept-grid { grid-template-columns: 1fr; } }
+  .concept-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .concept-hdr  { padding: 13px 16px; color: white; font-weight: 800; font-size: .95rem; }
+  .concept-body { padding: 14px 16px; font-size: .88rem; color: #475569; line-height: 1.65; }
+  .concept-body strong { color: #1e293b; }
+  .concept-body ul { padding-left: 18px; margin-top: 7px; }
+  .concept-body li { margin-bottom: 4px; }
+
+  .rule-card { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; border-radius: 10px; padding: 15px 18px; font-size: .92rem; color: #78350f; line-height: 1.65; margin-bottom: 20px; }
+  .rule-card strong { color: #92400e; }
+
+  .equation-card { background: white; border-radius: 12px; padding: 18px; box-shadow: 0 3px 14px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .equation-title { font-size: .78rem; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 12px; }
+  .eq-flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 10px; align-items: center; }
+  @media(max-width:680px) { .eq-flow { grid-template-columns: 1fr; } .eq-op { transform: rotate(90deg); } }
+  .eq-box { border-radius: 10px; padding: 14px 12px; text-align: center; border: 2px solid #e2e8f0; min-height: 86px; display: flex; flex-direction: column; justify-content: center; }
+  .eq-label { font-size: .72rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 5px; }
+  .eq-num { font-size: 1.25rem; font-weight: 900; font-family: monospace; color: #1e293b; }
+  .eq-op { color: #94a3b8; font-weight: 900; font-size: 1.5rem; text-align: center; }
+  .eq-ar { background: #eff6ff; border-color: #93c5fd; }
+  .eq-allow { background: #fef2f2; border-color: #fecaca; }
+  .eq-net { background: #ecfeff; border-color: #67e8f9; }
+  .eq-net .eq-num { color: #0e7490; }
+
+  /* Inputs */
+  .inputs-row { display: flex; gap: 12px; flex-wrap: wrap; background: white; padding: 14px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 16px; }
+  .inp-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 140px; }
+  .inp-group label { font-size: .72rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .5px; }
+  .inp-group input, .inp-group select { padding: 8px 10px; border: 1.5px solid #e2e8f0; border-radius: 6px; font-size: .95rem; font-weight: 700; color: #1e293b; font-family: monospace; background: white; }
+  .inp-group input:focus, .inp-group select:focus { outline: none; border-color: #3b82f6; }
+
+  /* Step controls */
+  .step-sticky { position: sticky; top: 0; z-index: 50; background: linear-gradient(180deg, #f1f5f9 0%, #f1f5f9 92%, rgba(241,245,249,0)); padding: 14px 0 16px; margin: -14px 0 8px; }
+  .step-progress { display: flex; gap: 6px; align-items: center; margin-bottom: 14px; }
+  .sp-dot  { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; color: #94a3b8; flex-shrink: 0; transition: all .3s; background: #f8fafc; }
+  .sp-dot.done   { background: #0d9488; border-color: #0d9488; color: white; }
+  .sp-dot.active { background: #3b82f6; border-color: #3b82f6; color: white; }
+  .sp-line { flex: 1; height: 2px; background: #e2e8f0; transition: background .3s; }
+  .sp-line.done { background: #0d9488; }
+
+  .step-row { display: flex; gap: 12px; align-items: stretch; }
+  @media(max-width:560px) { .step-row { flex-direction: column; } }
+  .step-message { background: white; border-radius: 10px; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); font-size: .92rem; color: #334155; line-height: 1.55; border-left: 4px solid #3b82f6; flex: 1; }
+  .step-message strong { color: #1e293b; }
+  .step-side-ctrl { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; justify-content: center; }
+  @media(max-width:560px) { .step-side-ctrl { flex-direction: row; } .step-side-ctrl .sc-btn { flex: 1; } }
+  .sc-btn { padding: 10px 22px; border-radius: 9px; border: none; font-weight: 700; font-size: .85rem; cursor: pointer; transition: all .15s; }
+  .sc-prev { background: #e2e8f0; color: #475569; padding: 8px 16px; font-size: .78rem; min-width: 100px; }
+  .sc-prev:hover:not(:disabled) { background: #cbd5e1; }
+  .sc-next {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white; font-weight: 900;
+    padding: 14px 22px; font-size: .9rem; min-width: 230px; line-height: 1.2;
+    box-shadow: 0 4px 14px rgba(245,158,11,.45);
+    animation: nextPulse 1.6s ease-in-out infinite;
+  }
+  .sc-next:hover:not(:disabled) { background: linear-gradient(135deg, #d97706, #dc2626); transform: translateY(-1px); }
+  .sc-next:disabled { animation: none; box-shadow: none; background: #94a3b8; }
+  .sc-reset { background: #475569; color: white; padding: 8px 16px; font-size: .78rem; }
+  .sc-reset:hover { background: #334155; }
+  .sc-btn:disabled { opacity: .55; cursor: default; }
+  @keyframes nextPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(245,158,11,.45); }
+    50% { box-shadow: 0 4px 20px rgba(239,68,68,.7), 0 0 0 4px rgba(245,158,11,.18); }
+  }
+
+  /* Aging table */
+  .aging-wrap { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 3px 14px rgba(0,0,0,.09); margin-bottom: 16px; }
+  .aging-hdr { padding: 15px 20px; background: linear-gradient(135deg, #0f766e, #0891b2); color: white; text-align: center; }
+  .aging-hdr .co { font-size: 1rem; font-weight: 900; }
+  .aging-hdr .doc { font-size: .82rem; font-weight: 700; opacity: .9; margin-top: 2px; }
+  .aging-table { width: 100%; border-collapse: collapse; }
+  .aging-table th { background: #f8fafc; color: #64748b; text-transform: uppercase; letter-spacing: .5px; font-size: .7rem; padding: 9px 10px; border-bottom: 1px solid #e2e8f0; text-align: right; }
+  .aging-table th:first-child, .aging-table td:first-child { text-align: left; }
+  .aging-table td { padding: 9px 10px; border-bottom: 1px solid #f1f5f9; font-size: .88rem; text-align: right; transition: background .3s; }
+  .aging-table td.amt, .aging-table td.calc { font-family: monospace; font-weight: 700; }
+  .aging-table tr.locked { opacity: .25; }
+  .aging-table tr.active td { background: #fffbeb; }
+  .aging-table tr.done td { background: #f0fdf4; }
+  .aging-table tr.total-row td { background: #ecfeff; border-top: 2px solid #0e7490; font-weight: 900; color: #0e7490; }
+  .aging-table tr.adjust-row td { background: #fef3c7; border-top: 2px solid #f59e0b; font-weight: 900; color: #92400e; }
+  @media(max-width:650px) {
+    .aging-wrap { overflow-x: auto; }
+    .aging-table { min-width: 620px; }
+  }
+
+  .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  @media(max-width:700px) { .metric-grid { grid-template-columns: 1fr; } }
+  .metric { background: white; border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,.07); border-top: 4px solid #cbd5e1; }
+  .metric.blue { border-top-color: #3b82f6; }
+  .metric.red { border-top-color: #ef4444; }
+  .metric.green { border-top-color: #16a34a; }
+  .metric .label { font-size: .72rem; color: #64748b; text-transform: uppercase; letter-spacing: .55px; font-weight: 800; margin-bottom: 5px; }
+  .metric .value { font-family: monospace; font-size: 1.15rem; font-weight: 900; color: #1e293b; }
+  .metric .hint { margin-top: 5px; font-size: .78rem; color: #64748b; line-height: 1.45; }
+
+  .adjustment-callout { background: linear-gradient(135deg, #fff7ed, #ffedd5); border: 2px solid #fb923c; border-radius: 10px; padding: 14px 18px; margin-bottom: 16px; color: #7c2d12; font-size: .9rem; line-height: 1.6; box-shadow: 0 2px 8px rgba(251,146,60,.15); }
+  .adjustment-callout strong { color: #9a3412; }
+  .adjustment-callout .calc-line { display: inline-block; margin-top: 6px; background: rgba(255,255,255,.72); border: 1px solid #fed7aa; border-radius: 7px; padding: 5px 10px; font-family: monospace; font-weight: 900; color: #9a3412; }
+
+  .estimate-ledger-grid { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: start; margin-bottom: 16px; }
+  .allowance-note { margin-top: 10px; background: #f8fafc; border-left: 4px solid #3b82f6; border-radius: 0 8px 8px 0; padding: 10px 12px; font-size: .82rem; color: #475569; line-height: 1.55; }
+  .allowance-note strong { color: #1e293b; }
+
+  .est-step-row { align-items: stretch; }
+  .sticky-ledger-card { background: white; border-radius: 10px; padding: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.07); width: 300px; flex: 0 0 300px; }
+  .sticky-ledger-card .ledger-title { font-size: .68rem; margin-bottom: 8px; }
+  .sticky-ledger-card .tacct-h { padding: 6px 8px; font-size: .72rem; }
+  .sticky-ledger-card .tacct-body { min-height: 86px; }
+  .sticky-ledger-card .tcol { padding: 6px; font-size: .72rem; }
+  .sticky-ledger-card .entry-line { grid-template-columns: 1fr minmax(54px, auto); column-gap: 5px; }
+  .sticky-ledger-card .balance-line { font-size: .72rem; }
+  @media(max-width:900px) {
+    .est-step-row { flex-direction: column; }
+    .sticky-ledger-card { width: 100%; flex: auto; }
+  }
+
+  .journal-card { background: #1e293b; color: #e2e8f0; border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; box-shadow: 0 3px 12px rgba(15,23,42,.2); }
+  .journal-title { color: #fef3c7; font-weight: 900; font-size: .82rem; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 10px; }
+  .journal-row { display: grid; grid-template-columns: 1fr 110px 110px; gap: 8px; font-family: monospace; font-size: .88rem; padding: 4px 0; }
+  .journal-row .dr, .journal-row .cr { text-align: right; color: #f8fafc; font-weight: 800; }
+  .journal-row .indent { padding-left: 26px; color: #cbd5e1; }
+  @media(max-width:540px) { .journal-row { grid-template-columns: 1fr 80px 80px; font-size: .78rem; } }
+
+  .journal-light { background: white; color: #334155; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .journal-light .journal-title { color: #0f766e; }
+  .journal-light .journal-row { border-bottom: 1px solid #f1f5f9; }
+  .journal-light .journal-row:last-child { border-bottom: none; }
+  .journal-light .journal-row .dr, .journal-light .journal-row .cr { color: #1e293b; }
+  .journal-light .journal-row .indent { color: #475569; }
+
+  /* Write-off lifecycle */
+  .life-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; align-items: start; }
+  @media(max-width:820px) { .life-grid { grid-template-columns: 1fr; } }
+  .ledger-card { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 3px 14px rgba(0,0,0,.08); }
+  .ledger-title { text-align: center; font-size: .78rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 12px; }
+  .tgrid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 14px; }
+  .tacct { border: 2px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #f8fafc; }
+  .tacct-h { background: #334155; color: white; padding: 8px 10px; text-align: center; font-size: .8rem; font-weight: 900; }
+  .tacct-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 96px; }
+  .tcol { padding: 8px; font-size: .78rem; border-right: 1px solid #e2e8f0; }
+  .tcol:last-child { border-right: none; }
+  .side-label { font-weight: 900; color: #94a3b8; text-transform: uppercase; font-size: .65rem; margin-bottom: 5px; }
+  .entry-line { display: grid; grid-template-columns: minmax(0, 1fr) minmax(68px, auto); align-items: baseline; column-gap: 8px; padding: 2px 0; color: #475569; }
+  .entry-line span:first-child { min-width: 0; overflow-wrap: anywhere; }
+  .entry-line span:last-child { text-align: right; white-space: nowrap; font-family: monospace; }
+  .entry-line.hot { color: #b45309; font-weight: 900; }
+  .balance-line { border-top: 1px solid #cbd5e1; margin-top: 5px; padding-top: 5px; font-family: monospace; font-weight: 900; color: #1e293b; }
+
+  .value-stack { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 3px 14px rgba(0,0,0,.08); }
+  .value-hdr { background: linear-gradient(135deg, #6b21a8, #a855f7); color: white; padding: 14px 18px; text-align: center; font-weight: 900; }
+  .value-row { display: grid; grid-template-columns: 1fr 120px; padding: 10px 18px; border-bottom: 1px solid #f1f5f9; font-size: .9rem; }
+  .value-row .amt { text-align: right; font-family: monospace; font-weight: 800; }
+  .value-row.total { background: #ecfeff; color: #0e7490; font-weight: 900; border-top: 2px solid #0e7490; }
+  .value-row.cash { background: #f0fdf4; color: #15803d; font-weight: 900; }
+
+  .event-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+  @media(max-width:760px) { .event-strip { grid-template-columns: 1fr 1fr; } }
+  .event { background: white; border: 2px solid #e2e8f0; border-radius: 10px; padding: 10px; text-align: center; font-size: .78rem; color: #64748b; font-weight: 800; min-height: 64px; display: flex; align-items: center; justify-content: center; transition: all .25s; }
+  .event.active { border-color: #f59e0b; background: #fffbeb; color: #92400e; transform: translateY(-2px); }
+  .event.done { border-color: #16a34a; background: #f0fdf4; color: #15803d; }
+
+  /* Quiz */
+  .quiz-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .q-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .q-num  { font-size: .72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+  .q-text { font-size: 1rem; font-weight: 700; margin-bottom: 14px; }
+  .q-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media(max-width:560px) { .q-opts { grid-template-columns: 1fr; } }
+  .q-opt  { padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f8fafc; font-size: .88rem; font-weight: 600; cursor: pointer; transition: all .15s; text-align: left; color: #334155; }
+  .q-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .q-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-opt.wrong   { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
+  .q-opt:disabled { cursor: default; }
+  .q-explain { margin-top: 10px; font-size: .85rem; padding: 9px 13px; border-radius: 7px; display: none; }
+  .q-explain.show { display: block; }
+  .q-explain.ok  { background: #dcfce7; color: #15803d; }
+  .q-explain.bad { background: #fee2e2; color: #991b1b; }
+  .score-line { text-align: center; font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
+
+  /* Nav */
+  .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; z-index: 100; }
+  .nav-btn { padding: 9px 22px; border-radius: 8px; border: none; font-weight: 700; font-size: .85rem; cursor: pointer; }
+  .nav-btn.prev { background: #1e293b; color: #94a3b8; }
+  .nav-btn.prev:hover:not(:disabled) { background: #334155; }
+  .nav-btn.nxt  { background: #3b82f6; color: white; }
+  .nav-btn.nxt:hover:not(:disabled)  { background: #2563eb; }
+  .nav-btn:disabled { opacity: .4; cursor: default; }
+  .nav-ind { font-size: .8rem; color: #64748b; font-weight: 600; text-align: center; padding: 0 10px; }
+
+  .aging-wrap, .ledger-card, .value-stack { scroll-margin-top: 230px; scroll-margin-bottom: 100px; }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>🧾 Allowance Method for Bad Debts</h1>
+  <p>Kieso, Weygandt &amp; Warfield · Intermediate Accounting 18th Ed. · Chapter 6 · Cash and Receivables</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab(0)">① The Big Idea</div>
+  <div class="tab"        onclick="showTab(1)">② Estimate the Allowance</div>
+  <div class="tab"        onclick="showTab(2)">③ Write-Off &amp; Recovery</div>
+  <div class="tab"        onclick="showTab(3)">④ Self-Check</div>
+</div>
+
+<!-- TAB 0 -->
+<div class="panel active" id="tab-0">
+  <div class="sec-title">Receivables Are Reported at What You Expect to Collect</div>
+  <div class="sec-sub">
+    Selling on credit creates accounts receivable, but not every customer will pay. Chapter 6 treats bad debts as a normal risk of credit sales.
+    The allowance method solves the timing problem: estimate the loss now, then use the allowance later when a specific account is written off.
+  </div>
+
+  <div class="quote">
+    <strong>Textbook anchor:</strong> GAAP focuses on reporting receivables at net realizable value: gross accounts receivable minus the estimated amount that will not be collected.
+  </div>
+
+  <div class="equation-card">
+    <div class="equation-title">The balance sheet view</div>
+    <div class="eq-flow">
+      <div class="eq-box eq-ar">
+        <div class="eq-label">Accounts Receivable</div>
+        <div class="eq-num">$80,000</div>
+      </div>
+      <div class="eq-op">−</div>
+      <div class="eq-box eq-allow">
+        <div class="eq-label">Allowance</div>
+        <div class="eq-num">$6,000</div>
+      </div>
+      <div class="eq-op">=</div>
+      <div class="eq-box eq-net">
+        <div class="eq-label">Net Realizable Value</div>
+        <div class="eq-num">$74,000</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="concept-hdr" style="background:linear-gradient(135deg,#dc2626,#f97316)">① Direct Write-Off</div>
+      <div class="concept-body">
+        Records bad debt expense only when a specific customer is identified as uncollectible.
+        <ul>
+          <li>Simple, but usually too late.</li>
+          <li>Can mismatch expense with the related credit sale.</li>
+          <li>Normally not GAAP unless immaterial.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <div class="concept-hdr" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">② Allowance Method</div>
+      <div class="concept-body">
+        Estimates expected uncollectibles at the end of the period.
+        <ul>
+          <li>Debit Bad Debt Expense.</li>
+          <li>Credit Allowance for Doubtful Accounts.</li>
+          <li>Shows receivables at expected collection value.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <div class="concept-hdr" style="background:linear-gradient(135deg,#15803d,#22c55e)">③ Write-Off Later</div>
+      <div class="concept-body">
+        When one account is later judged uncollectible, the write-off uses the allowance.
+        <ul>
+          <li>Debit Allowance.</li>
+          <li>Credit that customer's Accounts Receivable.</li>
+          <li>No new bad debt expense at write-off.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="rule-card">
+    <strong>The mental model:</strong> Bad Debt Expense is the period's estimate. Allowance for Doubtful Accounts is the balance-sheet cushion that absorbs future write-offs.
+  </div>
+</div>
+
+<!-- TAB 1 -->
+<div class="panel" id="tab-1">
+  <div class="sec-title">Adjust the Beginning Allowance Balance</div>
+  <div class="sec-sub">
+    The aging schedule is already complete. It gives the <strong>required ending balance</strong> in Allowance for Doubtful Accounts. The interaction is about the part students usually miss: using the beginning allowance balance, and whether that balance is a debit or credit, to find the adjusting entry.
+  </div>
+
+  <div class="inputs-row">
+    <div class="inp-group">
+      <label>Beginning Allowance Balance</label>
+      <input type="number" id="priorAllowance" value="3000" min="0" step="500" oninput="resetEstimate()">
+    </div>
+    <div class="inp-group">
+      <label>Balance Side</label>
+      <select id="priorSide" onchange="resetEstimate()">
+        <option value="credit">Credit Balance</option>
+        <option value="debit">Debit Balance</option>
+      </select>
+    </div>
+    <div class="inp-group">
+      <label>Company</label>
+      <input type="text" id="companyName" value="Bright Side Supply" oninput="resetEstimate()">
+    </div>
+  </div>
+
+  <div class="step-sticky">
+    <div class="step-progress" id="estProgress"></div>
+    <div class="step-row est-step-row">
+      <div class="step-message" id="estMsg">
+        <strong>Step 1 — Aging target:</strong> The completed aging schedule gives the required ending allowance balance.
+      </div>
+      <div class="sticky-ledger-card">
+        <div class="ledger-title">Allowance T-Account</div>
+        <div class="tacct">
+          <div class="tacct-h">Allowance for Doubtful Accounts</div>
+          <div class="tacct-body">
+            <div class="tcol">
+              <div class="side-label">Debit</div>
+              <div id="estAllowDebit"></div>
+            </div>
+            <div class="tcol">
+              <div class="side-label">Credit</div>
+              <div id="estAllowCredit"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="step-side-ctrl">
+        <button class="sc-btn sc-next" id="estNext" onclick="goEstimate(estStep+1)">Place Beginning Balance →</button>
+        <button class="sc-btn sc-prev" id="estPrev" onclick="goEstimate(estStep-1)" disabled>← Back</button>
+        <button class="sc-btn sc-reset" onclick="resetEstimate()">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="metric-grid">
+    <div class="metric blue">
+      <div class="label">Required Ending Allowance</div>
+      <div class="value" id="targetAllowance">$0</div>
+      <div class="hint">The balance the allowance account should have after adjustment.</div>
+    </div>
+    <div class="metric red">
+      <div class="label">Beginning Allowance Balance</div>
+      <div class="value" id="currentAllowance">$3,000 Cr</div>
+      <div class="hint">A credit balance reduces Bad Debt Expense. A debit balance increases it.</div>
+    </div>
+    <div class="metric green">
+      <div class="label">Bad Debt Expense Entry</div>
+      <div class="value" id="expenseNeeded">$0</div>
+      <div class="hint" id="expenseHint">Debit Bad Debt Expense for the amount needed to reach the target.</div>
+    </div>
+  </div>
+
+  <div class="adjustment-callout" id="adjustmentCallout"></div>
+
+  <div class="aging-wrap" id="agingWrap">
+    <div class="aging-hdr">
+      <div class="co" id="agingCo">Bright Side Supply</div>
+      <div class="doc">Accounts Receivable Aging Schedule</div>
+    </div>
+    <table class="aging-table">
+      <thead>
+        <tr>
+          <th>Age Category</th>
+          <th>Receivable Balance</th>
+          <th>Estimated Loss Rate</th>
+          <th>Required Allowance</th>
+        </tr>
+      </thead>
+      <tbody id="agingBody"></tbody>
+    </table>
+  </div>
+
+  <div class="estimate-ledger-grid">
+    <div class="journal-card">
+      <div class="journal-title">Adjusting Entry at Period-End</div>
+      <div id="estimateJournal"></div>
+    </div>
+    <div class="allowance-note" id="allowanceNote"></div>
+  </div>
+</div>
+
+<!-- TAB 2 -->
+<div class="panel" id="tab-2">
+  <div class="sec-title">Write-Off and Recovery: What Actually Moves?</div>
+  <div class="sec-sub">
+    A write-off is not the moment bad debt expense is recognized under the allowance method. Watch how the write-off reduces both Accounts Receivable and the Allowance, leaving net receivables unchanged.
+  </div>
+
+  <div class="event-strip" id="eventStrip">
+    <div class="event active">1. Estimate already recorded</div>
+    <div class="event">2. Write off customer</div>
+    <div class="event">3. Reinstate if recovered</div>
+    <div class="event">4. Collect cash</div>
+  </div>
+
+  <div class="step-sticky">
+    <div class="step-progress" id="lifeProgress"></div>
+    <div class="step-row">
+      <div class="step-message" id="lifeMsg">
+        <strong>Before the write-off:</strong> The allowance estimate has already been recorded. Accounts Receivable is $80,000, Allowance is $6,000, so net receivables are $74,000.
+      </div>
+      <div class="step-side-ctrl">
+        <button class="sc-btn sc-next" id="lifeNext" onclick="goLife(lifeStep+1)">Write Off Reed Co. →</button>
+        <button class="sc-btn sc-prev" id="lifePrev" onclick="goLife(lifeStep-1)" disabled>← Back</button>
+        <button class="sc-btn sc-reset" onclick="resetLife()">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="journal-card journal-light">
+    <div class="journal-title" id="lifeJournalTitle">Current Journal Entry</div>
+    <div id="lifeJournal"></div>
+  </div>
+
+  <div class="life-grid">
+    <div class="ledger-card">
+      <div class="ledger-title">Accounts After Each Event</div>
+      <div class="tgrid">
+        <div class="tacct">
+          <div class="tacct-h">Accounts Receivable</div>
+          <div class="tacct-body">
+            <div class="tcol">
+              <div class="side-label">Debit</div>
+              <div id="arDebit"></div>
+            </div>
+            <div class="tcol">
+              <div class="side-label">Credit</div>
+              <div id="arCredit"></div>
+            </div>
+          </div>
+        </div>
+        <div class="tacct">
+          <div class="tacct-h">Allowance for Doubtful Accounts</div>
+          <div class="tacct-body">
+            <div class="tcol">
+              <div class="side-label">Debit</div>
+              <div id="allowDebit"></div>
+            </div>
+            <div class="tcol">
+              <div class="side-label">Credit</div>
+              <div id="allowCredit"></div>
+            </div>
+          </div>
+        </div>
+        <div class="tacct">
+          <div class="tacct-h">Cash</div>
+          <div class="tacct-body">
+            <div class="tcol">
+              <div class="side-label">Debit</div>
+              <div id="cashDebit"></div>
+            </div>
+            <div class="tcol">
+              <div class="side-label">Credit</div>
+              <div id="cashCredit"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="value-stack">
+      <div class="value-hdr">Net Realizable Value Check</div>
+      <div class="value-row">
+        <div>Accounts Receivable</div>
+        <div class="amt" id="lifeAR">$80,000</div>
+      </div>
+      <div class="value-row">
+        <div>Less: Allowance for Doubtful Accounts</div>
+        <div class="amt" id="lifeAllow">$6,000</div>
+      </div>
+      <div class="value-row total">
+        <div>Net Accounts Receivable</div>
+        <div class="amt" id="lifeNet">$74,000</div>
+      </div>
+      <div class="value-row cash">
+        <div>Cash collected from recovered account</div>
+        <div class="amt" id="lifeCash">$0</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 3 -->
+<div class="panel" id="tab-3">
+  <div class="sec-title">Check Your Understanding</div>
+  <div class="sec-sub">
+    Check whether the allowance method logic is clear: estimate first, write off later, and keep the balance sheet focused on expected collection value.
+  </div>
+  <div class="score-line">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</div>
+
+<div class="nav-bar">
+  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>← Previous</button>
+  <div class="nav-ind" id="navInd">Tab 1 of 4 — The Big Idea</div>
+  <button class="nav-btn nxt" id="btnNext" onclick="navigate(1)">Next →</button>
+</div>
+
+<script>
+// Tabs
+const TABS = ['The Big Idea', 'Estimate the Allowance', 'Write-Off & Recovery', 'Self-Check'];
+let cur = 0;
+function showTab(i) {
+  document.querySelectorAll('.panel').forEach((p,j) => p.classList.toggle('active', j===i));
+  document.querySelectorAll('.tab').forEach((t,j) => t.classList.toggle('active', j===i));
+  cur = i;
+  document.getElementById('btnPrev').disabled = i===0;
+  document.getElementById('btnNext').disabled = i===TABS.length-1;
+  document.getElementById('navInd').textContent = 'Tab ' + (i+1) + ' of ' + TABS.length + ' — ' + TABS[i];
+  if (i===3 && !quizBuilt) buildQuiz();
+}
+function navigate(d) { showTab(cur+d); }
+
+function money(n) {
+  const rounded = Math.round(n);
+  const sign = rounded < 0 ? '-' : '';
+  return sign + '$' + Math.abs(rounded).toLocaleString();
+}
+
+function journalRow(label, dr, cr, indent) {
+  return '<div class="journal-row">' +
+    '<div class="' + (indent ? 'indent' : '') + '">' + label + '</div>' +
+    '<div class="dr">' + (dr ? money(dr) : '') + '</div>' +
+    '<div class="cr">' + (cr ? money(cr) : '') + '</div>' +
+  '</div>';
+}
+
+function progressHTML(total, current, prefix) {
+  let html = '';
+  for (let i = 0; i < total; i++) {
+    const cls = i < current ? ' done' : (i === current ? ' active' : '');
+    html += '<div class="sp-dot' + cls + '" id="' + prefix + 'Dot' + i + '">' + (i < current ? '✓' : i+1) + '</div>';
+    if (i < total - 1) html += '<div class="sp-line' + (i < current ? ' done' : '') + '"></div>';
+  }
+  return html;
+}
+
+// Estimate tab
+const AGING = [
+  { name: 'Under 30 days', amount: 300000, rate: .01 },
+  { name: '31-60 days', amount: 100000, rate: .04 },
+  { name: '61-90 days', amount: 50000, rate: .10 },
+  { name: '91-120 days', amount: 30000, rate: .20 },
+  { name: 'Over 120 days', amount: 20000, rate: .35 }
+];
+
+const EST_NEXT_LABELS = [
+  'Place Beginning Balance →',
+  'Calculate Adjustment →',
+  'Record Journal Entry →',
+  '✓ Adjustment Complete'
+];
+
+let estStep = 0;
+function priorAllowanceSigned() {
+  const raw = Math.max(0, Number(document.getElementById('priorAllowance').value || 0));
+  const side = document.getElementById('priorSide').value;
+  return side === 'credit' ? raw : -raw;
+}
+function estimateTarget(limit) {
+  const rows = AGING.slice(0, Math.min(limit + 1, 5));
+  return rows.reduce((sum, r) => sum + (r.amount * r.rate), 0);
+}
+function fullEstimateTarget() {
+  return AGING.reduce((sum, r) => sum + (r.amount * r.rate), 0);
+}
+function adjustmentNeeded(target) {
+  return target - priorAllowanceSigned();
+}
+function allowanceLabel() {
+  const raw = Math.max(0, Number(document.getElementById('priorAllowance').value || 0));
+  return money(raw) + (document.getElementById('priorSide').value === 'credit' ? ' Cr' : ' Dr');
+}
+
+function adjustmentWords(target) {
+  const raw = Math.max(0, Number(document.getElementById('priorAllowance').value || 0));
+  const side = document.getElementById('priorSide').value;
+  const adj = adjustmentNeeded(target);
+  if (adj < 0) {
+    return {
+      value: 'Credit ' + money(Math.abs(adj)),
+      hint: 'The beginning credit balance is higher than the target, so the entry reduces the allowance.',
+      callout: '<strong>Beginning credit exceeds the target:</strong> the allowance already has too much credit. Instead of recording more Bad Debt Expense, reduce the allowance.' +
+        '<br><span class="calc-line">Beginning credit ' + money(raw) + ' - target ' + money(target) + ' = ' + money(Math.abs(adj)) + ' reduction</span>',
+      note: '<strong>Credit balance too high:</strong> debit Allowance for the excess and credit Bad Debt Expense. This pulls the allowance down to the target.'
+    };
+  }
+  if (side === 'credit') {
+    return {
+      value: money(adj),
+      hint: 'Beginning credit is already on the correct side, so it reduces Bad Debt Expense.',
+      callout: '<strong>Credit beginning balance reduces the expense:</strong> the allowance already contains part of the required cushion.' +
+        '<br><span class="calc-line">Bad Debt Expense = target ' + money(target) + ' - beginning credit ' + money(raw) + ' = ' + money(adj) + '</span>',
+      note: '<strong>Credit beginning balance:</strong> it already reduces receivables, so only the missing amount is added as Bad Debt Expense.'
+    };
+  }
+  return {
+    value: money(adj),
+    hint: 'Beginning debit is on the wrong side for a contra asset, so it increases Bad Debt Expense.',
+    callout: '<strong>Debit beginning balance increases the expense:</strong> the adjustment must first wipe out the debit balance, then build the required credit balance.' +
+      '<br><span class="calc-line">Bad Debt Expense = target ' + money(target) + ' + beginning debit ' + money(raw) + ' = ' + money(adj) + '</span>',
+    note: '<strong>Debit beginning balance:</strong> previous write-offs exceeded prior estimates. The adjustment must cross from debit to the target credit balance.'
+  };
+}
+
+function estimateStepMessage(step, target, words) {
+  const raw = Math.max(0, Number(document.getElementById('priorAllowance').value || 0));
+  const side = document.getElementById('priorSide').value;
+  const sideWord = side === 'credit' ? 'credit' : 'debit';
+  const adj = adjustmentNeeded(target);
+  if (step === 0) {
+    return '<strong>Step 1 — Aging target:</strong> The completed aging schedule says the allowance account should end with a <strong style="color:#0e7490">' + money(target) + ' credit balance</strong>. This target is not automatically Bad Debt Expense.';
+  }
+  if (step === 1) {
+    return '<strong>Step 2 — Beginning balance:</strong> Put the beginning allowance balance on the T-account first: <strong style="color:#92400e">' + money(raw) + ' ' + sideWord + '</strong>. The side matters: a credit balance is already part of the cushion; a debit balance must be overcome.';
+  }
+  if (step === 2) {
+    return '<strong>Step 3 — Adjustment amount:</strong> ' + words.callout.replace('<strong>', '').replace('</strong>', '').replace('<br><span class="calc-line">', ' <span class="calc-line">');
+  }
+  if (adj >= 0) {
+    return '<strong>Step 4 — Record the adjusting entry:</strong> Debit Bad Debt Expense and credit Allowance for Doubtful Accounts for <strong style="color:#15803d">' + money(adj) + '</strong>. After posting, the allowance ends at the aging target.';
+  }
+  return '<strong>Step 4 — Record the adjusting entry:</strong> The beginning credit is too large, so debit Allowance and credit Bad Debt Expense for <strong style="color:#15803d">' + money(Math.abs(adj)) + '</strong>. After posting, the allowance ends at the aging target.';
+}
+
+function renderAging() {
+  const body = document.getElementById('agingBody');
+  const company = document.getElementById('companyName').value.trim() || 'Bright Side Supply';
+  document.getElementById('agingCo').textContent = company;
+  let html = '';
+  AGING.forEach((r) => {
+    const req = r.amount * r.rate;
+    html += '<tr>' +
+      '<td><strong>' + r.name + '</strong></td>' +
+      '<td class="amt">' + money(r.amount) + '</td>' +
+      '<td>' + (r.rate * 100).toFixed(0) + '%</td>' +
+      '<td class="calc">' + money(req) + '</td>' +
+    '</tr>';
+  });
+
+  const targetShown = fullEstimateTarget();
+  html += '<tr class="total-row">' +
+    '<td>Required ending allowance</td><td></td><td></td><td class="calc">' + money(targetShown) + '</td>' +
+  '</tr>';
+
+  if (estStep >= 2) {
+    const adj = adjustmentNeeded(fullEstimateTarget());
+    html += '<tr class="adjust-row">' +
+      '<td>Period-end adjustment</td><td></td><td>' + allowanceLabel() + ' beginning</td><td class="calc">' + money(Math.abs(adj)) + '</td>' +
+    '</tr>';
+  }
+
+  body.innerHTML = html;
+}
+
+function renderEstimateTAccount(target) {
+  const raw = Math.max(0, Number(document.getElementById('priorAllowance').value || 0));
+  const side = document.getElementById('priorSide').value;
+  const adj = adjustmentNeeded(target);
+  const debitItems = [];
+  const creditItems = [];
+  let debitBalance = null;
+  let debitBalanceSide = '';
+  let creditBalance = null;
+  let creditBalanceSide = '';
+
+  if (estStep >= 1) {
+    if (raw > 0 && side === 'debit') {
+      debitItems.push(['Beg. bal.', raw, false]);
+      if (estStep === 1) {
+        debitBalance = raw;
+        debitBalanceSide = 'Dr';
+      }
+    }
+    if (raw > 0 && side === 'credit') {
+      creditItems.push(['Beg. bal.', raw, false]);
+      if (estStep === 1) {
+        creditBalance = raw;
+        creditBalanceSide = 'Cr';
+      }
+    }
+  }
+
+  if (estStep >= 2) {
+    if (adj >= 0) creditItems.push(['Adjustment', adj, true]);
+    else debitItems.push(['Adjustment', Math.abs(adj), true]);
+    creditBalance = target;
+    creditBalanceSide = 'Cr';
+    debitBalance = null;
+    debitBalanceSide = '';
+  }
+
+  document.getElementById('estAllowDebit').innerHTML = entryLines(debitItems, debitBalance, debitBalanceSide);
+  document.getElementById('estAllowCredit').innerHTML = entryLines(creditItems, creditBalance, creditBalanceSide);
+}
+
+function renderEstimateJournal() {
+  const target = fullEstimateTarget();
+  const adj = adjustmentNeeded(target);
+  let html = '';
+  if (estStep < 3) {
+    html += '<div style="color:#94a3b8;font-size:.85rem">The journal entry appears after you calculate the adjustment and move to the recording step.</div>';
+  } else if (adj >= 0) {
+    html += journalRow('Bad Debt Expense', adj, 0, false);
+    html += journalRow('Allowance for Doubtful Accounts', 0, adj, true);
+  } else {
+    html += journalRow('Allowance for Doubtful Accounts', Math.abs(adj), 0, false);
+    html += journalRow('Bad Debt Expense', 0, Math.abs(adj), true);
+  }
+  if (estStep >= 3) {
+    html += '<div style="margin-top:8px;color:#fef3c7;font-size:.78rem">This entry brings the allowance account from the beginning balance of ' + allowanceLabel() + ' to the required ending credit balance of ' + money(fullEstimateTarget()) + '.</div>';
+  }
+  document.getElementById('estimateJournal').innerHTML = html;
+}
+
+function goEstimate(s) {
+  if (s < 0 || s >= EST_NEXT_LABELS.length) return;
+  estStep = s;
+  const target = fullEstimateTarget();
+  const words = adjustmentWords(target);
+  document.getElementById('estProgress').innerHTML = progressHTML(EST_NEXT_LABELS.length, estStep, 'est');
+  document.getElementById('estMsg').innerHTML = estimateStepMessage(estStep, target, words);
+  document.getElementById('estPrev').disabled = estStep === 0;
+  document.getElementById('estNext').disabled = estStep === EST_NEXT_LABELS.length - 1;
+  document.getElementById('estNext').textContent = EST_NEXT_LABELS[estStep];
+  document.getElementById('targetAllowance').textContent = money(target);
+  document.getElementById('currentAllowance').textContent = allowanceLabel();
+  document.getElementById('expenseNeeded').textContent = estStep < 2 ? 'Not yet' : words.value;
+  document.getElementById('expenseHint').textContent = estStep < 2 ? 'First identify the aging target and place the beginning allowance balance on the correct side.' : words.hint;
+  if (estStep === 0) {
+    document.getElementById('adjustmentCallout').innerHTML =
+      '<strong>Aging schedule result:</strong> the receivable aging analysis sets the required ending allowance at <strong>' + money(target) + '</strong>. The next step is to compare this target with the beginning balance already in the allowance account.';
+    document.getElementById('allowanceNote').innerHTML =
+      '<strong>Nothing has been adjusted yet:</strong> the T-account will start with the beginning allowance balance, then the adjustment will move it to the aging target.';
+  } else if (estStep === 1) {
+    document.getElementById('adjustmentCallout').innerHTML =
+      '<strong>Beginning balance placed:</strong> a beginning <strong>' + allowanceLabel() + '</strong> changes the expense calculation. Credit balances already help reach the target; debit balances move the account away from the target.';
+    document.getElementById('allowanceNote').innerHTML =
+      '<strong>Look at the side:</strong> the same dollar amount creates a different adjustment depending on whether it starts on the debit or credit side.';
+  } else {
+    document.getElementById('adjustmentCallout').innerHTML = words.callout;
+    document.getElementById('allowanceNote').innerHTML = words.note;
+  }
+  renderAging();
+  renderEstimateTAccount(target);
+  renderEstimateJournal();
+}
+function resetEstimate() { goEstimate(0); }
+
+// Write-off lifecycle tab
+let lifeStep = 0;
+const LIFE = [
+  {
+    msg: '<strong>Before the write-off:</strong> The allowance estimate has already been recorded. Accounts Receivable is $80,000, Allowance is $6,000, so net receivables are $74,000.',
+    next: 'Write Off Reed Co. →',
+    title: 'No new entry now',
+    journal: '<div style="color:#94a3b8;font-size:.85rem">The estimate was recorded at period-end. Now we are watching later events use that allowance.</div>',
+    ar: 80000, allow: 6000, cash: 0,
+    arD: [['Bal.', 80000, false]], arC: [], alD: [], alC: [['Bal.', 6000, false]], cashD: [], cashC: []
+  },
+  {
+    msg: '<strong>Write-off:</strong> Reed Co. will not pay $1,200. Debit the allowance and credit Reed Co. in Accounts Receivable. Net receivables stay at $74,000 because both accounts decrease.',
+    next: 'Recover the Account →',
+    title: 'Entry to Write Off Reed Co.',
+    journal: journalRow('Allowance for Doubtful Accounts', 1200, 0, false) + journalRow('Accounts Receivable — Reed Co.', 0, 1200, true),
+    ar: 78800, allow: 4800, cash: 0,
+    arD: [['Bal.', 80000, false]], arC: [['Write-off', 1200, true]], alD: [['Write-off', 1200, true]], alC: [['Bal.', 6000, false]], cashD: [], cashC: []
+  },
+  {
+    msg: '<strong>Recovery begins:</strong> Reed Co. unexpectedly promises to pay. First reverse the write-off so the customer account exists again.',
+    next: 'Collect Cash →',
+    title: 'Entry to Reinstate Reed Co.',
+    journal: journalRow('Accounts Receivable — Reed Co.', 1200, 0, false) + journalRow('Allowance for Doubtful Accounts', 0, 1200, true),
+    ar: 80000, allow: 6000, cash: 0,
+    arD: [['Bal.', 80000, false], ['Reinstate', 1200, true]], arC: [['Write-off', 1200, false]], alD: [['Write-off', 1200, false]], alC: [['Bal.', 6000, false], ['Reinstate', 1200, true]], cashD: [], cashC: []
+  },
+  {
+    msg: '<strong>Cash collection:</strong> Now record the cash receipt. Cash increases on the debit side, and Accounts Receivable decreases on the credit side. The recovery still does not create new bad debt expense.',
+    next: '✓ Lifecycle Complete',
+    title: 'Entry to Collect Cash',
+    journal: journalRow('Cash', 1200, 0, false) + journalRow('Accounts Receivable — Reed Co.', 0, 1200, true),
+    ar: 78800, allow: 6000, cash: 1200,
+    arD: [['Bal.', 80000, false], ['Reinstate', 1200, false]], arC: [['Write-off', 1200, false], ['Cash collected', 1200, true]], alD: [['Write-off', 1200, false]], alC: [['Bal.', 6000, false], ['Reinstate', 1200, false]], cashD: [['Cash collected', 1200, true]], cashC: []
+  }
+];
+
+function entryLines(items, balance, normalSide) {
+  let html = '';
+  items.forEach(([label, amt, hot]) => {
+    html += '<div class="entry-line' + (hot ? ' hot' : '') + '"><span>' + label + '</span><span>' + money(amt) + '</span></div>';
+  });
+  if (balance !== null) {
+    html += '<div class="balance-line">Bal. ' + money(balance) + ' ' + normalSide + '</div>';
+  }
+  return html;
+}
+
+function goLife(s) {
+  if (s < 0 || s >= LIFE.length) return;
+  lifeStep = s;
+  const cfg = LIFE[s];
+  document.getElementById('lifeProgress').innerHTML = progressHTML(LIFE.length, lifeStep, 'life');
+  document.getElementById('lifeMsg').innerHTML = cfg.msg;
+  document.getElementById('lifePrev').disabled = s === 0;
+  document.getElementById('lifeNext').disabled = s === LIFE.length - 1;
+  document.getElementById('lifeNext').textContent = cfg.next;
+  document.getElementById('lifeJournalTitle').textContent = cfg.title;
+  document.getElementById('lifeJournal').innerHTML = cfg.journal;
+
+  document.getElementById('arDebit').innerHTML = entryLines(cfg.arD, cfg.ar, 'Dr');
+  document.getElementById('arCredit').innerHTML = entryLines(cfg.arC, null, '');
+  document.getElementById('allowDebit').innerHTML = entryLines(cfg.alD, null, '');
+  document.getElementById('allowCredit').innerHTML = entryLines(cfg.alC, cfg.allow, 'Cr');
+  document.getElementById('cashDebit').innerHTML = entryLines(cfg.cashD, cfg.cash, 'Dr');
+  document.getElementById('cashCredit').innerHTML = entryLines(cfg.cashC, null, '');
+
+  document.getElementById('lifeAR').textContent = money(cfg.ar);
+  document.getElementById('lifeAllow').textContent = money(cfg.allow);
+  document.getElementById('lifeNet').textContent = money(cfg.ar - cfg.allow);
+  document.getElementById('lifeCash').textContent = money(cfg.cash);
+
+  document.querySelectorAll('#eventStrip .event').forEach((el, i) => {
+    el.className = 'event' + (i < s ? ' done' : (i === s ? ' active' : ''));
+  });
+}
+function resetLife() { goLife(0); }
+
+// Quiz
+let quizBuilt = false, score = 0;
+const QUESTIONS = [
+  {
+    q: 'What is the main purpose of Allowance for Doubtful Accounts?',
+    correct: 'To reduce Accounts Receivable to the amount expected to be collected',
+    opts: [
+      'To reduce Accounts Receivable to the amount expected to be collected',
+      'To record cash collections from customers',
+      'To increase sales revenue when customers pay',
+      'To eliminate the need for bad debt estimates'
+    ],
+    exp: 'Allowance is a contra asset. It reduces gross receivables so the balance sheet reports net realizable value.'
+  },
+  {
+    q: 'Under the allowance method, when is Bad Debt Expense normally recorded?',
+    correct: 'At period-end, when uncollectible accounts are estimated',
+    opts: [
+      'At period-end, when uncollectible accounts are estimated',
+      'Only when a specific customer is written off',
+      'Only when the customer later pays',
+      'When cash is received from credit customers'
+    ],
+    exp: 'The estimate records expense in the period of the related credit deterioration rather than waiting for a specific write-off.'
+  },
+  {
+    q: 'A company needs a $25,000 ending allowance and already has a $3,000 credit balance. What adjusting entry is needed?',
+    correct: 'Debit Bad Debt Expense $22,000; credit Allowance $22,000',
+    opts: [
+      'Debit Bad Debt Expense $22,000; credit Allowance $22,000',
+      'Debit Bad Debt Expense $28,000; credit Allowance $28,000',
+      'Debit Allowance $22,000; credit Bad Debt Expense $22,000',
+      'Debit Accounts Receivable $25,000; credit Allowance $25,000'
+    ],
+    exp: 'The allowance already has $3,000 credit. To reach a $25,000 credit target, increase it by $22,000.'
+  },
+  {
+    q: 'A company needs a $25,000 ending allowance and currently has a $2,000 debit balance. What bad debt expense is recorded?',
+    correct: '$27,000',
+    opts: ['$27,000', '$25,000', '$23,000', '$2,000'],
+    exp: 'A debit balance means prior write-offs exceeded prior estimates. The entry must cover the $2,000 debit and build a $25,000 credit balance, so expense is $27,000.'
+  },
+  {
+    q: 'What is the entry to write off a specific customer under the allowance method?',
+    correct: 'Debit Allowance for Doubtful Accounts; credit Accounts Receivable',
+    opts: [
+      'Debit Allowance for Doubtful Accounts; credit Accounts Receivable',
+      'Debit Bad Debt Expense; credit Accounts Receivable',
+      'Debit Accounts Receivable; credit Allowance for Doubtful Accounts',
+      'Debit Cash; credit Accounts Receivable'
+    ],
+    exp: 'The expense was estimated earlier. The write-off uses the allowance and removes the specific receivable.'
+  },
+  {
+    q: 'What happens to net accounts receivable when a $1,200 account is written off under the allowance method?',
+    correct: 'It does not change',
+    opts: [
+      'It does not change',
+      'It increases by $1,200',
+      'It decreases by $1,200',
+      'It becomes equal to gross accounts receivable'
+    ],
+    exp: 'Accounts Receivable decreases and Allowance decreases by the same amount, so net receivables stay the same.'
+  },
+  {
+    q: 'Why is the direct write-off method normally not acceptable under GAAP when bad debts are material?',
+    correct: 'It can mismatch bad debt expense with the related credit sales and overstate receivables before write-off',
+    opts: [
+      'It can mismatch bad debt expense with the related credit sales and overstate receivables before write-off',
+      'It always records too much bad debt expense',
+      'It requires an aging schedule for every customer',
+      'It records receivables at net realizable value'
+    ],
+    exp: 'The direct write-off method waits until a specific account is identified, which can delay expense recognition and leave receivables too high.'
+  },
+  {
+    q: 'If a written-off account is later collected, what is the first entry?',
+    correct: 'Reinstate the receivable by debiting Accounts Receivable and crediting Allowance',
+    opts: [
+      'Reinstate the receivable by debiting Accounts Receivable and crediting Allowance',
+      'Debit Bad Debt Expense and credit Cash',
+      'Debit Cash and credit Sales Revenue',
+      'Debit Allowance and credit Bad Debt Expense'
+    ],
+    exp: 'The account is first restored, then the normal cash collection entry is recorded.'
+  }
+];
+
+function buildQuiz() {
+  quizBuilt = true;
+  const wrap = document.getElementById('quizWrap');
+  document.getElementById('total').textContent = QUESTIONS.length;
+  QUESTIONS.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML =
+      '<div class="q-num">Question ' + (qi+1) + ' of ' + QUESTIONS.length + '</div>' +
+      '<div class="q-text">' + q.q + '</div>' +
+      '<div class="q-opts">' + q.opts.map(o =>
+        '<button class="q-opt" onclick="answer(' + qi + ',this)">' + o + '</button>'
+      ).join('') + '</div>' +
+      '<div class="q-explain" id="qe-' + qi + '"></div>';
+    wrap.appendChild(card);
+  });
+}
+
+function answer(qi, btn) {
+  const card = btn.closest('.q-card');
+  if (card.dataset.done) return;
+  card.dataset.done = '1';
+  const q = QUESTIONS[qi];
+  const chosen = btn.textContent.trim();
+  card.querySelectorAll('.q-opt').forEach(b => {
+    b.disabled = true;
+    if (b.textContent.trim() === q.correct) b.classList.add('correct');
+    else b.classList.add('wrong');
+  });
+  const exp = document.getElementById('qe-' + qi);
+  exp.classList.add('show');
+  if (chosen === q.correct) {
+    score++;
+    exp.classList.add('ok');
+    exp.textContent = 'Correct. ' + q.exp;
+  } else {
+    exp.classList.add('bad');
+    exp.textContent = 'The answer is: ' + q.correct + '. ' + q.exp;
+  }
+  document.getElementById('score').textContent = score;
+}
+
+// Init
+goEstimate(0);
+goLife(0);
+</script>
+</body>
+</html>

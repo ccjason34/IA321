@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Impairment of PP&amp;E | Kieso Ch. 10</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f1f5f9; font-family: "Segoe UI", system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.22rem; font-weight: 800; letter-spacing: 0; }
+  .header p { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab { padding: 11px 18px; font-size: .88rem; font-weight: 700; color: #64748b; cursor: pointer; border: 0; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; background: transparent; font-family: inherit; }
+  .tab:hover { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+  .panel { display: none; max-width: 1080px; margin: 0 auto; padding: 22px 16px 90px; }
+  .panel.active { display: block; }
+  .sec-title { font-size: 1.34rem; font-weight: 800; margin-bottom: 8px; }
+  .sec-sub { font-size: .96rem; color: #475569; margin-bottom: 18px; line-height: 1.65; max-width: 950px; }
+
+  .scenario-card { background: white; border-radius: 12px; box-shadow: 0 3px 14px rgba(0,0,0,.08); border: 1px solid #e2e8f0; overflow: hidden; margin: 12px auto 0; max-width: 1080px; }
+  .scenario-head { background: linear-gradient(135deg, #0f766e, #0891b2); color: white; padding: 10px 14px; display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .scenario-title { font-size: .88rem; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
+  .scenario-badge { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.28); border-radius: 999px; padding: 5px 10px; font-size: .76rem; font-weight: 900; }
+  .fact-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 12px; }
+  @media(max-width:900px) { .fact-grid { grid-template-columns: 1fr 1fr; } }
+  @media(max-width:560px) { .fact-grid { grid-template-columns: 1fr; } }
+  .fact { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; }
+  .fact .label { font-size: .68rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .fact .value { font-size: 1rem; font-weight: 900; font-family: ui-monospace, Menlo, Consolas, monospace; color: #0f172a; }
+  .fact .hint { font-size: .73rem; font-weight: 700; color: #64748b; margin-top: 3px; line-height: 1.35; }
+
+  .rule-box { background: linear-gradient(135deg, #dbeafe, #ecfdf5); border: 2px solid #2563eb; border-radius: 12px; padding: 14px 18px; margin-bottom: 18px; color: #1e3a8a; font-size: .94rem; line-height: 1.6; font-weight: 750; }
+  .rule-box strong { color: #1d4ed8; font-weight: 900; }
+  .rule-box .trap { color: #b45309; font-weight: 900; }
+
+  /* Pending fact-strip placeholders */
+  .fact .value.pending { color: #94a3b8; }
+  .fact.solved { background: #ecfdf5; border-color: #16a34a; }
+  .fact.solved .value { color: #166534; }
+  .fact.solved .label { color: #166534; }
+
+  /* Memory cue chip */
+  .memcue {
+    display: inline-block;
+    background: #fef3c7; border: 2px solid #f59e0b;
+    border-left: 6px solid #b45309; border-radius: 10px;
+    padding: 10px 14px; margin-bottom: 14px;
+    font-weight: 850; color: #7c2d12; font-size: .95rem;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, .15);
+    line-height: 1.5;
+  }
+  .memcue strong { color: #b45309; }
+
+  /* Trap callout (highlighted student-trap) */
+  .trap-callout {
+    display: flex; gap: 10px; align-items: flex-start;
+    margin-top: 12px; padding: 12px 14px;
+    background: #fff7ed; border: 2px solid #f59e0b;
+    border-left: 6px solid #b45309; border-radius: 10px;
+    color: #7c2d12; font-weight: 850; line-height: 1.55;
+  }
+  .trap-callout .trap-icon { font-size: 1.5rem; line-height: 1; flex-shrink: 0; color: #b45309; }
+  .trap-callout strong { color: #7c2d12; font-weight: 900; }
+  .trap-callout u { text-decoration-color: #b45309; text-decoration-thickness: 2px; }
+
+  /* Two-comparisons centerpiece */
+  .two-comp {
+    background: white; border: 2px solid #e2e8f0; border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 18px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.06);
+  }
+  .two-comp-h { font-weight: 900; color: #0f172a; font-size: 1rem; margin-bottom: 12px; }
+  .two-comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media(max-width:760px) { .two-comp-grid { grid-template-columns: 1fr; } }
+  .two-comp-card { border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; }
+  .two-comp-card.step1 { border-color: #f59e0b; background: #fffbeb; }
+  .two-comp-card.step2 { border-color: #ef4444; background: #fef2f2; }
+  .two-comp-tag { font-size: .76rem; font-weight: 900; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px; }
+  .two-comp-card.step1 .two-comp-tag { color: #b45309; }
+  .two-comp-card.step2 .two-comp-tag { color: #b91c1c; }
+  .two-comp-row { display: grid; grid-template-columns: 95px 1fr; gap: 8px; padding: 4px 0; font-size: .82rem; line-height: 1.45; }
+  .two-comp-row span { color: #64748b; font-weight: 800; }
+  .two-comp-row strong { color: #0f172a; font-weight: 850; }
+  .two-comp-note {
+    margin-top: 10px;
+    background: #f0f9ff; border: 1.5px solid #0ea5e9;
+    border-radius: 10px; padding: 10px 12px;
+    color: #075985; font-size: .82rem; font-weight: 800; line-height: 1.55;
+  }
+  .two-comp-note em { font-style: italic; color: #0c4a6e; font-weight: 900; }
+
+  /* 2-step diagram (Input → Step 1 → Step 2) */
+  .grid-2step {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 8px; align-items: stretch; margin-bottom: 14px;
+  }
+  @media(max-width:820px) { .grid-2step { grid-template-columns: 1fr; } .grid-2step .step-arrow { display: none; } }
+  .step-input, .step-card {
+    background: white; border: 2px solid #e2e8f0; border-radius: 12px;
+    padding: 14px; box-shadow: 0 3px 12px rgba(0,0,0,.06);
+  }
+  .step-input { border-color: #2563eb; background: #eff6ff; }
+  .step-card.step1 { border-color: #f59e0b; background: #fffbeb; }
+  .step-card.step2 { border-color: #ef4444; background: #fef2f2; }
+  .step-tag { font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .55px; color: #64748b; margin-bottom: 6px; }
+  .step-input .step-tag { color: #1d4ed8; }
+  .step-card.step1 .step-tag { color: #b45309; }
+  .step-card.step2 .step-tag { color: #b91c1c; }
+  .step-main { font-size: .98rem; font-weight: 900; color: #0f172a; line-height: 1.4; }
+  .step-num { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1.2rem; color: #1d4ed8; }
+  .step-sub { margin-top: 6px; font-size: .8rem; color: #475569; font-weight: 750; line-height: 1.5; }
+  .step-arrow { display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.6rem; font-weight: 900; }
+
+  /* No-reversal callout */
+  .no-reversal {
+    display: flex; gap: 12px; align-items: flex-start;
+    margin-top: 14px; padding: 13px 16px;
+    background: #fef2f2; border: 2px solid #ef4444;
+    border-left: 6px solid #b91c1c; border-radius: 12px;
+    color: #7f1d1d; font-weight: 800; line-height: 1.55; font-size: .9rem;
+  }
+  .no-reversal-icon { font-size: 1.6rem; line-height: 1; flex-shrink: 0; }
+  .no-reversal strong { color: #991b1b; font-weight: 900; }
+  .no-reversal u { text-decoration-color: #b91c1c; text-decoration-thickness: 2px; }
+  .no-reversal em { color: #7f1d1d; font-style: italic; }
+
+  /* Step 2 lock placeholder */
+  .step2-lock {
+    display: flex; gap: 12px; align-items: center;
+    margin: 16px 0; padding: 14px 18px;
+    background: #f1f5f9; border: 2px dashed #94a3b8;
+    border-radius: 12px; color: #475569;
+    font-weight: 800; line-height: 1.55; font-size: .92rem;
+  }
+  .step2-lock-icon { font-size: 1.6rem; line-height: 1; flex-shrink: 0; }
+  .step2-lock strong { color: #0f172a; font-weight: 900; display: block; margin-bottom: 2px; }
+  .takeaway { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 2px solid #16a34a; border-radius: 12px; padding: 14px 18px; margin-top: 16px; font-size: .92rem; color: #14532d; line-height: 1.6; }
+  .takeaway strong { color: #166534; }
+
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
+  @media(max-width:860px) { .grid-3 { grid-template-columns: 1fr; } }
+  .concept-card { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border-top: 5px solid #cbd5e1; }
+  .concept-card.blue { border-top-color: #2563eb; }
+  .concept-card.gold { border-top-color: #f59e0b; }
+  .concept-card.red { border-top-color: #ef4444; }
+  .concept-card .h { padding: 12px 15px 6px; font-weight: 900; color: #0f172a; }
+  .concept-card .b { padding: 0 15px 14px; color: #475569; font-size: .88rem; line-height: 1.55; font-weight: 750; }
+  .formula { margin-top: 8px; background: #1e293b; color: #fef3c7; border-radius: 7px; padding: 8px 9px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .76rem; font-weight: 900; text-align: center; }
+
+  .flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 8px; align-items: stretch; margin-bottom: 18px; }
+  @media(max-width:760px) { .flow { grid-template-columns: 1fr; } .arrow { display: none; } }
+  .flow-box { background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 14px; text-align: center; box-shadow: 0 3px 12px rgba(0,0,0,.06); }
+  .flow-box.active { border-color: #f59e0b; background: #fef3c7; box-shadow: 0 0 0 3px rgba(245,158,11,.14); }
+  .flow-box.safe { border-color: #16a34a; background: #ecfdf5; }
+  .flow-label { font-size: .72rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .55px; margin-bottom: 5px; }
+  .flow-main { font-size: 1rem; font-weight: 900; color: #0f172a; }
+  .flow-sub { margin-top: 5px; font-size: .78rem; color: #64748b; font-weight: 750; line-height: 1.35; }
+  .arrow { display: flex; align-items: center; justify-content: center; color: #64748b; font-weight: 900; }
+
+  .step-ctrl { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; margin: 0 0 14px; }
+  .sc-btn { padding: 10px 20px; border-radius: 9px; border: none; font-weight: 800; font-size: .85rem; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .sc-step { background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; font-weight: 900; padding: 13px 24px; min-width: 235px; box-shadow: 0 4px 14px rgba(245,158,11,.38); animation: stepPulse 1.6s ease-in-out infinite; }
+  .sc-step:hover:not(:disabled) { background: linear-gradient(135deg, #d97706, #dc2626); transform: translateY(-1px); }
+  .sc-step:disabled { animation: none; box-shadow: none; background: #94a3b8; }
+  .sc-reset { background: #475569; color: white; padding: 9px 18px; font-size: .82rem; }
+  .sc-reset:hover { background: #334155; }
+  .sc-btn:disabled { opacity: .58; cursor: default; }
+  @keyframes stepPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(245,158,11,.38); }
+    50% { box-shadow: 0 4px 20px rgba(239,68,68,.66), 0 0 0 4px rgba(245,158,11,.16); }
+  }
+  .status-card { background: white; border-radius: 10px; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); margin-bottom: 14px; font-size: .92rem; color: #334155; line-height: 1.6; border-left: 4px solid #3b82f6; min-height: 64px; }
+  .status-card strong { color: #1e293b; }
+  .status-card .calc { display: inline-block; background: #fef3c7; color: #92400e; padding: 2px 10px; border-radius: 6px; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; margin-top: 4px; }
+
+  .work-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(320px, 1.05fr); gap: 14px; align-items: start; }
+  @media(max-width:900px) { .work-grid { grid-template-columns: 1fr; } }
+  .card { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border: 1px solid #e2e8f0; }
+  .card-h { background: #1e293b; color: white; padding: 12px 15px; font-weight: 900; font-size: .9rem; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .card-h small { color: #cbd5e1; font-weight: 800; }
+  .card-b { padding: 14px 16px; }
+  .calc-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(170px, .48fr); gap: 12px; padding: 9px 0; border-bottom: 1px solid #f1f5f9; align-items: start; }
+  @media(max-width:560px) { .calc-row { grid-template-columns: 1fr; } }
+  .calc-row:last-child { border-bottom: 0; }
+  .calc-row.hidden { opacity: .22; }
+  .calc-row.active { background: #fef3c7; margin: 0 -8px; padding: 9px 8px; border-radius: 8px; border-bottom: 0; }
+  .calc-label { font-size: .86rem; color: #475569; line-height: 1.45; font-weight: 750; }
+  .calc-label strong { color: #1e293b; }
+  .calc-value { font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; color: #0f172a; text-align: right; overflow-wrap: anywhere; line-height: 1.35; }
+  @media(max-width:560px) { .calc-value { text-align: left; } }
+
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #f8fafc; color: #64748b; text-align: left; padding: 8px; font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid #e2e8f0; }
+  td { padding: 8px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: .84rem; font-weight: 750; }
+  td.money, th.money { text-align: right; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; color: #0f172a; }
+  tr.result td { background: #fee2e2; color: #991b1b; font-weight: 900; }
+  tr.safe-result td { background: #dcfce7; color: #166534; font-weight: 900; }
+  .scenario-switch {
+    display: flex; gap: 0; flex-wrap: wrap; justify-content: center;
+    margin: 4px auto 18px; padding: 6px;
+    background: #0f172a; border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .18);
+    max-width: fit-content;
+  }
+  .scenario-switch::before {
+    content: "Pick a scenario:";
+    align-self: center;
+    color: #cbd5e1; font-weight: 900; font-size: .8rem;
+    text-transform: uppercase; letter-spacing: .55px;
+    padding: 0 14px 0 10px;
+  }
+  .switch-btn {
+    border: 0; background: transparent; color: #94a3b8;
+    border-radius: 10px; padding: 12px 22px;
+    font-weight: 900; font-size: .92rem; cursor: pointer;
+    font-family: inherit; transition: all .2s;
+    letter-spacing: .2px;
+  }
+  .switch-btn:hover:not(.active) { color: #e2e8f0; background: rgba(255,255,255,.06); }
+  .switch-btn.active {
+    background: white; color: #0f172a;
+    box-shadow: 0 4px 12px rgba(0,0,0,.25);
+    transform: translateY(-1px);
+  }
+  #impairCaseBtn.active { color: #b91c1c; box-shadow: 0 4px 12px rgba(239,68,68,.35), inset 0 -3px 0 #ef4444; }
+  #safeCaseBtn.active { color: #166534; box-shadow: 0 4px 12px rgba(22,163,74,.35), inset 0 -3px 0 #16a34a; }
+  @media(max-width:560px) {
+    .scenario-switch { flex-direction: column; max-width: 100%; }
+    .scenario-switch::before { padding: 4px 0 8px; text-align: center; }
+    .switch-btn { width: 100%; }
+  }
+
+  .journal-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .9fr); gap: 14px; align-items: start; }
+  @media(max-width:900px) { .journal-layout { grid-template-columns: 1fr; } }
+  .journal { width: 100%; border-collapse: collapse; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .86rem; }
+  .journal th.dr, .journal th.cr, .journal td.dr, .journal td.cr { text-align: right; width: 110px; }
+  .journal tr.hidden { opacity: .2; }
+  .journal tr.active td { background: #fef3c7; }
+  .journal tr.done td { background: #f0fdf4; }
+  .journal .indent { padding-left: 28px; }
+  .journal .dr, .journal .cr { color: #0f172a; font-weight: 900; white-space: nowrap; }
+  .why-panel { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border: 1px solid #e2e8f0; }
+  .why-head { background: #0f766e; color: white; padding: 12px 15px; font-weight: 900; font-size: .9rem; }
+  .why-body { padding: 14px 16px; }
+  .why-rule-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+  @media(max-width:560px) { .why-rule-grid { grid-template-columns: 1fr; } }
+  .why-rule { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 9px; padding: 9px 10px; }
+  .why-rule .tag { font-size: .66rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .45px; margin-bottom: 4px; }
+  .why-rule .text { font-size: .8rem; color: #334155; font-weight: 800; line-height: 1.35; }
+  .why-card { display: none; border-radius: 10px; padding: 12px 14px; border: 2px solid #e2e8f0; background: #f8fafc; color: #334155; line-height: 1.55; font-size: .88rem; font-weight: 750; }
+  .why-card.active { display: block; animation: fadeWhy .25s ease both; }
+  .why-card strong { color: #0f172a; font-weight: 900; }
+  .why-card .mini { display: block; margin-top: 8px; background: #1e293b; color: #fef3c7; border-radius: 7px; padding: 8px 10px; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; font-size: .78rem; }
+  .why-card.debit { border-color: #ef4444; background: #fee2e2; }
+  .why-card.credit { border-color: #f59e0b; background: #fffbeb; }
+  @keyframes fadeWhy { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .quiz-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .score { background: white; border-radius: 10px; padding: 12px 16px; box-shadow: 0 2px 8px rgba(0,0,0,.07); font-weight: 900; color: #1e293b; margin-bottom: 14px; }
+  .q-card { background: white; border-radius: 12px; padding: 15px 17px; box-shadow: 0 2px 8px rgba(0,0,0,.07); border: 1px solid #e2e8f0; }
+  .q-num { font-size: .72rem; color: #64748b; font-weight: 900; text-transform: uppercase; letter-spacing: .55px; margin-bottom: 6px; }
+  .q-text { font-weight: 850; color: #1e293b; margin-bottom: 11px; line-height: 1.45; }
+  .q-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .q-opt { border: 2px solid #e2e8f0; background: #f8fafc; color: #334155; border-radius: 8px; padding: 9px 12px; font-size: .84rem; font-weight: 850; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .q-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .q-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+  .q-opt:disabled { cursor: default; }
+  .explain { display: none; margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #f8fafc; color: #475569; font-size: .84rem; line-height: 1.55; font-weight: 700; }
+  .explain.show { display: block; }
+  .nav { position: fixed; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,.96); padding: 10px 16px; display: flex; justify-content: center; gap: 10px; box-shadow: 0 -4px 18px rgba(15,23,42,.22); }
+  .nav button { border: 0; border-radius: 8px; padding: 9px 18px; font-weight: 900; cursor: pointer; color: white; background: #334155; font-family: inherit; }
+  .nav button:hover { background: #475569; }
+  .nav button.primary { background: #2563eb; }
+  .nav button.primary:hover { background: #1d4ed8; }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>Impairment of Property, Plant, and Equipment</h1>
+  <p>Kieso, Weygandt &amp; Warfield &middot; Intermediate Accounting 18th Ed. &middot; Chapter 10 &middot; Impairments</p>
+</div>
+
+<div class="tabs" role="tablist" aria-label="PP&E impairment lesson tabs">
+  <button class="tab active" role="tab" aria-selected="true" onclick="showTab(0)">1. Two-Step Test</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(1)">2. Test & Measure</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(2)">3. Journal Entry</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(3)">4. Self-Check</button>
+</div>
+
+<div class="scenario-card">
+  <div class="scenario-head">
+    <div class="scenario-title">Scenario: Boc Apparel tests production equipment for impairment</div>
+    <div class="scenario-badge">U.S. GAAP two-step model</div>
+  </div>
+  <div class="fact-grid">
+    <div class="fact"><div class="label">Carrying amount</div><div class="value">$420,000</div><div class="hint">Book value before impairment</div></div>
+    <div class="fact"><div class="label">Undiscounted cash flows</div><div class="value">$390,000</div><div class="hint">Recoverability test amount</div></div>
+    <div class="fact"><div class="label">Fair value</div><div class="value">$350,000</div><div class="hint">Measurement amount</div></div>
+    <div class="fact" id="factImpair"><div class="label">Q1 · Impairment?</div><div class="value pending" id="factImpairVal">?</div><div class="hint">Step 1 outcome</div></div>
+    <div class="fact" id="factLoss"><div class="label">Q2 · Loss amount</div><div class="value pending" id="factLossVal">?</div><div class="hint">Step 2 measurement</div></div>
+  </div>
+</div>
+
+<section class="panel active">
+  <div class="sec-title">Impairment Uses Two Different Comparisons</div>
+  <div class="sec-sub">For long-lived assets held and used under U.S. GAAP, impairment is a two-step process. Step 1 asks whether the asset is recoverable. Step 2 measures the loss.</div>
+
+  <div class="memcue">📌 Memory cue: <strong>undiscounted cash flows decide WHETHER there is a loss; fair value decides HOW MUCH the loss is.</strong></div>
+
+  <div class="rule-box">
+    <strong>Core rule:</strong> first compare carrying amount with undiscounted future cash flows. If carrying amount is not recoverable, measure the impairment loss using fair value.
+    <div class="trap-callout">
+      <span class="trap-icon">⚠</span>
+      <div><strong>Student trap:</strong> do <u>not</u> use <strong>fair value</strong> in Step 1. Step 1 is the recoverability gate — it uses <strong>undiscounted cash flows</strong>.</div>
+    </div>
+  </div>
+
+  <div class="two-comp">
+    <div class="two-comp-h">The two different comparisons (this is the heart of the lesson)</div>
+    <div class="two-comp-grid">
+      <div class="two-comp-card step1">
+        <div class="two-comp-tag">STEP 1 · Recoverability gate</div>
+        <div class="two-comp-row"><span>Compare:</span><strong>Carrying amount  vs.  Undiscounted CF</strong></div>
+        <div class="two-comp-row"><span>Purpose:</span><strong>Should we impair? (yes/no)</strong></div>
+        <div class="two-comp-row"><span>When used:</span><strong>Always — the screen</strong></div>
+        <div class="two-comp-row"><span>Pass rule:</span><strong>CA ≤ undisc. CF → no impairment</strong></div>
+      </div>
+      <div class="two-comp-card step2">
+        <div class="two-comp-tag">STEP 2 · Measurement</div>
+        <div class="two-comp-row"><span>Compare:</span><strong>Carrying amount  vs.  Fair value</strong></div>
+        <div class="two-comp-row"><span>Purpose:</span><strong>How much is the loss?</strong></div>
+        <div class="two-comp-row"><span>When used:</span><strong>Only after Step 1 FAILS</strong></div>
+        <div class="two-comp-row"><span>Loss formula:</span><strong>CA − FV = loss</strong></div>
+      </div>
+    </div>
+    <div class="two-comp-note">
+      Why undiscounted in Step 1 but fair value in Step 2? Step 1 is a forgiving screen — if the asset can't recover even at the <em>inflated</em> undiscounted amount, you've definitely got a problem. Step 2 is the real economic measurement, so it uses fair value (which reflects discounting and current market reality).
+    </div>
+  </div>
+
+  <div class="grid-2step">
+    <div class="step-input">
+      <div class="step-tag">Input</div>
+      <div class="step-main">Carrying amount<br><span class="step-num">$420,000</span></div>
+      <div class="step-sub">Cost − accumulated depreciation, before impairment</div>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step-card step1">
+      <div class="step-tag">Step 1 · Recoverability test</div>
+      <div class="step-main">vs. Undiscounted CF</div>
+      <div class="step-sub">If CA &gt; undisc. CF → fail → go to Step 2<br>If CA ≤ undisc. CF → pass → STOP, no loss</div>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step-card step2">
+      <div class="step-tag">Step 2 · Measure the loss</div>
+      <div class="step-main">CA − Fair value = Loss</div>
+      <div class="step-sub">Write the asset down to fair value. Only runs if Step 1 fails.</div>
+    </div>
+  </div>
+
+  <div class="no-reversal">
+    <div class="no-reversal-icon">🚫</div>
+    <div>
+      <strong>No reversal under U.S. GAAP.</strong> Once an asset (held and used) is written down for impairment, the new lower carrying amount becomes the cost basis. Subsequent recoveries in fair value are <u>not</u> recognized — even if the asset's value bounces back later. <em>(IFRS allows reversal in some cases — but not GAAP.)</em>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Test Recoverability, Then Measure the Loss</div>
+  <div class="sec-sub">Work the impairment in order on one page. Step 1 is the recoverability gate. Step 2 measures the loss only after the asset fails Step 1.</div>
+
+  <div class="scenario-switch">
+    <button class="switch-btn active" id="impairCaseBtn" onclick="showScenarioCase('impair')">Scenario A: Impairment</button>
+    <button class="switch-btn" id="safeCaseBtn" onclick="showScenarioCase('safe')">Scenario B: No Impairment</button>
+  </div>
+
+  <div id="impairCase">
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="recBtn" onclick="nextRecover()">Show Step 1</button>
+    <button class="sc-btn sc-reset" onclick="resetRecover()">Reset</button>
+  </div>
+  <div class="status-card" id="recStatus">Ready: start with the carrying amount before impairment.</div>
+
+  <div class="work-grid">
+    <div class="card">
+      <div class="card-h"><span>Recoverability Workpaper</span><small>Step 1</small></div>
+      <div class="card-b" id="recRows"></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><span>Decision Rule</span><small>held and used asset</small></div>
+      <div class="card-b">
+        <table>
+          <thead><tr><th>Comparison</th><th class="money">Amount</th></tr></thead>
+          <tbody>
+            <tr><td>Carrying amount</td><td class="money">$420,000</td></tr>
+            <tr><td>Undiscounted future cash flows</td><td class="money">$390,000</td></tr>
+            <tr class="result" id="recVerdictRow" style="opacity:.25"><td>Recoverable?</td><td class="money" id="recVerdictVal">?</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway" id="step1Conclusion" style="display:none"><strong>Step 1 conclusion:</strong> Because $420,000 is greater than $390,000, the asset is not recoverable. Now measure the loss using fair value.</div>
+
+  <div class="step2-lock" id="step2Lock">
+    <div class="step2-lock-icon">🔒</div>
+    <div>
+      <strong>Step 2 unlocks after Step 1.</strong>
+      Complete the recoverability test above to see how the loss is measured.
+    </div>
+  </div>
+
+  <div id="step2Block" style="display:none">
+    <div class="sec-title" style="margin-top:24px">Step 2: Measure the Impairment Loss</div>
+    <div class="sec-sub">Once the asset fails the recoverability test, the impairment loss is measured as carrying amount minus fair value.</div>
+
+    <div class="step-ctrl">
+      <button class="sc-btn sc-step" id="lossBtn" onclick="nextLoss()">Show Step 1</button>
+      <button class="sc-btn sc-reset" onclick="resetLoss()">Reset</button>
+    </div>
+    <div class="status-card" id="lossStatus">Ready: measure the loss using fair value.</div>
+
+    <div class="work-grid">
+      <div class="card">
+        <div class="card-h"><span>Impairment Loss Workpaper</span><small>Step 2</small></div>
+        <div class="card-b" id="lossRows"></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><span>After Impairment</span><small>new carrying amount</small></div>
+        <div class="card-b">
+          <table>
+            <thead><tr><th>Item</th><th class="money">Amount</th></tr></thead>
+            <tbody>
+              <tr><td>Carrying amount before impairment</td><td class="money">$420,000</td></tr>
+              <tr id="lossLineRow" style="opacity:.25"><td>Impairment loss</td><td class="money" id="lossLineVal">?</td></tr>
+              <tr class="result" id="newCAVRow" style="opacity:.25"><td>New carrying amount</td><td class="money" id="newCAVVal">?</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="takeaway"><strong>Measurement conclusion:</strong> After the impairment, the asset is written down to fair value of $350,000.</div>
+  </div>
+  </div>
+
+  <div id="safeCase" style="display:none;">
+    <div class="rule-box">
+      <strong>No-impairment scenario:</strong> Boc has another machine with carrying amount of $420,000, undiscounted future cash flows of $460,000, and fair value of $350,000. Because the asset passes Step 1, Boc stops there and records no impairment loss.
+    </div>
+
+    <div class="step-ctrl">
+      <button class="sc-btn sc-step" id="safeBtn" onclick="nextSafe()">Show Step 1</button>
+      <button class="sc-btn sc-reset" onclick="resetSafe()">Reset</button>
+    </div>
+    <div class="status-card" id="safeStatus">Ready: test recoverability. Fair value is not used unless Step 1 fails.</div>
+
+    <div class="flow">
+      <div class="flow-box safe"><div class="flow-label">Carrying amount</div><div class="flow-main">$420,000</div><div class="flow-sub">Book value before test</div></div>
+      <div class="arrow">-></div>
+      <div class="flow-box safe"><div class="flow-label">Step 1</div><div class="flow-main">$460,000</div><div class="flow-sub">Undiscounted cash flows</div></div>
+      <div class="arrow">-></div>
+      <div class="flow-box safe"><div class="flow-label">Stop</div><div class="flow-main">No loss</div><div class="flow-sub">Do not use fair value</div></div>
+    </div>
+
+    <div class="work-grid">
+      <div class="card">
+        <div class="card-h"><span>No-Impairment Workpaper</span><small>Step 1 only</small></div>
+        <div class="card-b" id="safeRows"></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><span>What Happens Next?</span><small>important stop point</small></div>
+        <div class="card-b">
+          <table>
+            <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+            <tbody>
+              <tr id="safeAnswer0" style="opacity:.25;"><td>Is the asset recoverable?</td><td>Yes, because $420,000 <= $460,000.</td></tr>
+              <tr id="safeAnswer1" style="opacity:.25;"><td>Do we measure a loss using fair value?</td><td>No. Fair value is ignored when Step 1 passes.</td></tr>
+              <tr class="safe-result" id="safeAnswer2" style="opacity:.25;"><td>Journal entry?</td><td>No impairment entry.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="takeaway"><strong>No-impairment conclusion:</strong> If carrying amount is recoverable from undiscounted cash flows, no impairment is recognized even if fair value is below carrying amount.</div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Record the Impairment Entry</div>
+  <div class="sec-sub">The entry recognizes the loss and reduces the carrying amount of the asset. Some courses credit the asset directly; others use an accumulated impairment loss account. This animation uses a direct credit to equipment.</div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="journalBtn" onclick="nextJournal()">Show Debit</button>
+    <button class="sc-btn sc-reset" onclick="resetJournal()">Reset</button>
+  </div>
+  <div class="status-card" id="journalStatus">Ready: record the $70,000 impairment loss.</div>
+
+  <div class="journal-layout">
+    <div class="card">
+      <div class="card-h"><span>Impairment Entry</span><small>at impairment date</small></div>
+      <div class="card-b">
+        <table class="journal">
+          <thead><tr><th>Account</th><th class="dr">Debit</th><th class="cr">Credit</th></tr></thead>
+          <tbody>
+            <tr class="hidden" id="jRow0"><td>Loss on Impairment</td><td class="dr">$70,000</td><td class="cr"></td></tr>
+            <tr class="hidden" id="jRow1"><td class="indent">Equipment</td><td class="dr"></td><td class="cr">$70,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="why-panel">
+      <div class="why-head">Why Debit or Credit?</div>
+      <div class="why-body">
+        <div class="why-rule-grid">
+          <div class="why-rule"><div class="tag">Loss rule</div><div class="text">Losses increase with debits.</div></div>
+          <div class="why-rule"><div class="tag">Asset rule</div><div class="text">Assets decrease with credits.</div></div>
+          <div class="why-rule"><div class="tag">Measurement rule</div><div class="text">Loss equals carrying amount minus fair value.</div></div>
+          <div class="why-rule"><div class="tag">Cash check</div><div class="text">No cash is paid in an impairment entry.</div></div>
+        </div>
+        <div class="why-card active" id="whyIntro">Click Show Debit. The entry writes the asset down to fair value.</div>
+        <div class="why-card debit" id="whyDebit"><strong>Debit Loss on Impairment.</strong> Boc recognizes a loss because the asset's carrying amount is not recoverable and exceeds fair value.<span class="mini">Loss increases -> debit Loss on Impairment</span></div>
+        <div class="why-card credit" id="whyCredit"><strong>Credit Equipment.</strong> The asset must be reduced from $420,000 to $350,000. Assets decrease with credits.<span class="mini">Asset decreases -> credit Equipment</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Check Your Understanding</div>
+  <div class="sec-sub">Check whether students can separate the recoverability test from loss measurement.</div>
+  <div class="score">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</section>
+
+<div class="nav">
+  <button id="btnPrev" onclick="prevTab()">Previous</button>
+  <span class="nav-ind" id="navInd"></span>
+  <button class="primary" id="btnNext" onclick="nextTab()">Next</button>
+</div>
+
+<script>
+const tabs = Array.from(document.querySelectorAll('.tab'));
+const panels = Array.from(document.querySelectorAll('.panel'));
+let currentTab = 0;
+let quizBuilt = false;
+
+function showTab(i) {
+  currentTab = Math.max(0, Math.min(i, panels.length - 1));
+  panels.forEach((p, idx) => p.classList.toggle('active', idx === currentTab));
+  tabs.forEach((t, idx) => {
+    t.classList.toggle('active', idx === currentTab);
+    t.setAttribute('aria-selected', idx === currentTab ? 'true' : 'false');
+  });
+  updateBottomNav();
+  if (currentTab === 3 && !quizBuilt) buildQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function updateBottomNav() {
+  const navInd = document.getElementById('navInd');
+  const label = tabs[currentTab]
+    ? tabs[currentTab].textContent.trim().replace(/^[①②③④⑤⑥⑦⑧⑨⑩]\s*/, '').replace(/^\d+\.\s*/, '')
+    : '';
+  if (navInd) navInd.textContent = 'Tab ' + (currentTab + 1) + ' of ' + panels.length + ' — ' + label;
+  const prevBtn = document.getElementById('btnPrev');
+  const nextBtn = document.getElementById('btnNext');
+  if (prevBtn) prevBtn.disabled = currentTab === 0;
+  if (nextBtn) nextBtn.disabled = currentTab === panels.length - 1;
+}
+function nextTab() { showTab(currentTab + 1); }
+function prevTab() { showTab(currentTab - 1); }
+updateBottomNav();
+
+function showScenarioCase(which) {
+  document.getElementById('impairCase').style.display = which === 'impair' ? 'block' : 'none';
+  document.getElementById('safeCase').style.display = which === 'safe' ? 'block' : 'none';
+  document.getElementById('impairCaseBtn').classList.toggle('active', which === 'impair');
+  document.getElementById('safeCaseBtn').classList.toggle('active', which === 'safe');
+  if (which === 'safe') resetSafe();
+}
+
+function renderRows(target, rows, prefix) {
+  document.getElementById(target).innerHTML = rows.map((r, idx) =>
+    '<div class="calc-row hidden" id="' + prefix + idx + '"><div class="calc-label"><strong>' + r[0] + '</strong><br>' + r[1] + '</div><div class="calc-value">' + r[2] + '</div></div>'
+  ).join('');
+}
+
+const safeRows = [
+  ['Carrying amount', 'Book value before impairment', '$420,000'],
+  ['Undiscounted future cash flows', 'Expected cash flows without discounting', '$460,000'],
+  ['Recoverability test', 'Carrying amount <= undiscounted cash flows?', '$420,000 <= $460,000'],
+  ['Conclusion', 'Asset is recoverable', 'No impairment']
+];
+const safeMessages = [
+  'Step 1: start with carrying amount before impairment: <span class="calc">$420,000</span>.',
+  'Step 2: compare it with undiscounted future cash flows: <span class="calc">$460,000</span>.',
+  'Step 3: the carrying amount is less than or equal to undiscounted cash flows: <span class="calc">$420,000 <= $460,000</span>.',
+  'Step 4: the asset passes the recoverability test. Stop here: <span class="calc">no impairment loss</span>.'
+];
+let safeStep = -1;
+function resetSafe() {
+  safeStep = -1;
+  renderRows('safeRows', safeRows, 'safeRow');
+  ['safeAnswer0','safeAnswer1','safeAnswer2'].forEach(id => {
+    document.getElementById(id).style.opacity = '.25';
+  });
+  document.getElementById('safeStatus').innerHTML = 'Ready: test recoverability. Fair value is not used unless Step 1 fails.';
+  document.getElementById('safeBtn').disabled = false;
+  document.getElementById('safeBtn').textContent = 'Show Step 1';
+}
+function nextSafe() {
+  safeStep++;
+  for (let i = 0; i < safeRows.length; i++) {
+    const row = document.getElementById('safeRow' + i);
+    row.className = i < safeStep ? 'calc-row' : i === safeStep ? 'calc-row active' : 'calc-row hidden';
+  }
+  if (safeStep >= 2) document.getElementById('safeAnswer0').style.opacity = '1';
+  if (safeStep >= 3) {
+    document.getElementById('safeAnswer1').style.opacity = '1';
+    document.getElementById('safeAnswer2').style.opacity = '1';
+  }
+  if (safeStep < safeRows.length) {
+    document.getElementById('safeStatus').innerHTML = safeMessages[safeStep];
+    document.getElementById('safeBtn').textContent = safeStep === safeRows.length - 1 ? 'Finish' : 'Show Step ' + (safeStep + 2);
+  } else {
+    document.getElementById('safeStatus').innerHTML = '<strong>Complete.</strong> Even though fair value is $350,000, Boc records <span class="calc">no impairment</span> because the asset passed Step 1.';
+    document.getElementById('safeBtn').disabled = true;
+  }
+}
+
+const recRows = [
+  ['Carrying amount', 'Book value before impairment', '$420,000'],
+  ['Undiscounted future cash flows', 'Expected cash flows without discounting', '$390,000'],
+  ['Recoverability test', 'Carrying amount > undiscounted cash flows?', '$420,000 > $390,000'],
+  ['Conclusion', 'Asset is not recoverable', 'Impairment exists']
+];
+const recMessages = [
+  'Step 1: start with carrying amount before impairment: <span class="calc">$420,000</span>.',
+  'Step 2: compare it with undiscounted future cash flows: <span class="calc">$390,000</span>.',
+  'Step 3: the carrying amount is greater than undiscounted cash flows: <span class="calc">$420,000 > $390,000</span>.',
+  'Step 4: the asset fails the recoverability test, so impairment exists.'
+];
+let recStep = -1;
+function resetRecover() {
+  recStep = -1;
+  renderRows('recRows', recRows, 'rRow');
+  document.getElementById('recStatus').innerHTML = 'Ready: start with the carrying amount before impairment.';
+  document.getElementById('recBtn').disabled = false;
+  document.getElementById('recBtn').textContent = 'Show Step 1';
+  // Reset right-side verdict
+  const vr = document.getElementById('recVerdictRow');
+  if (vr) { vr.style.opacity = '.25'; document.getElementById('recVerdictVal').textContent = '?'; }
+  // Re-hide the Step 1 conclusion takeaway
+  const sc = document.getElementById('step1Conclusion');
+  if (sc) sc.style.display = 'none';
+  // Reset fact-strip Q1
+  const fv = document.getElementById('factImpairVal');
+  if (fv) { fv.textContent = '?'; fv.classList.add('pending'); document.getElementById('factImpair').classList.remove('solved'); }
+  // Re-lock Step 2 and reset its state
+  const lock = document.getElementById('step2Lock');
+  const block = document.getElementById('step2Block');
+  if (lock) lock.style.display = 'flex';
+  if (block) block.style.display = 'none';
+  if (typeof resetLoss === 'function') resetLoss();
+}
+function nextRecover() {
+  recStep++;
+  for (let i = 0; i < recRows.length; i++) {
+    const row = document.getElementById('rRow' + i);
+    row.className = i < recStep ? 'calc-row' : i === recStep ? 'calc-row active' : 'calc-row hidden';
+  }
+  if (recStep < recRows.length) {
+    document.getElementById('recStatus').innerHTML = recMessages[recStep];
+    document.getElementById('recBtn').textContent = recStep === recRows.length - 1 ? 'Finish' : 'Show Step ' + (recStep + 2);
+  } else {
+    document.getElementById('recStatus').innerHTML = '<strong>Complete.</strong> Move to Step 2 and measure the impairment loss using fair value.';
+    document.getElementById('recBtn').disabled = true;
+  }
+  // Reveal verdict + fact-strip Q1 + Step 1 conclusion takeaway once the comparison fires (step 2)
+  if (recStep >= 2) {
+    const vr = document.getElementById('recVerdictRow');
+    if (vr) { vr.style.opacity = '1'; document.getElementById('recVerdictVal').textContent = 'No'; }
+    const fv = document.getElementById('factImpairVal');
+    if (fv) { fv.textContent = 'Yes'; fv.classList.remove('pending'); document.getElementById('factImpair').classList.add('solved'); }
+    const sc = document.getElementById('step1Conclusion');
+    if (sc) sc.style.display = 'block';
+  }
+  // Unlock Step 2 once Step 1 fully completes (final step)
+  if (recStep >= recRows.length - 1) {
+    document.getElementById('step2Lock').style.display = 'none';
+    document.getElementById('step2Block').style.display = 'block';
+  }
+}
+
+const lossRows = [
+  ['Carrying amount', 'Book value before impairment', '$420,000'],
+  ['Fair value', 'Measurement amount after recoverability fails', '$350,000'],
+  ['Impairment loss', 'Carrying amount - fair value', '$420,000 - $350,000 = $70,000'],
+  ['New carrying amount', 'Asset is written down to fair value', '$350,000']
+];
+const lossMessages = [
+  'Step 1: begin with carrying amount: <span class="calc">$420,000</span>.',
+  'Step 2: use fair value for measurement: <span class="calc">$350,000</span>.',
+  'Step 3: measure the impairment loss: <span class="calc">$420,000 - $350,000 = $70,000</span>.',
+  'Step 4: after impairment, the equipment is carried at <span class="calc">$350,000</span>.'
+];
+let lossStep = -1;
+function resetLoss() {
+  lossStep = -1;
+  renderRows('lossRows', lossRows, 'lRow');
+  document.getElementById('lossStatus').innerHTML = 'Ready: measure the loss using fair value.';
+  document.getElementById('lossBtn').disabled = false;
+  document.getElementById('lossBtn').textContent = 'Show Step 1';
+  // Reset right-side after-impairment table
+  const llr = document.getElementById('lossLineRow');
+  if (llr) { llr.style.opacity = '.25'; document.getElementById('lossLineVal').textContent = '?'; }
+  const ncr = document.getElementById('newCAVRow');
+  if (ncr) { ncr.style.opacity = '.25'; document.getElementById('newCAVVal').textContent = '?'; }
+  // Reset fact-strip Q2
+  const fv = document.getElementById('factLossVal');
+  if (fv) { fv.textContent = '?'; fv.classList.add('pending'); document.getElementById('factLoss').classList.remove('solved'); }
+}
+function nextLoss() {
+  lossStep++;
+  for (let i = 0; i < lossRows.length; i++) {
+    const row = document.getElementById('lRow' + i);
+    row.className = i < lossStep ? 'calc-row' : i === lossStep ? 'calc-row active' : 'calc-row hidden';
+  }
+  if (lossStep < lossRows.length) {
+    document.getElementById('lossStatus').innerHTML = lossMessages[lossStep];
+    document.getElementById('lossBtn').textContent = lossStep === lossRows.length - 1 ? 'Finish' : 'Show Step ' + (lossStep + 2);
+  } else {
+    document.getElementById('lossStatus').innerHTML = '<strong>Complete.</strong> Record an impairment loss of <span class="calc">$70,000</span>.';
+    document.getElementById('lossBtn').disabled = true;
+  }
+  // Reveal loss row at step 2 (loss computed) and new carrying at step 3
+  if (lossStep >= 2) {
+    const llr = document.getElementById('lossLineRow');
+    if (llr) { llr.style.opacity = '1'; document.getElementById('lossLineVal').textContent = '($70,000)'; }
+    const fv = document.getElementById('factLossVal');
+    if (fv) { fv.textContent = '$70,000'; fv.classList.remove('pending'); document.getElementById('factLoss').classList.add('solved'); }
+  }
+  if (lossStep >= 3) {
+    const ncr = document.getElementById('newCAVRow');
+    if (ncr) { ncr.style.opacity = '1'; document.getElementById('newCAVVal').textContent = '$350,000'; }
+  }
+}
+
+let journalStep = -1;
+function showWhyCard(id) {
+  ['whyIntro','whyDebit','whyCredit'].forEach(cardId => {
+    document.getElementById(cardId).classList.toggle('active', cardId === id);
+  });
+}
+function resetJournal() {
+  journalStep = -1;
+  ['jRow0','jRow1'].forEach(id => document.getElementById(id).className = 'hidden');
+  showWhyCard('whyIntro');
+  document.getElementById('journalStatus').innerHTML = 'Ready: record the $70,000 impairment loss.';
+  document.getElementById('journalBtn').disabled = false;
+  document.getElementById('journalBtn').textContent = 'Show Debit';
+}
+function nextJournal() {
+  journalStep++;
+  const rows = ['jRow0','jRow1'];
+  rows.forEach((id, idx) => {
+    const row = document.getElementById(id);
+    if (idx < journalStep) row.className = 'done';
+    if (idx === journalStep) row.className = 'active';
+  });
+  if (journalStep === 0) {
+    showWhyCard('whyDebit');
+    document.getElementById('journalStatus').innerHTML = document.getElementById('whyDebit').innerHTML;
+    document.getElementById('journalBtn').textContent = 'Show Credit';
+  } else if (journalStep === 1) {
+    showWhyCard('whyCredit');
+    document.getElementById('journalStatus').innerHTML = document.getElementById('whyCredit').innerHTML;
+    document.getElementById('journalBtn').textContent = 'Finish';
+  } else {
+    rows.forEach(id => document.getElementById(id).className = 'done');
+    document.getElementById('journalStatus').innerHTML = '<strong>Complete.</strong> Equipment has been written down to fair value.';
+    document.getElementById('journalBtn').disabled = true;
+  }
+}
+
+let score = 0;
+const questions = [
+  { q: 'For PP&E held and used under U.S. GAAP, what is Step 1 of impairment?', opts: ['Recoverability test using undiscounted cash flows', 'Measure loss using fair value', 'Record depreciation', 'Compare fair value to residual value'], a: 0, exp: 'Step 1 compares carrying amount with undiscounted expected future cash flows.' },
+  { q: 'Which amount is used in the recoverability test?', opts: ['Undiscounted future cash flows', 'Fair value', 'Residual value', 'Historical cost only'], a: 0, exp: 'Recoverability uses undiscounted future cash flows, not fair value.' },
+  { q: 'Carrying amount is $420,000 and undiscounted future cash flows are $390,000. Is the asset recoverable?', opts: ['No', 'Yes', 'Only if fair value is higher than cost', 'Cannot tell'], a: 0, exp: 'Because carrying amount exceeds undiscounted cash flows, the asset is not recoverable.' },
+  { q: 'Once impairment exists, what amount measures the loss?', opts: ['Carrying amount minus fair value', 'Carrying amount minus undiscounted cash flows', 'Fair value minus residual value', 'Cost minus residual value'], a: 0, exp: 'The impairment loss is measured as carrying amount minus fair value.' },
+  { q: 'What is the impairment loss in this example?', opts: ['$30,000', '$40,000', '$70,000', '$350,000'], a: 2, exp: '$420,000 carrying amount - $350,000 fair value = $70,000.' },
+  { q: 'After recording impairment, what is the new carrying amount?', opts: ['$350,000', '$390,000', '$420,000', '$70,000'], a: 0, exp: 'The asset is written down to fair value of $350,000.' },
+  { q: 'What account is debited in the impairment entry?', opts: ['Loss on Impairment', 'Cash', 'Accumulated Depreciation', 'Sales Revenue'], a: 0, exp: 'The entry debits Loss on Impairment to recognize the loss.' },
+  { q: 'A machine has carrying amount of $420,000, undiscounted cash flows of $460,000, and fair value of $350,000. What happens?', opts: ['No impairment is recorded', 'Record a $70,000 loss', 'Record a $40,000 loss', 'Write the asset down to $350,000'], a: 0, exp: 'The asset passes recoverability because $420,000 is less than $460,000. Stop after Step 1 and record no loss.' },
+  { q: 'What is the common student mistake?', opts: ['Using fair value in Step 1', 'Using book value before impairment', 'Recording a loss when carrying amount exceeds fair value after failing Step 1', 'Crediting the asset to reduce it'], a: 0, exp: 'Step 1 uses undiscounted cash flows. Fair value is used only after recoverability fails.' }
+];
+function buildQuiz() {
+  quizBuilt = true;
+  document.getElementById('total').textContent = questions.length;
+  const wrap = document.getElementById('quizWrap');
+  questions.forEach((item, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML =
+      '<div class="q-num">Question ' + (qi + 1) + ' of ' + questions.length + '</div>' +
+      '<div class="q-text">' + item.q + '</div>' +
+      '<div class="q-opts">' + item.opts.map((opt, oi) =>
+        '<button class="q-opt" onclick="answerQ(' + qi + ',' + oi + ', this)">' + opt + '</button>'
+      ).join('') + '</div>' +
+      '<div class="explain" id="exp' + qi + '"></div>';
+    wrap.appendChild(card);
+  });
+}
+function answerQ(qi, oi, btn) {
+  const item = questions[qi];
+  const buttons = btn.parentElement.querySelectorAll('button');
+  if (buttons[0].disabled) return;
+  buttons.forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === item.a) b.classList.add('correct');
+  });
+  const exp = document.getElementById('exp' + qi);
+  if (oi === item.a) {
+    score++;
+    btn.classList.add('correct');
+    exp.textContent = 'Correct. ' + item.exp;
+  } else {
+    btn.classList.add('wrong');
+    exp.textContent = 'The answer is: ' + item.opts[item.a] + '. ' + item.exp;
+  }
+  exp.classList.add('show');
+  document.getElementById('score').textContent = score;
+}
+
+resetRecover();
+resetSafe();
+resetLoss();
+resetJournal();
+</script>
+</body>
+</html>

@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conventional Retail Inventory Method | Kieso Ch. 8</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.22rem; font-weight: 800; }
+  .header p { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab { padding: 11px 18px; font-size: .88rem; font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; }
+  .tab:hover { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+  .panel { display: none; max-width: 980px; margin: 0 auto; padding: 22px 16px 88px; }
+  .panel.active { display: block; }
+  .sec-title { font-size: 1.34rem; font-weight: 800; margin-bottom: 8px; }
+  .sec-sub { font-size: .95rem; color: #475569; margin-bottom: 18px; line-height: 1.6; }
+
+  .story-card { background: linear-gradient(135deg, #eff6ff, #fef3c7); border: 2px solid #f59e0b; border-radius: 14px; padding: 18px 22px; margin-bottom: 20px; box-shadow: 0 4px 14px rgba(0,0,0,.06); }
+  .story-card h3 { font-size: 1.05rem; font-weight: 900; color: #7c2d12; margin-bottom: 8px; }
+  .story-card p { font-size: .95rem; color: #78350f; line-height: 1.65; }
+  .story-card strong { color: #7c2d12; }
+
+  .three-step { display: grid; grid-template-columns: 1fr 32px 1fr 32px 1fr; gap: 8px; align-items: stretch; margin-bottom: 18px; }
+  .step-card { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; }
+  .step-card .h { padding: 10px 14px; color: white; font-weight: 800; font-size: .85rem; background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+  .step-card.s2 .h { background: linear-gradient(135deg, #6b21a8, #a855f7); }
+  .step-card.s3 .h { background: linear-gradient(135deg, #15803d, #22c55e); }
+  .step-card .b { padding: 12px 14px; font-size: .86rem; color: #475569; line-height: 1.55; min-height: 92px; }
+  .formula { background: #1e293b; color: #fef3c7; padding: 8px 10px; border-radius: 6px; font-family: ui-monospace, Menlo, monospace; font-size: .8rem; text-align: center; margin-top: 8px; font-weight: 700; }
+  .arrow-cell { display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.6rem; font-weight: 700; }
+
+  .takeaway { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 2px solid #16a34a; border-radius: 12px; padding: 14px 18px; margin-top: 16px; font-size: .92rem; color: #14532d; line-height: 1.6; }
+  .takeaway strong { color: #166534; }
+  .warning { background: #fff7ed; border-left: 5px solid #f59e0b; border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 14px 0; color: #7c2d12; font-size: .9rem; line-height: 1.55; }
+  .warning strong { color: #9a3412; }
+
+  .memory-hook { background: linear-gradient(135deg, #dbeafe, #f0f9ff); border: 3px solid #2563eb; border-radius: 14px; padding: 14px 18px; margin: 14px 0 18px; text-align: center; box-shadow: 0 4px 16px rgba(37,99,235,.16); }
+  .memory-hook .mh-label { font-size: .72rem; font-weight: 900; color: #1d4ed8; text-transform: uppercase; letter-spacing: .75px; margin-bottom: 4px; }
+  .memory-hook .mh-main { font-size: 1.28rem; font-weight: 900; color: #0f172a; line-height: 1.25; }
+  .memory-hook .mh-main span { color: #b45309; }
+  .memory-hook .mh-sep { color: #2563eb; padding: 0 .45rem; }
+  .memory-hook .mh-sub { font-size: .82rem; color: #475569; font-weight: 700; margin-top: 5px; line-height: 1.35; }
+  .memory-hook.compact { margin-top: 0; padding: 10px 14px; }
+  .memory-hook.compact .mh-main { font-size: 1.04rem; }
+  .target-box { background: #ecfdf5; border: 3px solid #16a34a; border-radius: 14px; padding: 13px 16px; margin: 12px 0 16px; text-align: center; box-shadow: 0 4px 14px rgba(22,163,74,.14); }
+  .target-box .target-label { font-size: .72rem; font-weight: 900; color: #15803d; text-transform: uppercase; letter-spacing: .75px; margin-bottom: 4px; }
+  .target-box .target-main { font-size: 1.2rem; font-weight: 900; color: #14532d; }
+  .target-box .target-sub { font-size: .82rem; font-weight: 700; color: #166534; margin-top: 4px; }
+
+  .micro-example { background: white; border: 2px solid #bfdbfe; border-radius: 14px; overflow: hidden; box-shadow: 0 3px 12px rgba(0,0,0,.08); margin: 14px 0 18px; }
+  .micro-hdr { background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; padding: 11px 16px; }
+  .micro-hdr h3 { font-size: .98rem; font-weight: 900; }
+  .micro-hdr p { font-size: .78rem; opacity: .86; margin-top: 2px; }
+  .micro-body { display: grid; grid-template-columns: minmax(170px, .72fr) minmax(0, 1.28fr); gap: 14px; padding: 14px 16px; align-items: stretch; }
+  .shirt-card { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 13px; display: grid; align-content: center; gap: 8px; }
+  .shirt-card .shirt-title { font-size: .76rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .55px; }
+  .shirt-price { display: flex; justify-content: space-between; gap: 10px; font-size: .86rem; font-weight: 800; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+  .shirt-price:last-child { border-bottom: 0; padding-bottom: 0; }
+  .shirt-price strong { color: #0f172a; font-family: ui-monospace, Menlo, monospace; font-size: 1rem; }
+  .micro-paths { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .micro-path { border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px; background: #f8fafc; }
+  .micro-path.conventional { border-color: #60a5fa; background: #eff6ff; }
+  .micro-path.average { border-color: #fb923c; background: #fff7ed; }
+  .micro-path .path-label { font-size: .72rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .55px; margin-bottom: 6px; }
+  .micro-path .path-eq { font-family: ui-monospace, Menlo, monospace; font-weight: 900; color: #1e293b; font-size: 1.02rem; line-height: 1.35; }
+  .micro-path .path-result { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(148,163,184,.45); font-size: .82rem; color: #475569; line-height: 1.4; font-weight: 700; }
+  .micro-path .path-result strong { font-family: ui-monospace, Menlo, monospace; color: #0f172a; }
+
+  .split-path { background: white; border: 2px solid #fde68a; border-radius: 14px; box-shadow: 0 3px 12px rgba(0,0,0,.08); margin: 14px 0; padding: 14px 16px; }
+  .split-path h3 { font-size: .98rem; font-weight: 900; color: #7c2d12; margin-bottom: 10px; }
+  .split-y { display: grid; grid-template-columns: minmax(145px, 200px) 48px minmax(0, 1fr); grid-template-rows: auto auto; gap: 12px; align-items: center; }
+  .split-node { grid-row: 1 / 3; background: #fef3c7; border: 3px solid #f59e0b; color: #78350f; border-radius: 13px; padding: 15px; text-align: center; font-weight: 900; box-shadow: 0 3px 10px rgba(245,158,11,.2); }
+  .split-node span { display: block; font-size: .74rem; text-transform: uppercase; letter-spacing: .65px; margin-bottom: 5px; }
+  .split-node strong { display: block; font-family: ui-monospace, Menlo, monospace; font-size: 1.45rem; }
+  .y-lines { grid-row: 1 / 3; height: 126px; position: relative; }
+  .y-lines .line-top, .y-lines .line-bottom { position: absolute; left: 2px; width: 58px; height: 3px; background: #94a3b8; transform-origin: left center; border-radius: 999px; }
+  .y-lines .line-top { top: 36px; transform: rotate(-28deg); }
+  .y-lines .line-bottom { bottom: 36px; transform: rotate(28deg); }
+  .split-branch { border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; min-height: 86px; }
+  .split-branch.excluded { background: #fef2f2; border-color: #fca5a5; }
+  .split-branch.included { background: #ecfdf5; border-color: #86efac; }
+  .split-branch .branch-label { font-size: .82rem; font-weight: 900; color: #1e293b; margin-bottom: 5px; }
+  .split-branch .branch-text { font-size: .82rem; color: #475569; line-height: 1.4; font-weight: 700; }
+  .split-branch .mobile-from { display: none; }
+
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: 14px; align-items: start; }
+  .panel-card { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; }
+  .pc-hdr { background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: white; padding: 12px 16px; }
+  .pc-hdr h3 { font-size: 1rem; font-weight: 900; }
+  .pc-hdr p { font-size: .8rem; opacity: .86; margin-top: 2px; }
+  .pc-body { padding: 14px 16px; }
+
+  .statement { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  .statement th { background: #f8fafc; padding: 9px 10px; text-align: right; font-size: .72rem; color: #64748b; text-transform: uppercase; letter-spacing: .5px; border-bottom: 2px solid #e2e8f0; }
+  .statement th:first-child { text-align: left; }
+  .statement td { padding: 9px 10px; border-bottom: 1px solid #f1f5f9; text-align: right; font-family: ui-monospace, Menlo, monospace; font-weight: 800; }
+  .statement td:first-child { text-align: left; font-family: 'Segoe UI', system-ui, sans-serif; color: #334155; }
+  .statement .calc-note { display: block; color: #64748b; font-size: .72rem; font-weight: 700; margin-top: 2px; }
+  .statement tr.hidden-row { opacity: .28; }
+  .statement tr.active-row { background: #fef3c7; }
+  .statement tr.done-row { background: #f0fdf4; }
+  .statement tr.total-row td { background: #1e293b; color: white; font-weight: 900; border-bottom: 0; }
+  .statement tr.total-row td:last-child { color: #fbbf24; }
+  .statement tr.total-row .calc-note { color: #fef3c7; }
+  .statement .blank { color: #cbd5e1; }
+  .statement .include { color: #1d4ed8; }
+  .statement .exclude { color: #b91c1c; }
+
+  .step-ctrl { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; margin: 12px 0; }
+  .sc-btn { padding: 11px 22px; border-radius: 9px; border: none; font-weight: 700; font-size: .88rem; cursor: pointer; transition: all .15s; }
+  .sc-step { background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; font-weight: 900; padding: 13px 24px; min-width: 250px; box-shadow: 0 4px 14px rgba(245,158,11,.45); animation: stepPulse 1.6s ease-in-out infinite; }
+  .sc-step:hover:not(:disabled) { background: linear-gradient(135deg, #d97706, #dc2626); transform: translateY(-1px); }
+  .sc-step:disabled { animation: none; box-shadow: none; background: #94a3b8; }
+  .sc-reset { background: #475569; color: white; padding: 9px 18px; font-size: .82rem; }
+  .sc-reset:hover { background: #334155; }
+  .sc-btn:disabled { opacity: .55; cursor: default; }
+  @keyframes stepPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(245,158,11,.45); }
+    50% { box-shadow: 0 4px 20px rgba(239,68,68,.7), 0 0 0 4px rgba(245,158,11,.18); }
+  }
+
+  .status-card { background: white; border-radius: 10px; padding: 12px 16px; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 12px; font-size: .9rem; color: #334155; line-height: 1.55; border-left: 4px solid #3b82f6; min-height: 56px; }
+  .status-card strong { color: #1e293b; }
+  .status-card .hi { color: #b45309; font-weight: 900; }
+
+  .big-reveal { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 3px solid #f59e0b; border-radius: 14px; padding: 18px 22px; text-align: center; margin: 14px 0; box-shadow: 0 4px 18px rgba(245,158,11,.22); display: none; }
+  .big-reveal.show { display: block; animation: revealIn .45s ease both; }
+  .big-reveal .br-label { font-size: .76rem; font-weight: 900; color: #92400e; text-transform: uppercase; letter-spacing: .8px; }
+  .big-reveal .br-value { font-size: 2.05rem; font-weight: 900; color: #b45309; font-family: ui-monospace, Menlo, monospace; line-height: 1.1; margin: 6px 0; }
+  .big-reveal .br-sub { font-size: .88rem; font-weight: 700; color: #78350f; }
+  @keyframes revealIn { from{opacity:0;transform:scale(.92)} to{opacity:1;transform:scale(1)} }
+
+  .side-panel { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; }
+  .sp-hdr { padding: 12px 16px; background: #1e293b; color: white; }
+  .sp-hdr h3 { font-size: .92rem; font-weight: 900; }
+  .sp-hdr p { font-size: .76rem; opacity: .78; margin-top: 1px; }
+  .sp-body { padding: 14px 16px; }
+  .progress-pills { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 14px; }
+  .pill { border: 2px solid #e2e8f0; border-radius: 8px; padding: 8px 4px; text-align: center; font-size: .72rem; color: #64748b; font-weight: 800; background: white; }
+  .pill.active { border-color: #f59e0b; background: #fef3c7; color: #92400e; }
+  .pill.done { border-color: #16a34a; background: #dcfce7; color: #15803d; }
+  .guide-list { display: grid; gap: 8px; }
+  .guide-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 9px; padding: 9px 10px; font-size: .82rem; color: #475569; line-height: 1.38; font-weight: 700; }
+  .guide-item strong { color: #1e293b; }
+
+  .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .metric { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; min-height: 86px; }
+  .metric.highlight { background: #fef3c7; border: 2px solid #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.14); }
+  .metric.live { background: #eff6ff; border-color: #93c5fd; }
+  .metric .label { font-size: .72rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+  .metric .value { font-size: 1.32rem; font-weight: 900; color: #1e293b; font-family: ui-monospace, Menlo, monospace; line-height: 1.1; }
+  .metric .hint { font-size: .78rem; color: #64748b; line-height: 1.35; margin-top: 5px; }
+  .metric.highlight .label, .metric.highlight .value, .metric.highlight .hint { color: #92400e; }
+  .metric.live .value { color: #1d4ed8; }
+
+  .ratio-visual { background: white; border-radius: 14px; box-shadow: 0 3px 12px rgba(0,0,0,.08); padding: 18px; margin-bottom: 14px; }
+  .ratio-line { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 8px; align-items: stretch; }
+  .ratio-piece { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 12px; text-align: center; }
+  .ratio-piece.active { background: #fef3c7; border-color: #f59e0b; }
+  .ratio-piece.done { background: #f0fdf4; border-color: #86efac; }
+  .ratio-piece span { display: block; font-size: .7rem; text-transform: uppercase; letter-spacing: .55px; color: #64748b; font-weight: 900; margin-bottom: 5px; }
+  .ratio-piece strong { display: block; font-family: ui-monospace, Menlo, monospace; color: #1e293b; font-size: 1.16rem; font-weight: 900; }
+  .ratio-result strong { color: #1d4ed8; font-size: 1.35rem; }
+  .ratio-op { display: flex; align-items: center; justify-content: center; color: #92400e; font-weight: 900; }
+  .ratio-note { margin-top: 10px; color: #475569; font-size: .84rem; line-height: 1.45; font-weight: 700; }
+
+  .ratio-compare { background: white; border-radius: 14px; box-shadow: 0 3px 12px rgba(0,0,0,.08); padding: 16px; margin: 14px 0; border: 2px solid #dbeafe; }
+  .ratio-compare .rc-title { font-size: 1rem; font-weight: 900; color: #1e293b; margin-bottom: 4px; }
+  .ratio-compare .rc-sub { font-size: .84rem; color: #475569; line-height: 1.45; font-weight: 700; margin-bottom: 12px; }
+  .ratio-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ratio-card { border: 2px solid #e2e8f0; border-radius: 12px; padding: 13px; background: #f8fafc; }
+  .ratio-card.conventional { background: #f0fdf4; border-color: #86efac; }
+  .ratio-card.average { background: #fff7ed; border-color: #fdba74; }
+  .ratio-card .label { font-size: .72rem; color: #64748b; text-transform: uppercase; letter-spacing: .55px; font-weight: 900; margin-bottom: 6px; }
+  .ratio-card .eq { font-size: 1.08rem; font-weight: 900; color: #0f172a; font-family: ui-monospace, Menlo, monospace; line-height: 1.35; }
+  .ratio-card .eq strong { font-size: 1.28rem; color: #1d4ed8; }
+  .bar-track { height: 20px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin: 10px 0 6px; box-shadow: inset 0 1px 2px rgba(15,23,42,.14); }
+  .bar-fill { height: 100%; border-radius: 999px; }
+  .bar-fill.conventional { width: 64.79%; background: linear-gradient(90deg, #16a34a, #22c55e); }
+  .bar-fill.average { width: 69.70%; background: linear-gradient(90deg, #f97316, #fb923c); }
+  .bar-caption { font-size: .78rem; color: #475569; font-weight: 800; line-height: 1.35; }
+  .gap-callout { background: #eff6ff; border: 2px solid #93c5fd; border-radius: 12px; padding: 11px 14px; margin-top: 12px; font-size: .88rem; color: #1e3a8a; font-weight: 800; line-height: 1.45; }
+  .lcm-note { background: #f8fafc; border-left: 5px solid #2563eb; border-radius: 0 10px 10px 0; padding: 11px 14px; margin-top: 12px; color: #334155; font-size: .86rem; line-height: 1.45; font-weight: 700; }
+  .denom-focus { display: grid; grid-template-columns: minmax(0, 1fr) 70px minmax(0, 1fr); gap: 10px; align-items: stretch; margin-top: 12px; }
+  .denom-card { border: 2px solid #e2e8f0; border-radius: 12px; padding: 13px 14px; background: #f8fafc; }
+  .denom-card.use { background: #ecfdf5; border-color: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,.11); }
+  .denom-card.later { background: #eff6ff; border-color: #93c5fd; }
+  .denom-card .label { font-size: .7rem; color: #64748b; text-transform: uppercase; letter-spacing: .55px; font-weight: 900; margin-bottom: 5px; }
+  .denom-card.use .label { color: #15803d; }
+  .denom-card.later .label { color: #1d4ed8; }
+  .denom-card .value { font-family: ui-monospace, Menlo, monospace; font-size: 1.28rem; color: #0f172a; font-weight: 900; margin-bottom: 5px; }
+  .denom-card .hint { font-size: .82rem; color: #475569; line-height: 1.4; font-weight: 700; }
+  .denom-middle { display: flex; align-items: center; justify-content: center; color: #64748b; font-weight: 900; text-transform: uppercase; font-size: .72rem; letter-spacing: .5px; }
+
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+  .compare-card { background: white; border-radius: 12px; padding: 14px 16px; box-shadow: 0 3px 12px rgba(0,0,0,.08); border: 2px solid #e2e8f0; }
+  .compare-card.lower { border-color: #16a34a; background: #f0fdf4; }
+  .compare-card .label { font-size: .72rem; text-transform: uppercase; letter-spacing: .6px; color: #64748b; font-weight: 900; margin-bottom: 6px; }
+  .compare-card .value { font-size: 1.65rem; font-weight: 900; font-family: ui-monospace, Menlo, monospace; color: #1e293b; margin-bottom: 6px; }
+  .compare-card.lower .value, .compare-card.lower .label { color: #15803d; }
+  .compare-card .hint { font-size: .82rem; color: #475569; line-height: 1.4; }
+
+  .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; z-index: 5; }
+  .nav-btn { padding: 9px 22px; border-radius: 8px; border: none; font-weight: 700; font-size: .85rem; cursor: pointer; }
+  .nav-btn.prev { background: #1e293b; color: #94a3b8; }
+  .nav-btn.prev:hover:not(:disabled) { background: #334155; }
+  .nav-btn.nxt { background: #3b82f6; color: white; }
+  .nav-btn.nxt:hover:not(:disabled) { background: #2563eb; }
+  .nav-btn:disabled { opacity: .4; cursor: default; }
+  .nav-ind { font-size: .8rem; color: #64748b; font-weight: 600; }
+
+  @media(max-width:760px) {
+    .hero-grid, .three-step, .compare-grid, .micro-body, .micro-paths, .ratio-pair, .denom-focus { grid-template-columns: 1fr; }
+    .arrow-cell { display: none; }
+    .ratio-line { grid-template-columns: 1fr; }
+    .ratio-op { min-height: 18px; }
+    .denom-middle { min-height: 18px; }
+    .metric-grid { grid-template-columns: 1fr; }
+    .progress-pills { grid-template-columns: 1fr 1fr; }
+    .split-y { grid-template-columns: 1fr; grid-template-rows: auto; }
+    .split-node, .y-lines { grid-row: auto; }
+    .y-lines { display: block; height: 26px; width: 100%; }
+    .y-lines .line-top { left: 50%; top: 0; width: 3px; height: 26px; transform: none; }
+    .y-lines .line-bottom { display: none; }
+    .split-branch .mobile-from { display: block; font-size: .7rem; color: #64748b; text-transform: uppercase; letter-spacing: .45px; margin-bottom: 4px; }
+    .nav-bar { gap: 8px; padding: 9px 10px; }
+    .nav-btn { padding: 8px 12px; }
+    .nav-ind { font-size: .72rem; text-align: center; }
+  }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>Conventional Retail Inventory Method</h1>
+  <p>Kieso, Weygandt &amp; Warfield · Intermediate Accounting 18th Ed. · Chapter 8 · Boc Apparel, Inc.</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab(0)">① The Big Idea</div>
+  <div class="tab" onclick="showTab(1)">② Retail Schedule</div>
+  <div class="tab" onclick="showTab(2)">③ Conventional Ratio</div>
+  <div class="tab" onclick="showTab(3)">④ Final Estimate</div>
+</div>
+
+<div class="panel active" id="tab-0">
+  <div class="micro-example">
+    <div class="micro-hdr">
+      <h3>Start With One Shirt</h3>
+      <p>One shirt cost $20, was originally priced at $30, then was marked down to $25.</p>
+    </div>
+    <div class="micro-body">
+      <div class="shirt-card">
+        <div class="shirt-title">One shirt data</div>
+        <div class="shirt-price"><span>Cost</span><strong>$20</strong></div>
+        <div class="shirt-price"><span>Original retail</span><strong>$30</strong></div>
+        <div class="shirt-price"><span>Marked-down retail</span><strong>$25</strong></div>
+      </div>
+      <div class="micro-paths">
+        <div class="micro-path conventional">
+          <div class="path-label">Conventional ratio</div>
+          <div class="path-eq">$20 / $30 = 66.67%</div>
+          <div class="path-result">
+            Ending inventory estimate: <strong>$25 x 66.67% = $16.67</strong>
+          </div>
+        </div>
+        <div class="micro-path average">
+          <div class="path-label">Average Retail (markdowns included in ratio)</div>
+          <div class="path-eq">$20 / $25 = 80.00%</div>
+          <div class="path-result">
+            Ending inventory estimate: <strong>$25 x 80.00% = $20.00</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-card">
+    <h3>The Scenario: A Store With Thousands of Items</h3>
+    <p>
+      Boc Apparel sells many styles and sizes. Counting every item at cost during the year is slow, but the store
+      already tracks goods at <strong>retail prices</strong>. The retail inventory method estimates ending inventory
+      by converting ending inventory at retail back to estimated cost.
+    </p>
+  </div>
+
+  <div class="sec-title">Conventional Retail Method - In Three Moves</div>
+  <div class="sec-sub">
+    The conventional retail inventory method estimates ending inventory at a conservative amount by using a
+    cost-to-retail ratio that <strong>excludes net markdowns</strong>.
+  </div>
+
+  <div class="memory-hook">
+    <div class="mh-label">Memory hook</div>
+    <div class="mh-main">RATIO <span>BEFORE</span> markdowns <span class="mh-sep">·</span> ENDING RETAIL <span>AFTER</span> markdowns</div>
+    <div class="mh-sub">The ratio uses the old retail subtotal; the inventory left on hand uses the marked-down retail amount.</div>
+  </div>
+
+  <div class="three-step">
+    <div class="step-card s1">
+      <div class="h">① Process the Retail Schedule (4 sub-steps)</div>
+      <div class="b">
+        Subtotal before markdowns, subtract markdowns, subtract sales, then reveal ending inventory at retail.
+        <div class="formula">Before MD -> After MD -> Less Sales -> Ending Retail</div>
+      </div>
+    </div>
+    <div class="arrow-cell">→</div>
+    <div class="step-card s2">
+      <div class="h">② Compute Cost-to-Retail Ratio</div>
+      <div class="b">
+        Conventional method excludes net markdowns from the ratio denominator.
+        <div class="formula">Cost / Retail before markdowns</div>
+      </div>
+    </div>
+    <div class="arrow-cell">→</div>
+    <div class="step-card s3">
+      <div class="h">③ Convert Retail to Cost</div>
+      <div class="b">
+        Apply the ratio to ending inventory at retail.
+        <div class="formula">Ending Inv. at Retail x Cost-to-Retail Ratio</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warning">
+    <strong>Why this is LCM-like:</strong> A markdown signals goods are not worth full retail. Including the markdown in the ratio
+    would make the ratio higher and inventory higher; excluding it keeps the ratio and carrying value lower.
+  </div>
+</div>
+
+<div class="panel" id="tab-1">
+  <div class="sec-title">Build the Retail Schedule</div>
+  <div class="sec-sub">
+    First, organize the cost and retail columns. We need one subtotal before markdowns for the conventional ratio,
+    and a second retail amount after markdowns and sales to get ending inventory at retail.
+  </div>
+
+  <div class="memory-hook compact">
+    <div class="mh-label">Memory hook</div>
+    <div class="mh-main">RATIO <span>BEFORE</span> markdowns <span class="mh-sep">·</span> ENDING RETAIL <span>AFTER</span> markdowns</div>
+  </div>
+
+  <div class="split-path">
+    <h3>The Same $10,000 Markdown Splits Into Two Paths</h3>
+    <div class="split-y">
+      <div class="split-node">
+        <span>Net markdown</span>
+        <strong>$10,000</strong>
+      </div>
+      <div class="y-lines" aria-hidden="true">
+        <div class="line-top"></div>
+        <div class="line-bottom"></div>
+      </div>
+      <div class="split-branch excluded">
+        <div class="mobile-from">↑ from $10K markdown</div>
+        <div class="branch-label">X Excluded from the ratio</div>
+        <div class="branch-text">The conventional ratio denominator stays at $142,000, before subtracting markdowns.</div>
+      </div>
+      <div class="split-branch included">
+        <div class="mobile-from">↑ from $10K markdown</div>
+        <div class="branch-label">✓ Included in ending retail</div>
+        <div class="branch-text">$142,000 - $10,000 - $95,000 sales = $37,000 ending inventory at retail.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="scheduleStepBtn" onclick="scheduleStep()">Build the Ratio's Denominator (before markdowns)</button>
+    <button class="sc-btn sc-reset" onclick="resetSchedule()">Reset</button>
+  </div>
+
+  <div class="status-card" id="scheduleStatus">
+    <strong>Ready.</strong> Start by computing goods available before markdowns. That subtotal becomes the denominator for the conventional ratio.
+  </div>
+
+  <div class="big-reveal" id="scheduleBigReveal">
+    <div class="br-label" id="scheduleBrLabel">Step Result</div>
+    <div class="br-value" id="scheduleBrValue">-</div>
+    <div class="br-sub" id="scheduleBrSub">-</div>
+  </div>
+
+  <div class="hero-grid">
+    <div class="panel-card">
+      <div class="pc-hdr">
+        <h3>Retail Inventory Schedule</h3>
+        <p>Cost column and retail column side by side</p>
+      </div>
+      <div class="pc-body">
+        <table class="statement" id="scheduleTable">
+          <thead>
+            <tr><th>Item</th><th>Cost</th><th>Retail</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Beginning inventory</td><td>$20,000</td><td>$30,000</td></tr>
+            <tr><td>Net purchases</td><td>$70,000<span class="calc-note">$74,000 - $4,000 returns</span></td><td>$104,000<span class="calc-note">$110,000 - $6,000 returns</span></td></tr>
+            <tr><td>Freight-in</td><td>$2,000</td><td class="blank">-</td></tr>
+            <tr><td>Net markups</td><td class="blank">-</td><td>$8,000</td></tr>
+            <tr class="hidden-row total-row" data-sstep="0"><td>Goods available before markdowns</td><td id="schedCostBefore">?</td><td id="schedRetailBefore">?</td></tr>
+            <tr class="hidden-row" data-sstep="1"><td>Less: Net markdowns<span class="calc-note">included for ending inventory at retail</span></td><td class="blank">-</td><td class="exclude">($10,000)</td></tr>
+            <tr class="hidden-row" data-sstep="1"><td>Goods available after markdowns</td><td class="blank">-</td><td id="schedRetailAfter">?</td></tr>
+            <tr class="hidden-row" data-sstep="2"><td>Less: Net sales</td><td class="blank">-</td><td>($95,000)</td></tr>
+            <tr class="hidden-row total-row" data-sstep="3"><td>Ending inventory at retail</td><td class="blank">-</td><td id="schedEndingRetail">?</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <div class="sp-hdr">
+        <h3>Reveal Tracker</h3>
+        <p>Use this as the button sequence</p>
+      </div>
+      <div class="sp-body">
+        <div class="progress-pills">
+          <div class="pill active" id="sp-0">Before MD</div>
+          <div class="pill" id="sp-1">Subtract MD</div>
+          <div class="pill" id="sp-2">Subtract Sales</div>
+          <div class="pill" id="sp-3">End Retail</div>
+        </div>
+        <div class="guide-list">
+          <div class="guide-item"><strong>First:</strong> stop once for the ratio subtotal.</div>
+          <div class="guide-item"><strong>Then:</strong> let markdowns flow into the retail schedule.</div>
+          <div class="guide-item"><strong>Last:</strong> subtract sales to find what is still on hand.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="tab-2">
+  <div class="sec-title">Compute the Conventional Cost-to-Retail Ratio</div>
+  <div class="sec-sub">
+    Conventional retail method approximates lower-of-cost-or-market. It does this by excluding net markdowns from the
+    retail denominator, which usually creates a lower cost-to-retail ratio.
+  </div>
+
+  <div class="memory-hook compact">
+    <div class="mh-label">Memory hook</div>
+    <div class="mh-main">RATIO <span>BEFORE</span> markdowns <span class="mh-sep">·</span> ENDING RETAIL <span>AFTER</span> markdowns</div>
+  </div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="ratioStepBtn" onclick="ratioStep()">Choose the Same Cost Numerator ($92K)</button>
+    <button class="sc-btn sc-reset" onclick="resetRatio()">Reset</button>
+  </div>
+
+  <div class="status-card" id="ratioStatus">
+    <strong>Ready.</strong> First choose the cost of goods available: beginning inventory plus net purchases plus freight-in.
+  </div>
+
+  <div class="ratio-visual">
+    <div class="ratio-line">
+      <div class="ratio-piece active" id="ratioNumBox">
+        <span>Cost Numerator</span>
+        <strong id="ratioNum">?</strong>
+      </div>
+      <div class="ratio-op">/</div>
+      <div class="ratio-piece" id="ratioDenBox">
+        <span>Retail Denominator</span>
+        <strong id="ratioDen">?</strong>
+      </div>
+      <div class="ratio-op">=</div>
+      <div class="ratio-piece ratio-result" id="ratioResultBox">
+        <span>Cost-to-Retail Ratio</span>
+        <strong id="ratioResult">?</strong>
+      </div>
+    </div>
+    <div class="ratio-note" id="ratioNote">
+      Conventional denominator uses retail before net markdowns: beginning inventory, net purchases, and net markups.
+    </div>
+  </div>
+
+  <div class="ratio-compare">
+    <div class="rc-title">Do Not Make Two Ratios Here</div>
+    <div class="rc-sub">
+      For the conventional retail method, the ratio has one denominator: retail before markdowns. The after-markdown number is used later for ending inventory at retail.
+    </div>
+    <div class="denom-focus">
+      <div class="denom-card use">
+        <div class="label">Use now in the ratio</div>
+        <div class="value">$142,000</div>
+        <div class="hint">Retail before net markdowns. This gives the conventional cost-to-retail ratio.</div>
+      </div>
+      <div class="denom-middle">Then</div>
+      <div class="denom-card later">
+        <div class="label">Use later in final estimate</div>
+        <div class="value">$37,000</div>
+        <div class="hint">Ending inventory at retail after markdowns and sales. Multiply this by the ratio in Tab 4.</div>
+      </div>
+    </div>
+    <div class="lcm-note">
+      <strong>Student shortcut:</strong> ratio first, ending retail second. Do not divide by $132,000 in this tab.
+      $132,000 is only a subtotal on the way to the $37,000 ending retail amount.
+    </div>
+  </div>
+
+  <div class="hero-grid">
+    <div class="panel-card">
+      <div class="pc-hdr">
+        <h3>What Goes Into the Ratio?</h3>
+        <p>Markups are included. Markdowns are excluded.</p>
+      </div>
+      <div class="pc-body">
+        <table class="statement">
+          <thead>
+            <tr><th>Retail item</th><th>Conventional ratio treatment</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Beginning inventory at retail</td><td class="include">Include</td></tr>
+            <tr><td>Net purchases at retail</td><td class="include">Include</td></tr>
+            <tr><td>Net markups</td><td class="include">Include</td></tr>
+            <tr><td>Net markdowns</td><td class="exclude">Exclude from ratio</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="pc-hdr">
+        <h3>Why Exclude Markdowns?</h3>
+        <p>This is the conventional lower-of-cost-or-market effect.</p>
+      </div>
+      <div class="pc-body">
+        <div class="takeaway">
+          <strong>Effect:</strong> Conventional uses a larger denominator, so the ratio is lower. That lower ratio
+          keeps the final inventory estimate conservative.
+        </div>
+        <div class="warning">
+          <strong>Test cue:</strong> If the question says conventional retail method, do not subtract net markdowns
+          when computing the cost-to-retail ratio.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="tab-3">
+  <div class="sec-title">Estimate Ending Inventory at Conventional Retail</div>
+  <div class="sec-sub">
+    Now apply the conventional cost-to-retail ratio to ending inventory at retail.
+    The final amount is a conservative estimate of ending inventory at cost.
+  </div>
+
+  <div class="memory-hook compact">
+    <div class="mh-label">Memory hook</div>
+    <div class="mh-main">RATIO <span>BEFORE</span> markdowns <span class="mh-sep">·</span> ENDING RETAIL <span>AFTER</span> markdowns</div>
+  </div>
+
+  <div class="target-box">
+    <div class="target-label">What are we looking for?</div>
+    <div class="target-main">Estimated Ending Inventory at Cost</div>
+    <div class="target-sub">The retail schedule gives ending retail; the ratio converts it to the estimated cost amount.</div>
+  </div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="finalStepBtn" onclick="finalStep()">Start with Ending Retail After Markdowns</button>
+    <button class="sc-btn sc-reset" onclick="resetFinal()">Reset</button>
+  </div>
+
+  <div class="status-card" id="finalStatus">
+    <strong>Ready.</strong> Start with ending inventory at retail from the schedule: goods after markdowns minus sales.
+  </div>
+
+  <div class="big-reveal" id="finalBigReveal">
+    <div class="br-label" id="finalBrLabel">Step Result</div>
+    <div class="br-value" id="finalBrValue">-</div>
+    <div class="br-sub" id="finalBrSub">-</div>
+  </div>
+
+  <div class="hero-grid">
+    <div class="panel-card">
+      <div class="pc-hdr">
+        <h3>Final Calculation</h3>
+        <p>Retail amount x conventional cost-to-retail ratio</p>
+      </div>
+      <div class="pc-body">
+        <table class="statement" id="finalTable">
+          <tbody>
+            <tr class="hidden-row" data-fstep="0"><td>Ending inventory at retail</td><td id="finalEndingRetail">?</td></tr>
+            <tr class="hidden-row" data-fstep="1"><td>Conventional cost-to-retail ratio</td><td id="finalRatio">?</td></tr>
+            <tr class="hidden-row total-row" data-fstep="2"><td>Estimated ending inventory at cost<span class="calc-note">This is what we are looking for.</span></td><td id="finalInventory">?</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <div class="sp-hdr">
+        <h3>Conventional vs Average Retail</h3>
+        <p>See the lower-of-cost-or-market effect.</p>
+      </div>
+      <div class="sp-body">
+        <div class="compare-grid">
+          <div class="compare-card lower">
+            <div class="label">Conventional Retail</div>
+            <div class="value" id="compareConventional">?</div>
+            <div class="hint" id="compareConventionalHint">Revealed after the final multiplication step.</div>
+          </div>
+          <div class="compare-card">
+            <div class="label">Average Retail</div>
+            <div class="value" id="compareAverage">?</div>
+            <div class="hint" id="compareAverageHint">Revealed after the final multiplication step.</div>
+          </div>
+        </div>
+        <div class="takeaway">
+          <strong>LCM effect in dollars:</strong> Conventional retail gives the lower inventory amount because it excludes
+          markdowns from the ratio denominator.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="nav-bar">
+  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>Previous</button>
+  <span class="nav-ind" id="navInd">Tab 1 of 4 - The Big Idea</span>
+  <button class="nav-btn nxt" id="btnNext" onclick="navigate(1)">Next</button>
+</div>
+
+<script>
+const TABS = ['The Big Idea','Retail Schedule','Conventional Ratio','Final Estimate'];
+let cur = 0;
+function fmt(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+function pct(n) { return (n * 100).toFixed(2) + '%'; }
+
+const DATA = {
+  costBeforeMarkdowns: 92000,
+  retailBeforeMarkdowns: 142000,
+  markdowns: 10000,
+  retailAfterMarkdowns: 132000,
+  netSales: 95000,
+  endingRetail: 37000
+};
+DATA.conventionalRatio = DATA.costBeforeMarkdowns / DATA.retailBeforeMarkdowns;
+DATA.conventionalInventory = DATA.endingRetail * DATA.conventionalRatio;
+DATA.averageRatio = DATA.costBeforeMarkdowns / DATA.retailAfterMarkdowns;
+DATA.averageInventory = DATA.endingRetail * (Number((DATA.averageRatio * 100).toFixed(2)) / 100);
+
+function showTab(i) {
+  document.querySelectorAll('.panel').forEach((p, j) => p.classList.toggle('active', j === i));
+  document.querySelectorAll('.tab').forEach((t, j) => t.classList.toggle('active', j === i));
+  cur = i;
+  document.getElementById('btnPrev').disabled = i === 0;
+  document.getElementById('btnNext').disabled = i === TABS.length - 1;
+  document.getElementById('navInd').textContent = 'Tab ' + (i + 1) + ' of ' + TABS.length + ' - ' + TABS[i];
+}
+function navigate(d) { showTab(cur + d); }
+
+function setPills(prefix, total, step) {
+  for (let i = 0; i < total; i++) {
+    const pill = document.getElementById(prefix + '-' + i);
+    pill.classList.toggle('active', i === step);
+    pill.classList.toggle('done', i < step);
+  }
+}
+
+let scheduleIdx = 0;
+const SCHEDULE_STEPS = [
+  {
+    label: 'Use the Markdown in Ending Retail',
+    status: '<strong>Build the ratio denominator:</strong> Goods available before markdowns = <span class="hi">$92,000 cost</span> and <span class="hi">$142,000 retail</span>. This is where the ratio stops for conventional retail.',
+    brLabel: 'Ratio Denominator Subtotal',
+    brValue: DATA.retailBeforeMarkdowns,
+    brSub: 'Before subtracting net markdowns'
+  },
+  {
+    label: 'Subtract Sales to Find Retail Inventory',
+    status: '<strong>Use the markdown after the ratio:</strong> For ending retail, subtract net markdowns. $142,000 - $10,000 = <span class="hi">$132,000</span> after markdowns.',
+    brLabel: 'Goods Available After Markdowns',
+    brValue: DATA.retailAfterMarkdowns,
+    brSub: 'This is used to find ending inventory at retail'
+  },
+  {
+    label: 'Reveal Ending Inventory at Retail',
+    status: '<strong>Find goods still on hand:</strong> Subtract sales from goods available after markdowns: $132,000 - $95,000.',
+    brLabel: 'Net Sales Subtracted',
+    brValue: DATA.netSales,
+    brSub: 'Sales reduce the retail inventory still on hand'
+  },
+  {
+    label: 'Schedule Complete',
+    status: '<strong>Ending retail after markdowns:</strong> Ending inventory at retail = $132,000 - $95,000 = <span class="hi">$37,000</span>.',
+    brLabel: 'Ending Inventory at Retail',
+    brValue: DATA.endingRetail,
+    brSub: 'This retail amount will be converted to cost'
+  }
+];
+
+function revealScheduleRows(step) {
+  document.querySelectorAll('#scheduleTable tr[data-sstep]').forEach(row => {
+    const rs = Number(row.dataset.sstep);
+    row.classList.toggle('hidden-row', rs > step);
+    row.classList.toggle('active-row', rs === step);
+    row.classList.toggle('done-row', rs < step);
+  });
+}
+
+function setScheduleAmounts(step) {
+  document.getElementById('schedCostBefore').textContent = step >= 0 ? fmt(DATA.costBeforeMarkdowns) : '?';
+  document.getElementById('schedRetailBefore').textContent = step >= 0 ? fmt(DATA.retailBeforeMarkdowns) : '?';
+  document.getElementById('schedRetailAfter').textContent = step >= 1 ? fmt(DATA.retailAfterMarkdowns) : '?';
+  document.getElementById('schedEndingRetail').textContent = step >= 3 ? fmt(DATA.endingRetail) : '?';
+}
+
+function scheduleStep() {
+  if (scheduleIdx >= SCHEDULE_STEPS.length) return;
+  const step = scheduleIdx;
+  const copy = SCHEDULE_STEPS[step];
+  revealScheduleRows(step);
+  setScheduleAmounts(step);
+  setPills('sp', 4, step);
+  document.getElementById('scheduleStatus').innerHTML = copy.status;
+  document.getElementById('scheduleBrLabel').textContent = copy.brLabel;
+  document.getElementById('scheduleBrValue').textContent = fmt(copy.brValue);
+  document.getElementById('scheduleBrSub').textContent = copy.brSub;
+  document.getElementById('scheduleBigReveal').classList.add('show');
+  scheduleIdx++;
+  if (scheduleIdx >= SCHEDULE_STEPS.length) {
+    document.getElementById('scheduleStepBtn').textContent = 'All Schedule Steps Complete';
+    document.getElementById('scheduleStepBtn').disabled = true;
+  } else {
+    document.getElementById('scheduleStepBtn').textContent = SCHEDULE_STEPS[scheduleIdx].label;
+  }
+}
+
+function resetSchedule() {
+  scheduleIdx = 0;
+  revealScheduleRows(-1);
+  setScheduleAmounts(-1);
+  setPills('sp', 4, 0);
+  document.getElementById('scheduleBigReveal').classList.remove('show');
+  document.getElementById('scheduleStepBtn').disabled = false;
+  document.getElementById('scheduleStepBtn').textContent = "Build the Ratio's Denominator (before markdowns)";
+  document.getElementById('scheduleStatus').innerHTML = '<strong>Ready.</strong> Start by computing goods available before markdowns. That subtotal becomes the denominator for the conventional ratio.';
+}
+
+let ratioIdx = 0;
+const RATIO_STEPS = [
+  {
+    label: 'Use Retail BEFORE Markdowns ($142K)',
+    status: '<strong>Same numerator:</strong> Cost numerator = cost of goods available = $20,000 + $70,000 + $2,000 = <span class="hi">$92,000</span>.'
+  },
+  {
+    label: 'Compute the Lower Conventional Ratio',
+    status: '<strong>Ratio before markdowns:</strong> Retail denominator = goods available before markdowns = <span class="hi">$142,000</span>. Net markdowns are excluded here.'
+  },
+  {
+    label: 'Ratio Complete',
+    status: '<strong>Lower ratio:</strong> Conventional cost-to-retail ratio = $92,000 / $142,000 = <span class="hi">64.79%</span>.'
+  }
+];
+
+function ratioStep() {
+  if (ratioIdx >= RATIO_STEPS.length) return;
+  const step = ratioIdx;
+  const copy = RATIO_STEPS[step];
+  if (step >= 0) {
+    document.getElementById('ratioNum').textContent = fmt(DATA.costBeforeMarkdowns);
+    document.getElementById('ratioNumBox').classList.add('done');
+  }
+  if (step >= 1) {
+    document.getElementById('ratioDen').textContent = fmt(DATA.retailBeforeMarkdowns);
+    document.getElementById('ratioDenBox').classList.add('active');
+  }
+  if (step >= 2) {
+    document.getElementById('ratioResult').textContent = pct(DATA.conventionalRatio);
+    document.getElementById('ratioResultBox').classList.add('active');
+    document.getElementById('ratioNote').innerHTML = '<strong>Conventional effect:</strong> excluding markdowns keeps the denominator at $142,000. That is the only denominator for this ratio.';
+  }
+  document.getElementById('ratioStatus').innerHTML = copy.status;
+  ratioIdx++;
+  if (ratioIdx >= RATIO_STEPS.length) {
+    document.getElementById('ratioStepBtn').textContent = 'All Ratio Steps Complete';
+    document.getElementById('ratioStepBtn').disabled = true;
+  } else {
+    document.getElementById('ratioStepBtn').textContent = RATIO_STEPS[ratioIdx].label;
+  }
+}
+
+function resetRatio() {
+  ratioIdx = 0;
+  document.getElementById('ratioNum').textContent = '?';
+  document.getElementById('ratioDen').textContent = '?';
+  document.getElementById('ratioResult').textContent = '?';
+  ['ratioNumBox','ratioDenBox','ratioResultBox'].forEach(id => {
+    document.getElementById(id).classList.remove('active', 'done');
+  });
+  document.getElementById('ratioNumBox').classList.add('active');
+  document.getElementById('ratioNote').textContent = 'Conventional denominator uses retail before net markdowns: beginning inventory, net purchases, and net markups.';
+  document.getElementById('ratioStepBtn').disabled = false;
+  document.getElementById('ratioStepBtn').textContent = 'Choose the Same Cost Numerator ($92K)';
+  document.getElementById('ratioStatus').innerHTML = '<strong>Ready.</strong> First choose the cost of goods available: beginning inventory plus net purchases plus freight-in.';
+}
+
+let finalIdx = 0;
+const FINAL_STEPS = [
+  {
+    label: 'Bring Down the Lower Conventional Ratio',
+    status: '<strong>Ending retail after markdowns:</strong> Ending inventory at retail from the schedule is <span class="hi">$37,000</span>.',
+    brLabel: 'Ending Inventory at Retail',
+    brValue: DATA.endingRetail,
+    brSub: '$132,000 after markdowns - $95,000 sales'
+  },
+  {
+    label: 'Multiply to Estimate Conservative Inventory',
+    status: '<strong>Ratio before markdowns:</strong> Bring down the conventional cost-to-retail ratio: <span class="hi">64.79%</span>.',
+    brLabel: 'Conventional Ratio',
+    brValue: DATA.conventionalRatio * 100,
+    brSub: '$92,000 cost / $142,000 retail before markdowns',
+    isPercent: true
+  },
+  {
+    label: 'Final Estimate Complete',
+    status: '<strong>What we are looking for:</strong> Estimated ending inventory at cost = $37,000 x 64.79% = <span class="hi">$23,972</span>.',
+    brLabel: 'Estimated Ending Inventory at Cost',
+    brValue: DATA.conventionalInventory,
+    brSub: 'This is the target answer'
+  }
+];
+
+function revealFinalRows(step) {
+  document.querySelectorAll('#finalTable tr[data-fstep]').forEach(row => {
+    const rs = Number(row.dataset.fstep);
+    row.classList.toggle('hidden-row', rs > step);
+    row.classList.toggle('active-row', rs === step);
+    row.classList.toggle('done-row', rs < step);
+  });
+}
+
+function finalStep() {
+  if (finalIdx >= FINAL_STEPS.length) return;
+  const step = finalIdx;
+  const copy = FINAL_STEPS[step];
+  revealFinalRows(step);
+  if (step >= 0) document.getElementById('finalEndingRetail').textContent = fmt(DATA.endingRetail);
+  if (step >= 1) document.getElementById('finalRatio').textContent = pct(DATA.conventionalRatio);
+  if (step >= 2) {
+    document.getElementById('finalInventory').textContent = fmt(DATA.conventionalInventory);
+    document.getElementById('compareConventional').textContent = fmt(DATA.conventionalInventory);
+    document.getElementById('compareAverage').textContent = fmt(DATA.averageInventory);
+    document.getElementById('compareConventionalHint').textContent = '$37,000 x 64.79% = $23,972. Ratio excludes markdowns.';
+    document.getElementById('compareAverageHint').textContent = '$37,000 x 69.70% = $25,789. Ratio includes markdowns.';
+  }
+  document.getElementById('finalStatus').innerHTML = copy.status;
+  document.getElementById('finalBrLabel').textContent = copy.brLabel;
+  document.getElementById('finalBrValue').textContent = copy.isPercent ? copy.brValue.toFixed(2) + '%' : fmt(copy.brValue);
+  document.getElementById('finalBrSub').textContent = copy.brSub;
+  document.getElementById('finalBigReveal').classList.add('show');
+  finalIdx++;
+  if (finalIdx >= FINAL_STEPS.length) {
+    document.getElementById('finalStepBtn').textContent = 'All Final Steps Complete';
+    document.getElementById('finalStepBtn').disabled = true;
+  } else {
+    document.getElementById('finalStepBtn').textContent = FINAL_STEPS[finalIdx].label;
+  }
+}
+
+function resetFinal() {
+  finalIdx = 0;
+  revealFinalRows(-1);
+  document.getElementById('finalEndingRetail').textContent = '?';
+  document.getElementById('finalRatio').textContent = '?';
+  document.getElementById('finalInventory').textContent = '?';
+  document.getElementById('compareConventional').textContent = '?';
+  document.getElementById('compareAverage').textContent = '?';
+  document.getElementById('compareConventionalHint').textContent = 'Revealed after the final multiplication step.';
+  document.getElementById('compareAverageHint').textContent = 'Revealed after the final multiplication step.';
+  document.getElementById('finalBigReveal').classList.remove('show');
+  document.getElementById('finalStepBtn').disabled = false;
+  document.getElementById('finalStepBtn').textContent = 'Start with Ending Retail After Markdowns';
+  document.getElementById('finalStatus').innerHTML = '<strong>Ready.</strong> Start with ending inventory at retail from the schedule: goods after markdowns minus sales.';
+}
+
+resetSchedule();
+resetRatio();
+resetFinal();
+</script>
+</body>
+</html>

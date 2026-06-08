@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goodwill | Kieso Ch. 11</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f1f5f9; font-family: "Segoe UI", system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.22rem; font-weight: 800; letter-spacing: 0; }
+  .header p { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab { padding: 11px 18px; font-size: .88rem; font-weight: 700; color: #64748b; cursor: pointer; border: 0; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; background: transparent; font-family: inherit; }
+  .tab:hover { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+  .panel { display: none; max-width: 1080px; margin: 0 auto; padding: 22px 16px 90px; }
+  .panel.active { display: block; }
+  .sec-title { font-size: 1.34rem; font-weight: 800; margin-bottom: 8px; }
+  .sec-sub { font-size: .96rem; color: #475569; margin-bottom: 18px; line-height: 1.65; max-width: 950px; }
+  .rule-box { background: linear-gradient(135deg, #dbeafe, #ecfdf5); border: 2px solid #2563eb; border-radius: 12px; padding: 14px 18px; margin-bottom: 18px; color: #1e3a8a; font-size: .94rem; line-height: 1.6; font-weight: 750; }
+  .rule-box strong { color: #1d4ed8; font-weight: 900; }
+  .rule-box .trap { color: #b45309; font-weight: 900; }
+
+  /* Persistent scenario card */
+  .scenario-card { background: white; border-radius: 12px; box-shadow: 0 3px 14px rgba(0,0,0,.08); border: 1px solid #e2e8f0; overflow: hidden; margin: 12px auto 0; max-width: 1080px; }
+  .scenario-head { background: linear-gradient(135deg, #0f766e, #0891b2); color: white; padding: 10px 14px; display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .scenario-title { font-size: .88rem; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
+  .scenario-badge { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.28); border-radius: 999px; padding: 5px 10px; font-size: .76rem; font-weight: 900; }
+  .fact-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 12px; }
+  @media(max-width:900px) { .fact-grid { grid-template-columns: 1fr 1fr; } }
+  @media(max-width:560px) { .fact-grid { grid-template-columns: 1fr; } }
+  .fact { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; }
+  .fact .label { font-size: .68rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .fact .value { font-size: 1rem; font-weight: 900; font-family: ui-monospace, Menlo, Consolas, monospace; color: #0f172a; }
+  .fact .value.pending { color: #94a3b8; }
+  .fact.solved { background: #ecfdf5; border-color: #16a34a; }
+  .fact.solved .value { color: #166534; }
+  .fact.solved .label { color: #166534; }
+  .fact .hint { font-size: .73rem; font-weight: 700; color: #64748b; margin-top: 3px; line-height: 1.35; }
+
+  /* Memory cue chip */
+  .memcue {
+    display: inline-block;
+    background: #fef3c7; border: 2px solid #f59e0b;
+    border-left: 6px solid #b45309; border-radius: 10px;
+    padding: 10px 14px; margin-bottom: 14px;
+    font-weight: 850; color: #7c2d12; font-size: .95rem;
+    line-height: 1.5;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, .15);
+  }
+  .memcue strong { color: #b45309; }
+
+  /* Highlighted student-trap callout */
+  .trap-callout {
+    display: flex; gap: 10px; align-items: flex-start;
+    margin-top: 12px; padding: 12px 14px;
+    background: #fff7ed; border: 2px solid #f59e0b;
+    border-left: 6px solid #b45309; border-radius: 10px;
+    color: #7c2d12; font-weight: 850; line-height: 1.55;
+  }
+  .trap-callout .trap-icon { font-size: 1.5rem; line-height: 1; flex-shrink: 0; color: #b45309; }
+  .trap-callout strong { color: #7c2d12; font-weight: 900; }
+  .trap-callout u { text-decoration-color: #b45309; text-decoration-thickness: 2px; }
+
+  /* Bargain purchase callout */
+  .bargain-callout {
+    display: flex; gap: 12px; align-items: flex-start;
+    margin: 0 0 16px; padding: 13px 16px;
+    background: #f0fdfa; border: 2px solid #14b8a6;
+    border-left: 6px solid #0f766e; border-radius: 12px;
+    color: #134e4a; font-weight: 800; line-height: 1.55; font-size: .9rem;
+  }
+  .bargain-icon { font-size: 1.6rem; line-height: 1; flex-shrink: 0; }
+  .bargain-callout strong { color: #0f766e; font-weight: 900; }
+  .bargain-callout u { text-decoration-color: #0f766e; text-decoration-thickness: 2px; }
+
+  /* Reporting-unit definition */
+  .ru-def {
+    display: flex; gap: 12px; align-items: flex-start;
+    margin: 0 0 14px; padding: 12px 14px;
+    background: #eff6ff; border: 2px solid #3b82f6;
+    border-left: 6px solid #1d4ed8; border-radius: 10px;
+    color: #1e3a8a; font-weight: 800; line-height: 1.55; font-size: .9rem;
+  }
+  .ru-icon { font-size: 1.5rem; line-height: 1; flex-shrink: 0; }
+  .ru-def strong { color: #1d4ed8; font-weight: 900; }
+  .ru-def u { text-decoration-color: #1d4ed8; text-decoration-thickness: 2px; }
+
+  /* No-reversal callout */
+  .no-reversal {
+    display: flex; gap: 12px; align-items: flex-start;
+    margin: 14px 0; padding: 13px 16px;
+    background: #fef2f2; border: 2px solid #ef4444;
+    border-left: 6px solid #b91c1c; border-radius: 12px;
+    color: #7f1d1d; font-weight: 800; line-height: 1.55; font-size: .9rem;
+  }
+  .no-reversal-icon { font-size: 1.6rem; line-height: 1; flex-shrink: 0; }
+  .no-reversal strong { color: #991b1b; font-weight: 900; }
+  .no-reversal u { text-decoration-color: #b91c1c; text-decoration-thickness: 2px; }
+  .no-reversal em { color: #7f1d1d; font-style: italic; }
+
+  /* Goodwill-as-plug visual */
+  .plug-vis {
+    margin-top: 14px; padding: 14px 16px;
+    background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px;
+  }
+  .plug-h { font-weight: 900; color: #0f172a; font-size: .92rem; margin-bottom: 10px; }
+  .plug-bar {
+    display: flex; height: 70px; border-radius: 10px; overflow: hidden;
+    border: 2px solid #cbd5e1;
+  }
+  .plug-seg {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: white; font-size: .76rem; font-weight: 850; text-align: center;
+    padding: 6px; line-height: 1.3;
+  }
+  .plug-seg strong { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1rem; font-weight: 900; margin-top: 3px; }
+  .plug-seg.net-assets { background: linear-gradient(135deg, #2563eb, #1d4ed8); flex: 750; }
+  .plug-seg.goodwill { background: linear-gradient(135deg, #f59e0b, #ea580c); flex: 150; }
+  .plug-axis {
+    display: flex; justify-content: space-between; padding: 4px 0;
+    font-size: .72rem; font-weight: 900; color: #64748b;
+  }
+  .plug-note {
+    margin-top: 8px; padding: 8px 10px;
+    background: white; border-radius: 8px; border: 1px solid #e2e8f0;
+    font-size: .82rem; font-weight: 800; color: #475569; line-height: 1.5;
+  }
+  .plug-note em { color: #0f172a; font-style: italic; font-weight: 900; }
+
+  /* Scenario switcher (segmented control) */
+  .scenario-switch {
+    display: flex; gap: 0; flex-wrap: wrap; justify-content: center;
+    margin: 4px auto 16px; padding: 6px;
+    background: #0f172a; border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .18);
+    max-width: fit-content;
+  }
+  .scenario-switch::before {
+    content: "Pick a scenario:"; align-self: center;
+    color: #cbd5e1; font-weight: 900; font-size: .8rem;
+    text-transform: uppercase; letter-spacing: .55px;
+    padding: 0 14px 0 10px;
+  }
+  .switch-btn {
+    border: 0; background: transparent; color: #94a3b8;
+    border-radius: 10px; padding: 12px 22px;
+    font-weight: 900; font-size: .92rem; cursor: pointer;
+    font-family: inherit; transition: all .2s;
+    letter-spacing: .2px;
+  }
+  .switch-btn:hover:not(.active) { color: #e2e8f0; background: rgba(255,255,255,.06); }
+  .switch-btn.active {
+    background: white; color: #0f172a;
+    box-shadow: 0 4px 12px rgba(0,0,0,.25);
+    transform: translateY(-1px);
+  }
+  #scenABtn.active { color: #b91c1c; box-shadow: 0 4px 12px rgba(239,68,68,.35), inset 0 -3px 0 #ef4444; }
+  #scenBBtn.active { color: #166534; box-shadow: 0 4px 12px rgba(22,163,74,.35), inset 0 -3px 0 #16a34a; }
+  @media(max-width:560px) {
+    .scenario-switch { flex-direction: column; max-width: 100%; }
+    .scenario-switch::before { padding: 4px 0 8px; text-align: center; }
+    .switch-btn { width: 100%; }
+  }
+  .takeaway { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 2px solid #16a34a; border-radius: 12px; padding: 14px 18px; margin-top: 16px; font-size: .92rem; color: #14532d; line-height: 1.6; }
+  .takeaway strong { color: #166534; }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+  @media(max-width:820px) { .split { grid-template-columns: 1fr; } }
+  .side { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border-top: 5px solid #cbd5e1; }
+  .side.record { border-top-color: #2563eb; }
+  .side.no { border-top-color: #ef4444; }
+  .side .h { padding: 13px 16px 7px; font-weight: 900; color: #0f172a; font-size: 1rem; }
+  .side .b { padding: 0 16px 15px; color: #475569; font-size: .9rem; line-height: 1.6; font-weight: 750; }
+  .formula { margin-top: 8px; background: #1e293b; color: #fef3c7; border-radius: 7px; padding: 8px 9px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .76rem; font-weight: 900; text-align: center; }
+  .work-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(320px, 1.05fr); gap: 14px; align-items: start; }
+  @media(max-width:900px) { .work-grid { grid-template-columns: 1fr; } }
+  .card { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border: 1px solid #e2e8f0; }
+  .card-h { background: #1e293b; color: white; padding: 12px 15px; font-weight: 900; font-size: .9rem; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .card-h small { color: #cbd5e1; font-weight: 800; }
+  .card-b { padding: 14px 16px; }
+  .step-ctrl { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; margin: 0 0 14px; }
+  .sc-btn { padding: 10px 20px; border-radius: 9px; border: none; font-weight: 800; font-size: .85rem; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .sc-step { background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; font-weight: 900; padding: 13px 24px; min-width: 235px; box-shadow: 0 4px 14px rgba(245,158,11,.38); animation: stepPulse 1.6s ease-in-out infinite; }
+  .sc-step:hover:not(:disabled) { background: linear-gradient(135deg, #d97706, #dc2626); transform: translateY(-1px); }
+  .sc-step:disabled { animation: none; box-shadow: none; background: #94a3b8; }
+  .sc-reset { background: #475569; color: white; padding: 9px 18px; font-size: .82rem; }
+  .sc-reset:hover { background: #334155; }
+  @keyframes stepPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(245,158,11,.38); }
+    50% { box-shadow: 0 4px 20px rgba(239,68,68,.66), 0 0 0 4px rgba(245,158,11,.16); }
+  }
+  .status-card { background: white; border-radius: 10px; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); margin-bottom: 14px; font-size: .92rem; color: #334155; line-height: 1.6; border-left: 4px solid #3b82f6; min-height: 64px; }
+  .status-card strong { color: #1e293b; }
+  .calc-box { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+  .calc-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-size: .9rem; font-weight: 750; color: #334155; align-items: center; }
+  .calc-row:last-child { border-bottom: 0; }
+  .calc-label { color: #475569; }
+  .calc-num { font-family: ui-monospace, Menlo, Consolas, monospace; color: #0f172a; font-weight: 900; text-align: right; }
+  .answer { background: #dcfce7; color: #166534; border: 2px solid #16a34a; border-radius: 10px; padding: 10px 12px; font-size: .94rem; font-weight: 900; line-height: 1.5; margin-top: 10px; }
+  .warning { background: #fee2e2; color: #991b1b; border: 2px solid #ef4444; border-radius: 10px; padding: 10px 12px; font-size: .94rem; font-weight: 900; line-height: 1.5; margin-top: 10px; }
+  .je-box { margin-top: 12px; background: white; border: 1px solid #cbd5e1; border-radius: 9px; overflow: hidden; font-size: .84rem; }
+  .je-title { background: #0f172a; color: white; padding: 7px 10px; font-weight: 900; }
+  .je-line { display: grid; grid-template-columns: minmax(0, 1fr) 95px 95px; gap: 8px; padding: 7px 10px; border-top: 1px solid #e2e8f0; align-items: center; }
+  .je-line.head { background: #f8fafc; color: #64748b; font-size: .68rem; text-transform: uppercase; letter-spacing: .45px; font-weight: 900; }
+  .je-acct { color: #1e293b; font-weight: 850; }
+  .je-cr { padding-left: 18px; }
+  .je-num { text-align: right; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; color: #0f172a; }
+  .je-note { padding: 7px 10px; border-top: 1px solid #e2e8f0; color: #475569; font-size: .78rem; line-height: 1.45; font-weight: 750; background: #f8fafc; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #f8fafc; color: #64748b; text-align: left; padding: 8px; font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid #e2e8f0; }
+  td { padding: 8px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: .84rem; font-weight: 750; vertical-align: top; }
+  td.type { font-weight: 900; color: #0f172a; }
+  .quiz-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .score { background: white; border-radius: 10px; padding: 12px 16px; box-shadow: 0 2px 8px rgba(0,0,0,.07); font-weight: 900; color: #1e293b; margin-bottom: 14px; }
+  .q-card { background: white; border-radius: 12px; padding: 15px 17px; box-shadow: 0 2px 8px rgba(0,0,0,.07); border: 1px solid #e2e8f0; }
+  .q-num { font-size: .72rem; color: #64748b; font-weight: 900; text-transform: uppercase; letter-spacing: .55px; margin-bottom: 6px; }
+  .q-text { font-weight: 850; color: #1e293b; margin-bottom: 11px; line-height: 1.45; }
+  .q-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .q-opt { border: 2px solid #e2e8f0; background: #f8fafc; color: #334155; border-radius: 8px; padding: 9px 12px; font-size: .84rem; font-weight: 850; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .q-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .q-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+  .q-opt:disabled { cursor: default; }
+  .explain { display: none; margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #f8fafc; color: #475569; font-size: .84rem; line-height: 1.55; font-weight: 700; }
+  .explain.show { display: block; }
+  .nav { position: fixed; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,.96); padding: 10px 16px; display: flex; justify-content: center; gap: 10px; box-shadow: 0 -4px 18px rgba(15,23,42,.22); }
+  .nav button { border: 0; border-radius: 8px; padding: 9px 18px; font-weight: 900; cursor: pointer; color: white; background: #334155; font-family: inherit; }
+  .nav button:hover { background: #475569; }
+  .nav button.primary { background: #2563eb; }
+  .nav button.primary:hover { background: #1d4ed8; }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+<div class="header">
+  <h1>Goodwill</h1>
+  <p>Kieso, Weygandt &amp; Warfield &middot; Intermediate Accounting 18th Ed. &middot; Chapter 11 &middot; Intangible Assets</p>
+</div>
+
+<div class="tabs" role="tablist" aria-label="Goodwill lesson tabs">
+  <button class="tab active" role="tab" aria-selected="true" onclick="showTab(0)">1. Big Rule</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(1)">2. Summary Table</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(2)">3. Calculate Goodwill</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(3)">4. Goodwill Impairment</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(4)">5. Other Intangibles Impairment</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(5)">6. Self-Check</button>
+</div>
+
+<div class="scenario-card">
+  <div class="scenario-head">
+    <div class="scenario-title">Scenario: Boc Apparel acquires Target Co.</div>
+    <div class="scenario-badge">Business combination</div>
+  </div>
+  <div class="fact-grid">
+    <div class="fact"><div class="label">Cash paid</div><div class="value">$900,000</div><div class="hint">Purchase price</div></div>
+    <div class="fact"><div class="label">FV identifiable assets</div><div class="value">$1,100,000</div><div class="hint">At acquisition</div></div>
+    <div class="fact"><div class="label">FV liabilities assumed</div><div class="value">$350,000</div><div class="hint">Obligations taken on</div></div>
+    <div class="fact" id="factGoodwill"><div class="label">Q1 · Goodwill</div><div class="value pending" id="factGoodwillVal">?</div><div class="hint">to be computed in Tab 3</div></div>
+    <div class="fact" id="factGoodwillAfter"><div class="label">Q2 · After Scenario A impairment</div><div class="value pending" id="factGoodwillAfterVal">?</div><div class="hint">Tab 4 Scenario A</div></div>
+  </div>
+</div>
+
+<section class="panel active">
+  <div class="sec-title">Goodwill Is Recognized Only When Purchased</div>
+  <div class="sec-sub">Goodwill represents future benefits from assets that cannot be individually identified and separately recognized. In class, the key is not “does the company have a good reputation?” The key is whether goodwill was acquired in a business combination.</div>
+  <div class="memcue">📌 Best first question: <strong>did the company acquire another business?</strong> If not → no goodwill entry, ever.</div>
+
+  <div class="rule-box">
+    <strong>Core rule:</strong> record goodwill only when one company buys another company and pays more than the fair value of identifiable net assets.
+    <div class="trap-callout">
+      <span class="trap-icon">⚠</span>
+      <div><strong>Student trap:</strong> internally generated goodwill is <u>not</u> recorded — even if the company has obvious goodwill in the form of brand strength, customer loyalty, or reputation. Only purchased goodwill goes on the books.</div>
+    </div>
+  </div>
+  <div class="split">
+    <div class="side record">
+      <div class="h">Purchased Goodwill</div>
+      <div class="b">Recognized in a business combination when purchase price exceeds the fair value of identifiable net assets acquired.
+        <div class="formula">Goodwill = Price - FV identifiable net assets</div>
+      </div>
+    </div>
+    <div class="side no">
+      <div class="h">Internally Generated Goodwill</div>
+      <div class="b">Created by reputation, loyal customers, strong employees, or excellent management. It may be valuable, but it is not recorded.
+        <div class="formula">No journal entry</div>
+      </div>
+    </div>
+  </div>
+  <div class="bargain-callout">
+    <div class="bargain-icon">💰</div>
+    <div>
+      <strong>Bargain purchase (negative goodwill).</strong> If purchase price &lt; fair value of identifiable net assets, the buyer first reassesses fair values to ensure no measurement error. If the difference is still negative, the buyer recognizes a <strong>gain</strong> on the income statement <u>immediately</u> — not negative goodwill on the balance sheet.
+    </div>
+  </div>
+
+  <div class="takeaway"><strong>Test cue:</strong> if the problem describes a business combination AND price &gt; FV identifiable net assets → record goodwill. If price &lt; FV identifiable net assets → bargain purchase gain. If no acquisition → no entry, period.</div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Summary Table</div>
+  <div class="sec-sub">Use this table to separate purchased goodwill, internally generated goodwill, and later accounting.</div>
+  <div class="card">
+    <div class="card-h"><span>Goodwill Rules</span><small>common classroom patterns</small></div>
+    <div class="card-b">
+      <table>
+        <thead><tr><th>Situation</th><th>Treatment</th><th>Related JE</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Company buys another company for more than FV of identifiable net assets</td><td class="type">Record goodwill</td><td>Dr Assets, Dr Goodwill<br>Cr Liabilities, Cr Cash</td><td>Goodwill was purchased in a business combination.</td></tr>
+          <tr><td>Company has excellent reputation and loyal customers</td><td class="type">No goodwill recorded</td><td>No entry</td><td>Internally generated goodwill is not recognized.</td></tr>
+          <tr><td>Purchase price equals FV of identifiable net assets</td><td class="type">No goodwill</td><td>Dr Assets<br>Cr Liabilities, Cr Cash</td><td>No excess purchase price exists.</td></tr>
+          <tr><td>After goodwill is recorded</td><td class="type">Do not amortize</td><td>No annual amortization JE</td><td>Goodwill is tested for impairment, not amortized under U.S. GAAP.</td></tr>
+          <tr><td>Goodwill is impaired</td><td class="type">Record impairment loss</td><td>Dr Impairment Loss<br>Cr Goodwill</td><td>The carrying amount of goodwill is reduced.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Calculate Goodwill in a Business Combination</div>
+  <div class="sec-sub">Use the step button to build the acquisition entry. The math is simple, but students must use fair values of identifiable assets and liabilities, not book values.</div>
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="stepBtn" onclick="nextStep()">Show Step 1</button>
+    <button class="sc-btn sc-reset" onclick="resetSteps()">Reset</button>
+  </div>
+  <div class="status-card" id="stepStatus">Ready: calculate goodwill from the purchase price and identifiable net assets.</div>
+  <div class="card">
+    <div class="card-h"><span>Acquisition Facts</span><small>Boc buys Target Co.</small></div>
+    <div class="card-b">
+      <div class="calc-box">
+        <div class="calc-row"><div class="calc-label">Cash paid by Boc</div><div class="calc-num">$900,000</div></div>
+        <div class="calc-row"><div class="calc-label">Fair value of identifiable assets acquired</div><div class="calc-num">$1,100,000</div></div>
+        <div class="calc-row"><div class="calc-label">Fair value of liabilities assumed</div><div class="calc-num">$350,000</div></div>
+        <div class="calc-row"><div class="calc-label">Fair value of identifiable net assets</div><div class="calc-num" id="netAssetsVal">?</div></div>
+      </div>
+      <div class="answer" id="goodwillAnswer">Goodwill will appear after Step 3.</div>
+
+      <div class="plug-vis" id="plugVis" style="display:none">
+        <div class="plug-h">"Goodwill is the plug" — visualizing the residual</div>
+        <div class="plug-bar">
+          <div class="plug-seg net-assets">FV identifiable<br>net assets<br><strong>$750,000</strong></div>
+          <div class="plug-seg goodwill">Goodwill<br>(the plug)<br><strong>$150,000</strong></div>
+        </div>
+        <div class="plug-axis">
+          <span>$0</span><span>Total purchase price = $900,000</span>
+        </div>
+        <div class="plug-note">Goodwill = Purchase price − FV of identifiable net assets. It's whatever's left over after measuring everything you <em>can</em> identify at fair value.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway"><strong>Teaching point:</strong> goodwill is the plug after identifiable assets and liabilities are measured at fair value.</div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Goodwill Impairment</div>
+  <div class="sec-sub">Goodwill is not amortized, but it can be written down if it becomes impaired. The basic classroom idea is: compare the reporting unit's carrying amount with its fair value.</div>
+  <div class="rule-box">
+    <strong>Core impairment rule:</strong> if carrying amount is greater than fair value, record an impairment loss. The loss reduces goodwill. <span class="trap">Student trap:</span> do not record annual amortization first.
+  </div>
+
+  <div class="ru-def">
+    <div class="ru-icon">🏢</div>
+    <div>
+      <strong>What's a "reporting unit"?</strong> An operating segment (or one level below). Goodwill impairment is tested at the reporting-unit level, <u>not</u> company-wide. This matters because goodwill from one acquisition might sit in a unit that's still healthy, even if the parent company overall is struggling.
+    </div>
+  </div>
+
+  <div class="scenario-switch">
+    <button class="switch-btn active" id="scenABtn" onclick="showScenario('A')">Scenario A: Impairment</button>
+    <button class="switch-btn" id="scenBBtn" onclick="showScenario('B')">Scenario B: No Impairment</button>
+  </div>
+
+  <div id="scenAView">
+    <div class="step-ctrl">
+      <button class="sc-btn sc-step" id="scenAStepBtn" onclick="nextScenA()">Show Step 1</button>
+      <button class="sc-btn sc-reset" onclick="resetScenA()">Reset</button>
+    </div>
+    <div class="status-card" id="scenAStatus">Ready: Scenario A — fair value has dropped below carrying amount.</div>
+
+    <div class="card">
+      <div class="card-h"><span>Scenario A: Reporting unit with declining value</span><small>impairment likely</small></div>
+      <div class="card-b">
+        <div class="calc-box">
+          <div class="calc-row"><div class="calc-label">Carrying amount of reporting unit</div><div class="calc-num">$1,200,000</div></div>
+          <div class="calc-row"><div class="calc-label">Fair value of reporting unit</div><div class="calc-num">$1,080,000</div></div>
+          <div class="calc-row" id="scenACompRow"><div class="calc-label">Comparison</div><div class="calc-num" id="scenACompVal">?</div></div>
+          <div class="calc-row" id="scenALossRow"><div class="calc-label">Impairment loss</div><div class="calc-num" id="scenALossVal">?</div></div>
+        </div>
+        <div id="scenAResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="scenBView" style="display:none">
+    <div class="step-ctrl">
+      <button class="sc-btn sc-step" id="scenBStepBtn" onclick="nextScenB()">Show Step 1</button>
+      <button class="sc-btn sc-reset" onclick="resetScenB()">Reset</button>
+    </div>
+    <div class="status-card" id="scenBStatus">Ready: Scenario B — fair value still exceeds carrying amount.</div>
+
+    <div class="card">
+      <div class="card-h"><span>Scenario B: Reporting unit holding value</span><small>no impairment</small></div>
+      <div class="card-b">
+        <div class="calc-box">
+          <div class="calc-row"><div class="calc-label">Carrying amount of reporting unit</div><div class="calc-num">$1,200,000</div></div>
+          <div class="calc-row"><div class="calc-label">Fair value of reporting unit</div><div class="calc-num">$1,260,000</div></div>
+          <div class="calc-row" id="scenBCompRow"><div class="calc-label">Comparison</div><div class="calc-num" id="scenBCompVal">?</div></div>
+        </div>
+        <div id="scenBResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="no-reversal">
+    <div class="no-reversal-icon">🚫</div>
+    <div>
+      <strong>No reversal under U.S. GAAP.</strong> Once goodwill is written down for impairment, the new lower carrying amount is permanent. Subsequent recoveries in fair value are <u>not</u> recognized — even if the reporting unit's fortunes turn around. <em>(IFRS allows reversal for some intangibles but never for goodwill.)</em>
+    </div>
+  </div>
+
+  <div class="takeaway"><strong>Teaching point:</strong> goodwill impairment is a write-down, not amortization. Note: companies may first do an <strong>optional qualitative assessment</strong>; if that suggests no impairment is likely, they can skip the quantitative test. (Under ASU 2017-04, the test is now a single comparison of carrying amount vs fair value.)</div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Impairment of Other Intangibles</div>
+  <div class="sec-sub">Other intangibles can also be impaired. The test depends on whether the intangible has a limited life or an indefinite life.</div>
+  <div class="rule-box">
+    <strong>Core contrast:</strong> limited-life intangibles first use a recoverability test with undiscounted cash flows. Indefinite-life intangibles are not amortized, but are tested by comparing fair value with carrying amount. <span class="trap">Student trap:</span> do not use goodwill's reporting-unit test for every intangible.
+  </div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="otherImpBtn" onclick="nextOtherImp()">Reveal Step 1</button>
+    <button class="sc-btn sc-reset" onclick="resetOtherImp()">Reset</button>
+  </div>
+  <div class="status-card" id="otherImpStatus">Ready: compare impairment tests for other intangible assets.</div>
+
+  <div class="work-grid">
+    <div class="card">
+      <div class="card-h"><span>Limited-Life Patent</span><small>recoverability first</small></div>
+      <div class="card-b">
+        <div class="calc-box">
+          <div class="calc-row"><div class="calc-label">Carrying amount</div><div class="calc-num">$300,000</div></div>
+          <div class="calc-row"><div class="calc-label">Undiscounted future cash flows</div><div class="calc-num">$260,000</div></div>
+          <div class="calc-row"><div class="calc-label">Fair value</div><div class="calc-num">$230,000</div></div>
+        </div>
+        <div id="limitedImpResult"><div class="warning">Click Reveal Step 1 to test the limited-life patent.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span>Indefinite-Life Trademark</span><small>fair value comparison</small></div>
+      <div class="card-b">
+        <div class="calc-box">
+          <div class="calc-row"><div class="calc-label">Carrying amount</div><div class="calc-num">$180,000</div></div>
+          <div class="calc-row"><div class="calc-label">Fair value</div><div class="calc-num">$155,000</div></div>
+          <div class="calc-row"><div class="calc-label">Annual amortization</div><div class="calc-num">None</div></div>
+        </div>
+        <div id="indefImpResult"><div class="warning">Click Reveal Step 2 to test the indefinite-life trademark.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway"><strong>Teaching point:</strong> limited-life impairment is a two-step idea: first ask if the asset is recoverable, then measure the loss using fair value. Indefinite-life intangible impairment goes directly to carrying amount versus fair value.</div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Check Your Understanding</div>
+  <div class="sec-sub">Check whether students can calculate goodwill and avoid recording internally generated goodwill.</div>
+  <div class="score">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</section>
+
+<div class="nav">
+  <button id="btnPrev" onclick="prevTab()">Previous</button>
+  <span class="nav-ind" id="navInd"></span>
+  <button class="primary" id="btnNext" onclick="nextTab()">Next</button>
+</div>
+
+<script>
+const tabs = Array.from(document.querySelectorAll('.tab'));
+const panels = Array.from(document.querySelectorAll('.panel'));
+let currentTab = 0;
+let quizBuilt = false;
+function showTab(i) {
+  currentTab = Math.max(0, Math.min(i, panels.length - 1));
+  panels.forEach((p, idx) => p.classList.toggle('active', idx === currentTab));
+  tabs.forEach((t, idx) => {
+    t.classList.toggle('active', idx === currentTab);
+    t.setAttribute('aria-selected', idx === currentTab ? 'true' : 'false');
+  });
+  updateBottomNav();
+  if (currentTab === 5 && !quizBuilt) buildQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function updateBottomNav() {
+  const navInd = document.getElementById('navInd');
+  const label = tabs[currentTab]
+    ? tabs[currentTab].textContent.trim().replace(/^[①②③④⑤⑥⑦⑧⑨⑩]\s*/, '').replace(/^\d+\.\s*/, '')
+    : '';
+  if (navInd) navInd.textContent = 'Tab ' + (currentTab + 1) + ' of ' + panels.length + ' — ' + label;
+  const prevBtn = document.getElementById('btnPrev');
+  const nextBtn = document.getElementById('btnNext');
+  if (prevBtn) prevBtn.disabled = currentTab === 0;
+  if (nextBtn) nextBtn.disabled = currentTab === panels.length - 1;
+}
+function nextTab() { showTab(currentTab + 1); }
+function prevTab() { showTab(currentTab - 1); }
+updateBottomNav();
+
+let step = 0;
+const steps = [
+  '<strong>Step 1: Identify purchase price.</strong> Boc paid $900,000 to acquire Target Co.',
+  '<strong>Step 2: Compute identifiable net assets.</strong> Assets of $1,100,000 minus liabilities of $350,000 = $750,000.',
+  '<strong>Step 3: Compute goodwill.</strong> Purchase price of $900,000 minus identifiable net assets of $750,000 = $150,000 goodwill.'
+];
+function resetSteps() {
+  step = 0;
+  document.getElementById('stepStatus').innerHTML = 'Ready: calculate goodwill from the purchase price and identifiable net assets.';
+  document.getElementById('goodwillAnswer').innerHTML = 'Goodwill will appear after Step 3.';
+  document.getElementById('stepBtn').disabled = false;
+  document.getElementById('stepBtn').textContent = 'Show Step 1';
+  // Reset un-spoiled net-assets row + plug visual + fact-strip Q1
+  document.getElementById('netAssetsVal').textContent = '?';
+  document.getElementById('plugVis').style.display = 'none';
+  const fg = document.getElementById('factGoodwillVal');
+  if (fg) { fg.textContent = '?'; fg.classList.add('pending'); document.getElementById('factGoodwill').classList.remove('solved'); }
+}
+function nextStep() {
+  if (step < steps.length) {
+    document.getElementById('stepStatus').innerHTML = steps[step];
+    if (step >= 1) {
+      // Reveal net assets line at step 2 (index 1)
+      document.getElementById('netAssetsVal').textContent = '$1,100,000 − $350,000 = $750,000';
+    }
+    if (step >= 2) {
+      document.getElementById('goodwillAnswer').innerHTML = 'Goodwill = $900,000 − $750,000 = $150,000';
+      // Reveal the plug visual + solve fact-strip Q1
+      document.getElementById('plugVis').style.display = '';
+      const fg = document.getElementById('factGoodwillVal');
+      if (fg) { fg.textContent = '$150,000'; fg.classList.remove('pending'); document.getElementById('factGoodwill').classList.add('solved'); }
+    }
+    step++;
+    document.getElementById('stepBtn').textContent = step === steps.length ? 'Finish' : 'Show Step ' + (step + 1);
+  } else {
+    document.getElementById('stepStatus').innerHTML = '<strong>Complete.</strong> Goodwill is $150,000.';
+    document.getElementById('stepBtn').disabled = true;
+  }
+}
+
+// Scenario switcher — show one scenario at a time
+function showScenario(which) {
+  document.getElementById('scenAView').style.display = which === 'A' ? 'block' : 'none';
+  document.getElementById('scenBView').style.display = which === 'B' ? 'block' : 'none';
+  document.getElementById('scenABtn').classList.toggle('active', which === 'A');
+  document.getElementById('scenBBtn').classList.toggle('active', which === 'B');
+}
+
+// --- Scenario A: impairment exists ---
+let scenAStep = -1;
+const scenAMessages = [
+  'Step 1: compare carrying amount and fair value: <strong>$1,200,000 vs $1,080,000</strong>.',
+  'Step 2: carrying amount exceeds fair value, so goodwill is <strong>impaired</strong>.',
+  'Step 3: measure the loss: <strong>$1,200,000 − $1,080,000 = $120,000</strong>.',
+  'Step 4: record the impairment entry. Debit Impairment Loss, credit Goodwill.'
+];
+function resetScenA() {
+  scenAStep = -1;
+  document.getElementById('scenAStatus').innerHTML = 'Ready: Scenario A — fair value has dropped below carrying amount.';
+  document.getElementById('scenACompVal').textContent = '?';
+  document.getElementById('scenALossVal').textContent = '?';
+  document.getElementById('scenAResult').innerHTML = '';
+  document.getElementById('scenAStepBtn').disabled = false;
+  document.getElementById('scenAStepBtn').textContent = 'Show Step 1';
+  // Reset fact-strip Q2
+  const fa = document.getElementById('factGoodwillAfterVal');
+  if (fa) { fa.textContent = '?'; fa.classList.add('pending'); document.getElementById('factGoodwillAfter').classList.remove('solved'); }
+}
+function nextScenA() {
+  scenAStep++;
+  if (scenAStep < scenAMessages.length) {
+    document.getElementById('scenAStatus').innerHTML = scenAMessages[scenAStep];
+    if (scenAStep >= 0) document.getElementById('scenACompVal').textContent = '$1,200,000 > $1,080,000';
+    if (scenAStep >= 1) {
+      document.getElementById('scenAResult').innerHTML = '<div class="answer">Carrying amount exceeds fair value → goodwill is impaired.</div>';
+    }
+    if (scenAStep >= 2) {
+      document.getElementById('scenALossVal').textContent = '$120,000';
+      document.getElementById('scenAResult').innerHTML = '<div class="answer">Carrying amount exceeds fair value → impairment loss = <strong>$120,000</strong>.</div>';
+    }
+    if (scenAStep === 3) {
+      document.getElementById('scenAResult').innerHTML +=
+        '<div class="je-box"><div class="je-title">Scenario A Goodwill Impairment Entry</div>' +
+        '<div class="je-line head"><div>Account</div><div>Debit</div><div>Credit</div></div>' +
+        '<div class="je-line"><div class="je-acct">Impairment Loss</div><div class="je-num">$120,000</div><div class="je-num"></div></div>' +
+        '<div class="je-line"><div class="je-acct je-cr">Goodwill</div><div class="je-num"></div><div class="je-num">$120,000</div></div>' +
+        '<div class="je-note">Debit Impairment Loss to recognize the decline in income. Credit Goodwill to reduce its carrying amount. New goodwill carrying amount: $150,000 − $120,000 = $30,000.</div></div>';
+      // Solve fact-strip Q2
+      const fa = document.getElementById('factGoodwillAfterVal');
+      if (fa) { fa.textContent = '$30,000'; fa.classList.remove('pending'); document.getElementById('factGoodwillAfter').classList.add('solved'); }
+    }
+    document.getElementById('scenAStepBtn').textContent = scenAStep === scenAMessages.length - 1 ? 'Finish' : 'Show Step ' + (scenAStep + 2);
+  } else {
+    document.getElementById('scenAStatus').innerHTML = '<strong>Complete.</strong> $120,000 impairment recorded; goodwill carrying amount reduced from $150,000 to $30,000.';
+    document.getElementById('scenAStepBtn').disabled = true;
+  }
+}
+
+// --- Scenario B: no impairment ---
+let scenBStep = -1;
+const scenBMessages = [
+  'Step 1: compare carrying amount and fair value: <strong>$1,200,000 vs $1,260,000</strong>.',
+  'Step 2: fair value exceeds carrying amount → goodwill is <strong>not impaired</strong>. Stop here.',
+  'Step 3: no journal entry is recorded. Goodwill carrying amount stays at $150,000.'
+];
+function resetScenB() {
+  scenBStep = -1;
+  document.getElementById('scenBStatus').innerHTML = 'Ready: Scenario B — fair value still exceeds carrying amount.';
+  document.getElementById('scenBCompVal').textContent = '?';
+  document.getElementById('scenBResult').innerHTML = '';
+  document.getElementById('scenBStepBtn').disabled = false;
+  document.getElementById('scenBStepBtn').textContent = 'Show Step 1';
+}
+function nextScenB() {
+  scenBStep++;
+  if (scenBStep < scenBMessages.length) {
+    document.getElementById('scenBStatus').innerHTML = scenBMessages[scenBStep];
+    if (scenBStep >= 0) document.getElementById('scenBCompVal').textContent = '$1,260,000 > $1,200,000';
+    if (scenBStep >= 1) {
+      document.getElementById('scenBResult').innerHTML = '<div class="answer">Fair value exceeds carrying amount → no impairment. Stop after the comparison.</div>';
+    }
+    if (scenBStep === 2) {
+      document.getElementById('scenBResult').innerHTML +=
+        '<div class="je-box"><div class="je-title">Scenario B Year-End Entry</div>' +
+        '<div class="je-note"><strong>No entry.</strong> Fair value is above carrying amount, so goodwill is not impaired. No annual amortization either — goodwill is impairment-tested only.</div></div>';
+    }
+    document.getElementById('scenBStepBtn').textContent = scenBStep === scenBMessages.length - 1 ? 'Finish' : 'Show Step ' + (scenBStep + 2);
+  } else {
+    document.getElementById('scenBStatus').innerHTML = '<strong>Complete.</strong> No impairment, no entry. Goodwill stays at its carrying amount.';
+    document.getElementById('scenBStepBtn').disabled = true;
+  }
+}
+
+let otherImpStep = 0;
+const otherImpSteps = [
+  {
+    status: '<strong>Step 1: Limited-life patent recoverability test.</strong> Compare carrying amount with undiscounted future cash flows.',
+    limited: '<div class="answer">Not recoverable: carrying amount $300,000 is greater than undiscounted cash flows $260,000.</div>',
+    indef: '<div class="warning">Indefinite-life trademark will be tested in the next step.</div>'
+  },
+  {
+    status: '<strong>Step 2: Limited-life patent measurement.</strong> Because the patent is not recoverable, measure impairment using fair value.',
+    limited: '<div class="answer">Impairment loss = $300,000 carrying amount - $230,000 fair value = $70,000</div><div class="je-box"><div class="je-title">Patent Impairment Entry</div><div class="je-line head"><div>Account</div><div>Debit</div><div>Credit</div></div><div class="je-line"><div class="je-acct">Impairment Loss</div><div class="je-num">$70,000</div><div class="je-num"></div></div><div class="je-line"><div class="je-acct je-cr">Patent</div><div class="je-num"></div><div class="je-num">$70,000</div></div><div class="je-note">Debit Impairment Loss because the loss is recognized. Credit Patent because the asset carrying amount is reduced.</div></div>',
+    indef: '<div class="warning">Indefinite-life trademark is not amortized, but still must be tested for impairment.</div>'
+  },
+  {
+    status: '<strong>Step 3: Indefinite-life trademark impairment test.</strong> Compare carrying amount directly with fair value.',
+    limited: '<div class="answer">Limited-life patent result stays: impairment loss of $70,000.</div>',
+    indef: '<div class="answer">Impairment loss = $180,000 carrying amount - $155,000 fair value = $25,000</div><div class="je-box"><div class="je-title">Trademark Impairment Entry</div><div class="je-line head"><div>Account</div><div>Debit</div><div>Credit</div></div><div class="je-line"><div class="je-acct">Impairment Loss</div><div class="je-num">$25,000</div><div class="je-num"></div></div><div class="je-line"><div class="je-acct je-cr">Trademark</div><div class="je-num"></div><div class="je-num">$25,000</div></div><div class="je-note">Debit Impairment Loss and credit Trademark. Do not record amortization for the indefinite-life trademark.</div></div>'
+  },
+  {
+    status: '<strong>Step 4: Compare the two rules.</strong> The journal entry looks similar, but the test that gets you there is different.',
+    limited: '<div class="answer">Limited-life: first recoverability test, then measure loss using fair value.</div>',
+    indef: '<div class="answer">Indefinite-life: no amortization; compare carrying amount directly with fair value for impairment.</div>'
+  }
+];
+
+function resetOtherImp() {
+  otherImpStep = 0;
+  document.getElementById('otherImpStatus').innerHTML = 'Ready: compare impairment tests for other intangible assets.';
+  document.getElementById('limitedImpResult').innerHTML = '<div class="warning">Click Reveal Step 1 to test the limited-life patent.</div>';
+  document.getElementById('indefImpResult').innerHTML = '<div class="warning">Click Reveal Step 2 to test the indefinite-life trademark.</div>';
+  document.getElementById('otherImpBtn').disabled = false;
+  document.getElementById('otherImpBtn').textContent = 'Reveal Step 1';
+}
+
+function nextOtherImp() {
+  if (otherImpStep < otherImpSteps.length) {
+    const item = otherImpSteps[otherImpStep];
+    document.getElementById('otherImpStatus').innerHTML = item.status;
+    document.getElementById('limitedImpResult').innerHTML = item.limited;
+    document.getElementById('indefImpResult').innerHTML = item.indef;
+    otherImpStep++;
+    document.getElementById('otherImpBtn').textContent = otherImpStep === otherImpSteps.length ? 'Finish' : 'Reveal Step ' + (otherImpStep + 1);
+  } else {
+    document.getElementById('otherImpStatus').innerHTML = '<strong>Complete.</strong> Students have compared impairment for limited-life and indefinite-life intangibles.';
+    document.getElementById('otherImpBtn').disabled = true;
+  }
+}
+
+let score = 0;
+const questions = [
+  { q: 'When is goodwill recognized?', opts: ['When purchased in a business combination', 'Whenever reputation improves', 'Whenever sales increase', 'Whenever a company hires talented employees'], a: 0, exp: 'Goodwill is recognized only when acquired in a business combination.' },
+  { q: 'Boc pays $900,000 for a company with FV identifiable assets of $1,100,000 and liabilities of $350,000. What is goodwill?', opts: ['$150,000', '$900,000', '$750,000', '$350,000'], a: 0, exp: 'Identifiable net assets are $750,000, so goodwill is $900,000 - $750,000 = $150,000.' },
+  { q: 'A company has loyal customers and a strong reputation it built internally. What goodwill entry is recorded?', opts: ['No entry', 'Dr Goodwill; Cr Revenue', 'Dr Goodwill; Cr Cash', 'Dr Expense; Cr Goodwill'], a: 0, exp: 'Internally generated goodwill is not recorded.' },
+  { q: 'Goodwill is calculated using:', opts: ['Fair value of identifiable net assets', 'Book value of only liabilities', 'Original cost of inventory only', 'The buyer company market value'], a: 0, exp: 'Goodwill compares purchase price with the fair value of identifiable net assets acquired.' },
+  { q: 'After goodwill is recorded, annual accounting under U.S. GAAP is usually:', opts: ['No amortization; test for impairment', 'Amortize every year over 10 years', 'Credit revenue every year', 'Record no impairment ever'], a: 0, exp: 'Goodwill is not amortized under U.S. GAAP; it is tested for impairment.' },
+  { q: 'If purchase price equals fair value of identifiable net assets, goodwill is:', opts: ['$0', 'Always $100,000', 'Equal to liabilities', 'Equal to cash paid'], a: 0, exp: 'No excess purchase price means no goodwill.' },
+  { q: 'A reporting unit has carrying amount of $1,200,000 and fair value of $1,080,000. What is the goodwill impairment loss?', opts: ['$120,000', '$0', '$1,200,000', '$1,080,000'], a: 0, exp: 'Carrying amount exceeds fair value by $120,000.' },
+  { q: 'What is the JE for goodwill impairment?', opts: ['Dr Impairment Loss; Cr Goodwill', 'Dr Goodwill; Cr Impairment Loss', 'Dr Cash; Cr Goodwill', 'No entry because goodwill is amortized'], a: 0, exp: 'The impairment loss is debited and goodwill is credited to reduce its carrying amount.' },
+  { q: 'If fair value is greater than carrying amount, the company records:', opts: ['No impairment entry', 'Dr Impairment Loss; Cr Goodwill', 'Dr Goodwill; Cr Gain', 'Annual amortization'], a: 0, exp: 'When fair value exceeds carrying amount, goodwill is not impaired.' },
+  { q: 'For a limited-life intangible, what is the first impairment question?', opts: ['Is carrying amount recoverable from undiscounted cash flows?', 'Is goodwill internally generated?', 'Should goodwill be amortized?', 'Was advertising paid in cash?'], a: 0, exp: 'Limited-life intangibles first use a recoverability test.' },
+  { q: 'A patent has carrying amount $300,000, undiscounted cash flows $260,000, and fair value $230,000. What impairment loss is recorded?', opts: ['$70,000', '$40,000', '$260,000', '$0'], a: 0, exp: 'Because the patent is not recoverable, loss is measured as carrying amount minus fair value: $300,000 - $230,000 = $70,000.' },
+  { q: 'An indefinite-life trademark has carrying amount $180,000 and fair value $155,000. What is the impairment loss?', opts: ['$25,000', '$0 because it is indefinite-life', '$180,000', '$155,000'], a: 0, exp: 'Indefinite-life intangibles are not amortized, but they can be impaired. The loss is $25,000.' }
+];
+function buildQuiz() {
+  quizBuilt = true;
+  document.getElementById('total').textContent = questions.length;
+  const wrap = document.getElementById('quizWrap');
+  questions.forEach((item, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML =
+      '<div class="q-num">Question ' + (qi + 1) + ' of ' + questions.length + '</div>' +
+      '<div class="q-text">' + item.q + '</div>' +
+      '<div class="q-opts">' + item.opts.map((opt, oi) =>
+        '<button class="q-opt" onclick="answerQ(' + qi + ',' + oi + ', this)">' + opt + '</button>'
+      ).join('') + '</div>' +
+      '<div class="explain" id="exp' + qi + '"></div>';
+    wrap.appendChild(card);
+  });
+}
+function answerQ(qi, oi, btn) {
+  const item = questions[qi];
+  const buttons = btn.parentElement.querySelectorAll('button');
+  if (buttons[0].disabled) return;
+  buttons.forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === item.a) b.classList.add('correct');
+  });
+  const exp = document.getElementById('exp' + qi);
+  if (oi === item.a) {
+    score++;
+    btn.classList.add('correct');
+    exp.textContent = 'Correct. ' + item.exp;
+  } else {
+    btn.classList.add('wrong');
+    exp.textContent = 'The answer is: ' + item.opts[item.a] + '. ' + item.exp;
+  }
+  exp.classList.add('show');
+  document.getElementById('score').textContent = score;
+}
+resetSteps();
+resetScenA();
+resetScenB();
+resetOtherImp();
+</script>
+</body>
+</html>

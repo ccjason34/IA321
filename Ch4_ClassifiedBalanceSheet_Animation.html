@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classified Balance Sheet | Kieso Ch. 3</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.2rem; font-weight: 800; }
+  .header p  { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab  { padding: 11px 18px; font-size: .88rem; font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; }
+  .tab:hover  { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+  .panel { display: none; max-width: 960px; margin: 0 auto; padding: 24px 16px 90px; }
+  .panel.active { display: block; }
+
+  .sec-title { font-size: 1.35rem; font-weight: 800; margin-bottom: 8px; }
+  .sec-sub   { font-size: .97rem; color: #475569; margin-bottom: 24px; line-height: 1.7; }
+  .quote { background: white; border-left: 4px solid #3b82f6; border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: .95rem; color: #334155; line-height: 1.7; margin-bottom: 22px; }
+  .quote strong { color: #1d4ed8; }
+
+  /* ── Concept cards ── */
+  .concept-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  @media(max-width:560px) { .concept-grid { grid-template-columns: 1fr; } }
+  .concept-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .concept-hdr  { padding: 12px 16px; color: white; font-weight: 800; font-size: .95rem; }
+  .concept-body { padding: 14px 16px; font-size: .87rem; color: #475569; line-height: 1.65; }
+  .concept-body ul { padding-left: 18px; margin-top: 6px; }
+  .concept-body li { margin-bottom: 4px; }
+  .concept-body strong { color: #1e293b; }
+
+  /* ── Rule callout ── */
+  .rule-card { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; border-radius: 10px; padding: 16px 20px; margin-bottom: 22px; font-size: .92rem; color: #78350f; line-height: 1.65; }
+  .rule-card .rule-title { font-weight: 900; color: #92400e; margin-bottom: 6px; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+
+  /* ── Section legend (color key for asset/liability classes) ── */
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .leg-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 16px; font-size: .75rem; font-weight: 700; }
+  .leg-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* ── Balance Sheet display ── */
+  .stmt { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 3px 14px rgba(0,0,0,.09); margin-bottom: 16px; }
+  .stmt-hdr  { padding: 16px 20px; text-align: center; background: linear-gradient(135deg, #0f766e, #0891b2); color: white; }
+  .stmt-hdr .co   { font-size: 1rem; font-weight: 900; }
+  .stmt-hdr .doc  { font-size: .85rem; font-weight: 700; opacity: .9; margin-top: 2px; }
+  .stmt-hdr .date { font-size: .78rem; opacity: .75; margin-top: 2px; }
+
+  .row { display: grid; grid-template-columns: 1fr 110px 110px; padding: 7px 20px; border-bottom: 1px solid #f8fafc; font-size: .9rem; transition: background .3s; }
+  .row:last-child { border-bottom: none; }
+  .row .lbl { color: #475569; }
+  .row .lbl.indent  { padding-left: 16px; font-size: .87rem; }
+  .row .lbl.indent2 { padding-left: 28px; font-size: .85rem; color: #64748b; }
+  .row .amt { text-align: right; font-family: monospace; font-weight: 700; }
+  .row .amt.col1 { color: #64748b; }
+  .row .amt.col2 { color: #1e293b; }
+  .row.section-hdr { padding: 9px 20px 5px; font-size: .82rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; }
+
+  /* class colors for sections */
+  .row.section-hdr.s-ca     { background: #eff6ff; color: #1d4ed8; }
+  .row.section-hdr.s-nca    { background: #faf5ff; color: #6b21a8; }
+  .row.section-hdr.s-cl     { background: #fdf2f8; color: #9d174d; }
+  .row.section-hdr.s-ll     { background: #fef2f2; color: #b91c1c; }
+  .row.section-hdr.s-eq     { background: #f0fdf4; color: #15803d; }
+
+  .row.subtotal { border-top: 1.5px solid #e2e8f0; font-weight: 700; background: #f8fafc; }
+  .row.bigtotal-asset { border-top: 2.5px solid #1e293b; border-bottom: 3px double #1e293b; background: #ecfeff; font-weight: 900; font-size: .98rem; }
+  .row.bigtotal-asset .lbl, .row.bigtotal-asset .amt { color: #0e7490; }
+  .row.bigtotal-le    { border-top: 2.5px solid #1e293b; border-bottom: 3px double #1e293b; background: #ecfeff; font-weight: 900; font-size: .98rem; }
+  .row.bigtotal-le .lbl, .row.bigtotal-le .amt { color: #0e7490; }
+
+  /* hidden rows for step build */
+  .row.hidden-row { display: none; }
+  .row.appearing { animation: rowIn .5s ease both; }
+  @keyframes rowIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+
+  /* badge for classifications */
+  .class-badge { display: inline-block; font-size: .65rem; font-weight: 800; padding: 1px 7px; border-radius: 10px; margin-left: 8px; vertical-align: 1px; }
+  .cb-ca  { background: #dbeafe; color: #1d4ed8; }
+  .cb-nca { background: #f3e8ff; color: #6b21a8; }
+  .cb-cl  { background: #fce7f3; color: #9d174d; }
+  .cb-ll  { background: #fee2e2; color: #b91c1c; }
+  .cb-eq  { background: #dcfce7; color: #15803d; }
+
+  /* ── Sticky controls ── */
+  .step-sticky { position: sticky; top: 0; z-index: 50; background: linear-gradient(180deg, #f1f5f9 0%, #f1f5f9 92%, rgba(241,245,249,0)); padding: 14px 0 16px; margin: -14px 0 8px; }
+  .step-progress { display: flex; gap: 6px; align-items: center; margin-bottom: 14px; }
+  .sp-dot  { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; color: #94a3b8; flex-shrink: 0; transition: all .3s; }
+  .sp-dot.done   { background: #0d9488; border-color: #0d9488; color: white; }
+  .sp-dot.active { background: #3b82f6; border-color: #3b82f6; color: white; }
+  .sp-line { flex: 1; height: 2px; background: #e2e8f0; transition: background .3s; }
+  .sp-line.done { background: #0d9488; }
+
+  .step-row { display: flex; gap: 12px; align-items: stretch; }
+  @media(max-width:560px) { .step-row { flex-direction: column; } }
+  .step-message { background: white; border-radius: 10px; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); font-size: .92rem; color: #334155; line-height: 1.55; border-left: 4px solid #3b82f6; flex: 1; }
+  .step-message strong { color: #1e293b; }
+  .step-side-ctrl { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; justify-content: center; }
+  @media(max-width:560px) {
+    .step-side-ctrl { flex-direction: row; }
+    .step-side-ctrl .sc-btn { flex: 1; }
+  }
+  .sc-btn { padding: 10px 22px; border-radius: 9px; border: none; font-weight: 700; font-size: .85rem; cursor: pointer; transition: all .15s; }
+  .sc-prev { background: #e2e8f0; color: #475569; padding: 8px 16px; font-size: .78rem; min-width: 100px; }
+  .sc-prev:hover:not(:disabled) { background: #cbd5e1; }
+  .sc-next {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white; font-weight: 900;
+    padding: 14px 22px; font-size: .9rem; min-width: 240px; line-height: 1.2;
+    box-shadow: 0 4px 14px rgba(245,158,11,.45);
+    animation: nextPulse 1.6s ease-in-out infinite;
+  }
+  .sc-next:hover:not(:disabled) { background: linear-gradient(135deg, #d97706, #dc2626); transform: translateY(-1px); }
+  .sc-next:disabled { animation: none; box-shadow: none; background: #94a3b8; }
+  .sc-btn:disabled { opacity: .55; cursor: default; }
+  @keyframes nextPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(245,158,11,.45); }
+    50%      { box-shadow: 0 4px 20px rgba(239,68,68,.7), 0 0 0 4px rgba(245,158,11,.18); }
+  }
+
+  /* ── Liquidity ratios tab ── */
+  .ratio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+  @media(max-width:560px) { .ratio-grid { grid-template-columns: 1fr; } }
+  .ratio-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+  .ratio-hdr { padding: 12px 16px; color: white; font-weight: 800; font-size: .95rem; }
+  .ratio-formula { padding: 14px 16px; background: #f8fafc; font-family: monospace; font-size: .92rem; color: #1e293b; line-height: 1.6; border-bottom: 1px solid #e2e8f0; }
+  .ratio-calc    { padding: 12px 16px; font-size: .9rem; color: #475569; line-height: 1.6; }
+  .ratio-result  { padding: 10px 16px; background: #fef3c7; color: #92400e; font-weight: 900; font-size: 1rem; text-align: center; border-top: 1px solid #fde68a; }
+  .ratio-explain { padding: 12px 16px; font-size: .85rem; color: #475569; line-height: 1.6; background: #fafafa; border-top: 1px solid #f1f5f9; }
+  .ratio-card.r-wc .ratio-hdr   { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+  .ratio-card.r-cur .ratio-hdr  { background: linear-gradient(135deg, #6b21a8, #a855f7); }
+  .ratio-card.r-quick .ratio-hdr{ background: linear-gradient(135deg, #0f766e, #0891b2); }
+  .ratio-card.r-debt .ratio-hdr { background: linear-gradient(135deg, #b91c1c, #ef4444); }
+
+  /* ── Quiz ── */
+  .quiz-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .q-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .q-num  { font-size: .72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+  .q-text { font-size: 1rem; font-weight: 700; margin-bottom: 14px; }
+  .q-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .q-opt  { padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f8fafc; font-size: .88rem; font-weight: 600; cursor: pointer; transition: all .15s; text-align: left; color: #334155; }
+  .q-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .q-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-opt.wrong   { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
+  .q-opt:disabled { cursor: default; }
+  .q-explain { margin-top: 10px; font-size: .85rem; padding: 9px 13px; border-radius: 7px; display: none; }
+  .q-explain.show { display: block; }
+  .q-explain.ok  { background: #dcfce7; color: #15803d; }
+  .q-explain.bad { background: #fee2e2; color: #991b1b; }
+  .score-line { text-align: center; font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
+
+  /* ── Nav ── */
+  .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; }
+  .nav-btn { padding: 9px 22px; border-radius: 8px; border: none; font-weight: 700; font-size: .85rem; cursor: pointer; }
+  .nav-btn.prev { background: #1e293b; color: #94a3b8; }
+  .nav-btn.prev:hover:not(:disabled) { background: #334155; }
+  .nav-btn.nxt  { background: #3b82f6; color: white; }
+  .nav-btn.nxt:hover:not(:disabled)  { background: #2563eb; }
+  .nav-btn:disabled { opacity: .4; cursor: default; }
+  .nav-ind { font-size: .8rem; color: #64748b; font-weight: 600; }
+
+  /* scroll target offset */
+  .row, .stmt { scroll-margin-top: 220px; scroll-margin-bottom: 100px; }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>📑 Classified Balance Sheet</h1>
+  <p>Kieso, Weygandt &amp; Warfield · Intermediate Accounting 18th Ed. · Chapter 3 · Boc Apparel, Inc.</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab(0)">① Why Classify?</div>
+  <div class="tab"        onclick="showTab(1)">② Build the Classified BS</div>
+  <div class="tab"        onclick="showTab(2)">③ Why It Matters</div>
+  <div class="tab"        onclick="showTab(3)">④ Self-Check</div>
+</div>
+
+<!-- ═══════════════════════════
+     TAB 0 — Why Classify?
+═══════════════════════════ -->
+<div class="panel active" id="tab-0">
+  <div class="sec-title">Why Classify the Balance Sheet?</div>
+  <div class="sec-sub">
+    A simple list of all assets and liabilities mixed together is hard to interpret.
+    A <strong>classified</strong> balance sheet groups items into meaningful categories so users can quickly
+    answer questions like: <em>Can the company pay its bills next year? How much of its financing is short-term?</em>
+  </div>
+
+  <div class="quote">
+    <strong>From the textbook:</strong> "A classified balance sheet groups together similar assets and similar
+    liabilities, using a number of standard classifications and sections. This is useful because items within
+    a group have similar economic characteristics."
+  </div>
+
+  <!-- The 1-year rule -->
+  <div class="rule-card">
+    <div class="rule-title">⏱️ The One-Year Rule (or Operating Cycle, whichever is longer)</div>
+    <strong>Current</strong> = expected to be converted to cash, sold, or consumed within one year (or the operating cycle if longer).
+    <strong>Non-current (long-term)</strong> = everything else.
+    This single rule splits both the asset side and the liability side of the balance sheet.
+  </div>
+
+  <!-- Five classifications -->
+  <div style="font-size:.82rem;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">The five major sections</div>
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="concept-hdr" style="background: linear-gradient(135deg, #1d4ed8, #3b82f6)">① Current Assets</div>
+      <div class="concept-body">
+        Will be converted to cash or used up within 1 year. Listed in order of liquidity:
+        <ul>
+          <li>Cash &amp; Cash Equivalents</li>
+          <li>Short-term Investments</li>
+          <li>Accounts Receivable</li>
+          <li>Inventory</li>
+          <li>Prepaid Expenses</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <div class="concept-hdr" style="background: linear-gradient(135deg, #6b21a8, #a855f7)">② Non-Current Assets</div>
+      <div class="concept-body">
+        Held for more than 1 year. Includes:
+        <ul>
+          <li><strong>Long-term Investments</strong> — stocks, bonds held &gt; 1 year</li>
+          <li><strong>Property, Plant &amp; Equipment</strong> — land, buildings, equipment (less accum. depreciation)</li>
+          <li><strong>Intangible Assets</strong> — goodwill, patents, trademarks</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <div class="concept-hdr" style="background: linear-gradient(135deg, #9d174d, #db2777)">③ Current Liabilities</div>
+      <div class="concept-body">
+        Due within 1 year. Includes:
+        <ul>
+          <li>Accounts Payable</li>
+          <li>Notes Payable (short-term)</li>
+          <li>Salaries &amp; Wages Payable</li>
+          <li>Interest Payable</li>
+          <li>Unearned Revenue</li>
+          <li>Current portion of long-term debt</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <div class="concept-hdr" style="background: linear-gradient(135deg, #b91c1c, #ef4444)">④ Long-Term Liabilities</div>
+      <div class="concept-body">
+        Due in more than 1 year:
+        <ul>
+          <li>Bonds Payable</li>
+          <li>Long-term Notes Payable</li>
+          <li>Lease Liabilities</li>
+          <li>Deferred Tax Liabilities</li>
+          <li>Pension Obligations</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="concept-card" style="grid-column: 1 / -1;">
+      <div class="concept-hdr" style="background: linear-gradient(135deg, #15803d, #22c55e)">⑤ Stockholders' Equity</div>
+      <div class="concept-body">
+        Owners' claim on the company:
+        <ul>
+          <li><strong>Capital Stock</strong> — Common Stock, Preferred Stock</li>
+          <li><strong>Additional Paid-in Capital</strong> — amounts paid above par</li>
+          <li><strong>Retained Earnings</strong> — accumulated profits not yet distributed</li>
+          <li><strong>Treasury Stock</strong> (contra) — shares the company has repurchased</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     TAB 1 — Build the Classified Balance Sheet
+═══════════════════════════ -->
+<div class="panel" id="tab-1">
+  <div class="sec-title">Build the Classified Balance Sheet</div>
+  <div class="sec-sub">
+    Watch the balance sheet take shape one section at a time for <strong>Boc Apparel, Inc.</strong>
+    Each click reveals the next classification — and at the end, Total Assets = Total Liabilities + Equity.
+  </div>
+
+  <!-- Sticky control area -->
+  <div class="step-sticky">
+    <div class="step-progress">
+      <div class="sp-dot active" id="sp0">1</div>
+      <div class="sp-line" id="sl0"></div>
+      <div class="sp-dot" id="sp1">2</div>
+      <div class="sp-line" id="sl1"></div>
+      <div class="sp-dot" id="sp2">3</div>
+      <div class="sp-line" id="sl2"></div>
+      <div class="sp-dot" id="sp3">4</div>
+      <div class="sp-line" id="sl3"></div>
+      <div class="sp-dot" id="sp4">5</div>
+    </div>
+
+    <div class="step-row">
+      <div class="step-message" id="stepMsg">
+        <strong>Step 1 — Current Assets:</strong>
+        Items expected to become cash or be used up within <strong>one year</strong>.
+        Listed in order of liquidity, starting with Cash. Boc Apparel's current assets total <strong>$155,000</strong>.
+      </div>
+      <div class="step-side-ctrl">
+        <button class="sc-btn sc-next" id="scNext" onclick="goStep(currentStep+1)">Add Non-Current Assets →</button>
+        <button class="sc-btn sc-prev" id="scPrev" onclick="goStep(currentStep-1)" disabled>← Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Color legend -->
+  <div class="legend">
+    <span class="leg-pill" style="background:#dbeafe;color:#1d4ed8"><span class="leg-dot" style="background:#3b82f6"></span> Current Assets</span>
+    <span class="leg-pill" style="background:#f3e8ff;color:#6b21a8"><span class="leg-dot" style="background:#a855f7"></span> Non-Current Assets</span>
+    <span class="leg-pill" style="background:#fce7f3;color:#9d174d"><span class="leg-dot" style="background:#db2777"></span> Current Liabilities</span>
+    <span class="leg-pill" style="background:#fee2e2;color:#b91c1c"><span class="leg-dot" style="background:#ef4444"></span> Long-Term Liabilities</span>
+    <span class="leg-pill" style="background:#dcfce7;color:#15803d"><span class="leg-dot" style="background:#22c55e"></span> Stockholders' Equity</span>
+  </div>
+
+  <!-- The classified balance sheet -->
+  <div class="stmt">
+    <div class="stmt-hdr">
+      <div class="co">Boc Apparel, Inc.</div>
+      <div class="doc">Classified Balance Sheet</div>
+      <div class="date">December 31, 2022</div>
+    </div>
+
+    <!-- ── Step 0: Current Assets ── -->
+    <div class="row section-hdr s-ca" data-step="0" id="row-ca-hdr"><span>Current Assets</span><span></span><span></span></div>
+    <div class="row" data-step="0"><span class="lbl indent">Cash</span><span class="amt col1"></span><span class="amt col2">$35,000</span></div>
+    <div class="row" data-step="0"><span class="lbl indent">Short-term Investments</span><span class="amt col1"></span><span class="amt col2">15,000</span></div>
+    <div class="row" data-step="0"><span class="lbl indent">Accounts Receivable</span><span class="amt col1"></span><span class="amt col2">42,000</span></div>
+    <div class="row" data-step="0"><span class="lbl indent">Inventory</span><span class="amt col1"></span><span class="amt col2">58,000</span></div>
+    <div class="row" data-step="0"><span class="lbl indent">Prepaid Insurance</span><span class="amt col1"></span><span class="amt col2">5,000</span></div>
+    <div class="row subtotal" data-step="0" id="row-ca-total"><span class="lbl"><strong>Total Current Assets</strong></span><span class="amt col1"></span><span class="amt col2"><strong>$155,000</strong></span></div>
+
+    <!-- ── Step 1: Non-Current Assets ── -->
+    <!-- Long-term Investments -->
+    <div class="row section-hdr s-nca hidden-row" data-step="1" id="row-nca-hdr"><span>Long-term Investments</span><span></span><span></span></div>
+    <div class="row hidden-row" data-step="1"><span class="lbl indent">Investment in Equity Securities</span><span class="amt col1"></span><span class="amt col2">$25,000</span></div>
+
+    <!-- PP&E -->
+    <div class="row section-hdr s-nca hidden-row" data-step="1"><span>Property, Plant &amp; Equipment</span><span></span><span></span></div>
+    <div class="row hidden-row" data-step="1"><span class="lbl indent">Land</span><span class="amt col1"></span><span class="amt col2">$80,000</span></div>
+    <div class="row hidden-row" data-step="1"><span class="lbl indent">Building</span><span class="amt col1">$200,000</span><span class="amt col2"></span></div>
+    <div class="row hidden-row" data-step="1"><span class="lbl indent2">Less: Accum. Depreciation — Building</span><span class="amt col1">(30,000)</span><span class="amt col2">170,000</span></div>
+    <div class="row hidden-row" data-step="1"><span class="lbl indent">Equipment</span><span class="amt col1">90,000</span><span class="amt col2"></span></div>
+    <div class="row hidden-row" data-step="1"><span class="lbl indent2">Less: Accum. Depreciation — Equipment</span><span class="amt col1">(20,000)</span><span class="amt col2">70,000</span></div>
+    <div class="row subtotal hidden-row" data-step="1"><span class="lbl indent"><strong>Total Property, Plant &amp; Equipment</strong></span><span class="amt col1"></span><span class="amt col2"><strong>$320,000</strong></span></div>
+
+    <!-- Intangibles -->
+    <div class="row section-hdr s-nca hidden-row" data-step="1"><span>Intangible Assets</span><span></span><span></span></div>
+    <div class="row hidden-row" data-step="1"><span class="lbl indent">Goodwill</span><span class="amt col1"></span><span class="amt col2">$30,000</span></div>
+    <div class="row hidden-row" data-step="1"><span class="lbl indent">Patents</span><span class="amt col1"></span><span class="amt col2">10,000</span></div>
+    <div class="row subtotal hidden-row" data-step="1"><span class="lbl indent"><strong>Total Intangible Assets</strong></span><span class="amt col1"></span><span class="amt col2"><strong>$40,000</strong></span></div>
+
+    <!-- Total Assets -->
+    <div class="row bigtotal-asset hidden-row" data-step="1" id="row-ta">
+      <span class="lbl"><strong>TOTAL ASSETS</strong></span>
+      <span class="amt col1"></span>
+      <span class="amt"><strong>$540,000</strong></span>
+    </div>
+
+    <!-- ── Step 2: Current Liabilities ── -->
+    <div class="row section-hdr s-cl hidden-row" data-step="2" id="row-cl-hdr"><span>Current Liabilities</span><span></span><span></span></div>
+    <div class="row hidden-row" data-step="2"><span class="lbl indent">Accounts Payable</span><span class="amt col1"></span><span class="amt col2">$35,000</span></div>
+    <div class="row hidden-row" data-step="2"><span class="lbl indent">Notes Payable (short-term)</span><span class="amt col1"></span><span class="amt col2">20,000</span></div>
+    <div class="row hidden-row" data-step="2"><span class="lbl indent">Salaries &amp; Wages Payable</span><span class="amt col1"></span><span class="amt col2">8,000</span></div>
+    <div class="row hidden-row" data-step="2"><span class="lbl indent">Interest Payable</span><span class="amt col1"></span><span class="amt col2">2,000</span></div>
+    <div class="row hidden-row" data-step="2"><span class="lbl indent">Unearned Revenue</span><span class="amt col1"></span><span class="amt col2">5,000</span></div>
+    <div class="row subtotal hidden-row" data-step="2" id="row-cl-total"><span class="lbl"><strong>Total Current Liabilities</strong></span><span class="amt col1"></span><span class="amt col2"><strong>$70,000</strong></span></div>
+
+    <!-- ── Step 3: Long-term Liabilities ── -->
+    <div class="row section-hdr s-ll hidden-row" data-step="3" id="row-ll-hdr"><span>Long-Term Liabilities</span><span></span><span></span></div>
+    <div class="row hidden-row" data-step="3"><span class="lbl indent">Bonds Payable</span><span class="amt col1"></span><span class="amt col2">$150,000</span></div>
+    <div class="row hidden-row" data-step="3"><span class="lbl indent">Long-term Notes Payable</span><span class="amt col1"></span><span class="amt col2">50,000</span></div>
+    <div class="row subtotal hidden-row" data-step="3"><span class="lbl"><strong>Total Long-Term Liabilities</strong></span><span class="amt col1"></span><span class="amt col2"><strong>$200,000</strong></span></div>
+    <div class="row subtotal hidden-row" data-step="3" id="row-tl"><span class="lbl"><strong>Total Liabilities</strong></span><span class="amt col1"></span><span class="amt col2"><strong>$270,000</strong></span></div>
+
+    <!-- ── Step 4: Stockholders' Equity ── -->
+    <div class="row section-hdr s-eq hidden-row" data-step="4" id="row-eq-hdr"><span>Stockholders' Equity</span><span></span><span></span></div>
+    <div class="row hidden-row" data-step="4"><span class="lbl indent">Common Stock</span><span class="amt col1"></span><span class="amt col2">$200,000</span></div>
+    <div class="row hidden-row" data-step="4"><span class="lbl indent">Retained Earnings</span><span class="amt col1"></span><span class="amt col2">70,000</span></div>
+    <div class="row subtotal hidden-row" data-step="4"><span class="lbl"><strong>Total Stockholders' Equity</strong></span><span class="amt col1"></span><span class="amt col2"><strong>$270,000</strong></span></div>
+
+    <div class="row bigtotal-le hidden-row" data-step="4" id="row-tle">
+      <span class="lbl"><strong>TOTAL LIABILITIES &amp; EQUITY</strong></span>
+      <span class="amt col1"></span>
+      <span class="amt"><strong>$540,000</strong></span>
+    </div>
+  </div>
+
+  <!-- balance check -->
+  <div id="balanceCheck" style="display:none;background:linear-gradient(135deg, #dcfce7, #bbf7d0);border:2px solid #16a34a;border-radius:10px;padding:14px 18px;text-align:center;font-weight:800;color:#15803d;font-size:.95rem;line-height:1.6">
+    ✓ Balance Sheet balances! Total Assets ($540,000) = Total Liabilities ($270,000) + Total Equity ($270,000)
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     TAB 2 — Why It Matters
+═══════════════════════════ -->
+<div class="panel" id="tab-2">
+  <div class="sec-title">Why the Distinction Matters — Liquidity &amp; Solvency</div>
+  <div class="sec-sub">
+    The classification isn't just bookkeeping. It powers the most-watched financial ratios. Here's how
+    Boc Apparel's classified balance sheet drives four key analytical measures.
+  </div>
+
+  <div class="ratio-grid">
+
+    <div class="ratio-card r-wc">
+      <div class="ratio-hdr">💰 Working Capital</div>
+      <div class="ratio-formula">Current Assets − Current Liabilities</div>
+      <div class="ratio-calc">
+        $155,000 − $70,000
+      </div>
+      <div class="ratio-result">$85,000</div>
+      <div class="ratio-explain">
+        The cushion of liquid resources after paying off short-term debts. Positive working capital means
+        Boc has enough current assets to meet its short-term obligations and still operate.
+      </div>
+    </div>
+
+    <div class="ratio-card r-cur">
+      <div class="ratio-hdr">📊 Current Ratio</div>
+      <div class="ratio-formula">Current Assets ÷ Current Liabilities</div>
+      <div class="ratio-calc">
+        $155,000 ÷ $70,000
+      </div>
+      <div class="ratio-result">2.21 : 1</div>
+      <div class="ratio-explain">
+        Boc has $2.21 of current assets for every $1 of current liabilities. A ratio above 2.0 is generally
+        considered healthy — the company can comfortably pay short-term debts as they come due.
+      </div>
+    </div>
+
+    <div class="ratio-card r-quick">
+      <div class="ratio-hdr">⚡ Quick Ratio (Acid Test)</div>
+      <div class="ratio-formula">(Cash + ST Inv. + A/R) ÷ Current Liab.</div>
+      <div class="ratio-calc">
+        ($35,000 + $15,000 + $42,000) ÷ $70,000
+      </div>
+      <div class="ratio-result">1.31 : 1</div>
+      <div class="ratio-explain">
+        Excludes Inventory and Prepaid Expenses (slower to convert to cash). A ratio above 1.0 means Boc
+        can cover all current liabilities <em>without</em> needing to sell inventory.
+      </div>
+    </div>
+
+    <div class="ratio-card r-debt">
+      <div class="ratio-hdr">⚖️ Debt to Total Assets</div>
+      <div class="ratio-formula">Total Liabilities ÷ Total Assets</div>
+      <div class="ratio-calc">
+        $270,000 ÷ $540,000
+      </div>
+      <div class="ratio-result">50%</div>
+      <div class="ratio-explain">
+        Half of Boc's assets are financed by creditors; the other half by stockholders. A measure of
+        long-term solvency — lower percentages indicate less reliance on borrowed funds.
+      </div>
+    </div>
+
+  </div>
+
+  <div style="background:white;border-radius:10px;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,.07);font-size:.9rem;color:#475569;line-height:1.7">
+    <strong style="color:#1e293b">The big takeaway:</strong>
+    Without classification, none of these ratios could be calculated.
+    Knowing only "Total Assets = $540,000" tells you nothing about whether the company can pay its bills next month.
+    The classification turns a list of numbers into a story about <em>liquidity</em> (can they pay short-term?)
+    and <em>solvency</em> (can they pay long-term?).
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     TAB 3 — Quiz
+═══════════════════════════ -->
+<div class="panel" id="tab-3">
+  <div class="sec-title">Practice — Classification &amp; Analysis</div>
+  <div class="sec-sub">Test your understanding of how items are classified and what the ratios reveal.</div>
+  <div class="score-line">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <br>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</div>
+
+<!-- Nav -->
+<div class="nav-bar">
+  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>← Previous</button>
+  <span class="nav-ind" id="navInd">Tab 1 of 4</span>
+  <button class="nav-btn nxt"  id="btnNext" onclick="navigate(1)">Next →</button>
+</div>
+
+<script>
+const TABS = ['Why Classify?', 'Build the Classified BS', 'Why It Matters', 'Self-Check'];
+let cur = 0;
+function showTab(i) {
+  document.querySelectorAll('.panel').forEach((p,j) => p.classList.toggle('active', j===i));
+  document.querySelectorAll('.tab').forEach((t,j)   => t.classList.toggle('active', j===i));
+  cur = i;
+  document.getElementById('btnPrev').disabled = i===0;
+  document.getElementById('btnNext').disabled = i===TABS.length-1;
+  document.getElementById('navInd').textContent = "Tab " + (i+1) + " of " + TABS.length + " — " + TABS[i];
+  if (i===3 && !quizBuilt) buildQuiz();
+}
+function navigate(d) { showTab(cur+d); }
+
+// ── Step builder ──
+let currentStep = 0;
+const TOTAL_STEPS = 5;
+
+const STEP_CONFIG = [
+  {
+    msg: "<strong>Step 1 — Current Assets:</strong> Items expected to become cash or be used up within <strong>one year</strong>. Listed in order of liquidity (Cash first). Boc Apparel's current assets total <strong style='color:#1d4ed8'>$155,000</strong>.",
+    nextLabel: "Add Non-Current Assets →",
+    target: "row-ca-total"
+  },
+  {
+    msg: "<strong>Step 2 — Non-Current Assets:</strong> Three subgroups: <strong>Long-term Investments</strong>, <strong>Property, Plant &amp; Equipment</strong> (less accumulated depreciation), and <strong>Intangible Assets</strong>. Total Assets now reaches <strong style='color:#0e7490'>$540,000</strong>.",
+    nextLabel: "Add Current Liabilities →",
+    target: "row-ta"
+  },
+  {
+    msg: "<strong>Step 3 — Current Liabilities:</strong> Obligations due within <strong>one year</strong>. Includes A/P, short-term notes, accrued payables, and unearned revenue. Total: <strong style='color:#9d174d'>$70,000</strong>.",
+    nextLabel: "Add Long-Term Liabilities →",
+    target: "row-cl-total"
+  },
+  {
+    msg: "<strong>Step 4 — Long-Term Liabilities:</strong> Obligations due in more than 1 year — bonds, long-term notes, lease obligations. Long-term liabilities of $200,000 + current liabilities of $70,000 = Total Liabilities of <strong style='color:#b91c1c'>$270,000</strong>.",
+    nextLabel: "Add Stockholders' Equity →",
+    target: "row-tl"
+  },
+  {
+    msg: "<strong>Step 5 — Stockholders' Equity:</strong> Owners' claim — Common Stock + Retained Earnings = <strong style='color:#15803d'>$270,000</strong>. Now check the equation: Total Assets ($540,000) = Total Liabilities ($270,000) + Equity ($270,000). The balance sheet balances.",
+    nextLabel: "✓ Done — Balance Sheet Complete",
+    target: "row-tle"
+  },
+];
+
+function goStep(s) {
+  if (s < 0 || s >= TOTAL_STEPS) return;
+  currentStep = s;
+  const cfg = STEP_CONFIG[s];
+
+  // Reveal rows for current and earlier steps
+  document.querySelectorAll('.row[data-step]').forEach(row => {
+    const rowStep = parseInt(row.dataset.step, 10);
+    if (rowStep <= s) {
+      const wasHidden = row.classList.contains('hidden-row');
+      row.classList.remove('hidden-row');
+      if (wasHidden) {
+        row.classList.add('appearing');
+        setTimeout(() => row.classList.remove('appearing'), 600);
+      }
+    } else {
+      row.classList.add('hidden-row');
+    }
+  });
+
+  // Update message
+  document.getElementById('stepMsg').innerHTML = cfg.msg;
+
+  // Step progress dots
+  for (let i = 0; i < TOTAL_STEPS; i++) {
+    const dot  = document.getElementById('sp'+i);
+    const line = document.getElementById('sl'+i);
+    if (i < s)       { dot.className = 'sp-dot done'; dot.textContent = '✓'; }
+    else if (i === s){ dot.className = 'sp-dot active'; dot.textContent = i+1; }
+    else             { dot.className = 'sp-dot'; dot.textContent = i+1; }
+    if (line) line.className = 'sp-line' + (i < s ? ' done' : '');
+  }
+
+  // Buttons
+  document.getElementById('scPrev').disabled = s === 0;
+  document.getElementById('scNext').disabled = s === TOTAL_STEPS - 1;
+  document.getElementById('scNext').textContent = cfg.nextLabel;
+
+  // Balance check at the end
+  document.getElementById('balanceCheck').style.display = (s === TOTAL_STEPS - 1) ? 'block' : 'none';
+
+  // Auto-scroll target into the middle
+  const target = document.getElementById(cfg.target);
+  if (target) {
+    setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+  }
+}
+
+// ── Quiz ──
+let quizBuilt = false, score = 0;
+
+const QUESTIONS = [
+  {
+    q: "What is the cutoff used to classify an asset or liability as 'current'?",
+    correct: "One year, or the operating cycle if longer",
+    opts: ["One year, or the operating cycle if longer", "Six months", "30 days", "Whatever the company chooses"],
+    exp: "An item is current if it will be converted to cash, sold, or consumed within one year — or within the operating cycle if that cycle is longer than a year."
+  },
+  {
+    q: "Inventory expected to be sold within 6 months would be classified as:",
+    correct: "Current Asset",
+    opts: ["Current Asset", "Long-term Investment", "Property, Plant & Equipment", "Intangible Asset"],
+    exp: "Inventory is held for sale in the normal course of business and typically converts to cash within one year — making it a current asset."
+  },
+  {
+    q: "How is goodwill classified on a classified balance sheet?",
+    correct: "Intangible Asset (non-current)",
+    opts: ["Intangible Asset (non-current)", "Current Asset", "Long-term Investment", "Stockholders' Equity"],
+    exp: "Goodwill represents the excess of the price paid for a company over the fair value of its identifiable net assets. It is an intangible asset, classified as non-current."
+  },
+  {
+    q: "A 5-year bank loan due in 4 years should be classified as:",
+    correct: "Long-term Liability",
+    opts: ["Long-term Liability", "Current Liability", "Other Asset", "Stockholders' Equity"],
+    exp: "The loan is due in more than one year, so it is classified as a long-term liability. (However, the portion due within the next year, if any, is reclassified to current liabilities.)"
+  },
+  {
+    q: "Boc Apparel has Current Assets of $155,000 and Current Liabilities of $70,000. What is its Working Capital?",
+    correct: "$85,000",
+    opts: ["$85,000", "$225,000", "$70,000", "2.21"],
+    exp: "Working Capital = Current Assets − Current Liabilities = $155,000 − $70,000 = $85,000."
+  },
+  {
+    q: "The Current Ratio formula is:",
+    correct: "Current Assets ÷ Current Liabilities",
+    opts: ["Current Assets ÷ Current Liabilities", "Current Assets − Current Liabilities", "Total Assets ÷ Total Liabilities", "(Cash + A/R) ÷ Current Liabilities"],
+    exp: "The current ratio measures short-term liquidity by dividing current assets by current liabilities. A ratio above 1 indicates the company has enough current assets to cover current liabilities."
+  },
+  {
+    q: "What is the main difference between the Current Ratio and the Quick Ratio?",
+    correct: "Quick Ratio excludes inventory and prepaid expenses",
+    opts: [
+      "Quick Ratio excludes inventory and prepaid expenses",
+      "Current Ratio uses non-current assets",
+      "Quick Ratio uses long-term liabilities",
+      "There is no difference — both formulas are identical"
+    ],
+    exp: "The Quick Ratio (acid test) excludes inventory and prepaid expenses because they are slower to convert to cash. It is a stricter measure of immediate liquidity."
+  },
+  {
+    q: "Why does classification of the balance sheet matter for users?",
+    correct: "It enables liquidity and solvency analysis through standard ratios",
+    opts: [
+      "It enables liquidity and solvency analysis through standard ratios",
+      "It changes the company's total assets",
+      "It is required by tax law to lower taxes",
+      "It increases retained earnings"
+    ],
+    exp: "Classification organizes the balance sheet so users can compute meaningful ratios — current ratio, working capital, debt-to-assets — to assess whether the company can pay its short-term and long-term obligations."
+  },
+];
+
+function buildQuiz() {
+  quizBuilt = true;
+  const wrap = document.getElementById('quizWrap');
+  document.getElementById('total').textContent = QUESTIONS.length;
+  QUESTIONS.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML =
+      '<div class="q-num">Question ' + (qi+1) + ' of ' + QUESTIONS.length + '</div>' +
+      '<div class="q-text">' + q.q + '</div>' +
+      '<div class="q-opts">' + q.opts.map(o =>
+        '<button class="q-opt" onclick="answer(' + qi + ',this)">' + o + '</button>'
+      ).join('') + '</div>' +
+      '<div class="q-explain" id="qe-' + qi + '"></div>';
+    wrap.appendChild(card);
+  });
+}
+
+function answer(qi, btn) {
+  const card = btn.closest('.q-card');
+  if (card.dataset.done) return;
+  card.dataset.done = '1';
+  const q = QUESTIONS[qi];
+  const chosen = btn.textContent.trim();
+  card.querySelectorAll('.q-opt').forEach(b => {
+    b.disabled = true;
+    if (b.textContent.trim() === q.correct) b.classList.add('correct');
+    else b.classList.add('wrong');
+  });
+  const exp = document.getElementById('qe-' + qi);
+  exp.classList.add('show');
+  if (chosen === q.correct) {
+    score++;
+    exp.classList.add('ok');
+    exp.textContent = '✅ Correct! ' + q.exp;
+  } else {
+    exp.classList.add('bad');
+    exp.textContent = '❌ The answer is: ' + q.correct + '. ' + q.exp;
+  }
+  document.getElementById('score').textContent = score;
+}
+
+// Init
+goStep(0);
+</script>
+</body>
+</html>

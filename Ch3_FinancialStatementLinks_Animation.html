@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Statement Linkages | Kieso Ch. 3</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.2rem; font-weight: 800; }
+  .header p  { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab  { padding: 11px 18px; font-size: .88rem; font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; }
+  .tab:hover  { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+  .panel { display: none; max-width: 960px; margin: 0 auto; padding: 24px 16px 90px; }
+  .panel.active { display: block; }
+
+  .sec-title { font-size: 1.35rem; font-weight: 800; margin-bottom: 8px; }
+  .sec-sub   { font-size: .97rem; color: #475569; margin-bottom: 24px; line-height: 1.7; }
+
+  /* ── Overview flow diagram ── */
+  .flow-chain { display: flex; flex-direction: column; align-items: center; gap: 0; max-width: 540px; margin: 0 auto; }
+  .fc-box { width: 100%; border-radius: 12px; overflow: hidden; box-shadow: 0 3px 12px rgba(0,0,0,.1); cursor: pointer; transition: transform .15s, box-shadow .15s; }
+  .fc-box:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.14); }
+  .fc-hdr { padding: 14px 20px; font-weight: 900; font-size: 1rem; display: flex; align-items: center; gap: 10px; }
+  .fc-body { background: white; padding: 14px 20px; font-size: .9rem; color: #475569; line-height: 1.65; }
+  .fc-produces { font-size: .82rem; font-weight: 700; margin-top: 8px; padding: 6px 10px; border-radius: 6px; display: inline-block; }
+
+  .fc-arrow { display: flex; flex-direction: column; align-items: center; padding: 6px 0; }
+  .fc-arrow-line { width: 3px; height: 32px; }
+  .fc-arrow-head { width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; }
+
+  .fc-is     .fc-hdr { background: #1d4ed8; color: white; }
+  .fc-re     .fc-hdr { background: #6b21a8; color: white; }
+  .fc-bs     .fc-hdr { background: #0f766e; color: white; }
+  .fc-is     .fc-produces { background: #fef3c7; color: #92400e; }
+  .fc-re     .fc-produces { background: #fef3c7; color: #92400e; }
+
+  .link-chip { display: inline-flex; align-items: center; gap: 5px; font-size: .8rem; font-weight: 800; padding: 4px 12px; border-radius: 20px; }
+  .chip-ni  { background: #fef3c7; color: #92400e; border: 2px solid #f59e0b; }
+  .chip-re  { background: #f0fdf4; color: #15803d; border: 2px solid #22c55e; }
+
+  /* ── Step-by-step tab ── */
+  .step-progress { display: flex; gap: 6px; align-items: center; margin-bottom: 22px; }
+  .sp-dot  { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; color: #94a3b8; flex-shrink: 0; transition: all .3s; }
+  .sp-dot.done   { background: #0d9488; border-color: #0d9488; color: white; }
+  .sp-dot.active { background: #3b82f6; border-color: #3b82f6; color: white; }
+  .sp-line { flex: 1; height: 2px; background: #e2e8f0; transition: background .3s; }
+  .sp-line.done { background: #0d9488; }
+
+  .step-message { background: white; border-radius: 10px; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); margin-bottom: 14px; font-size: .92rem; color: #334155; line-height: 1.55; border-left: 4px solid #3b82f6; flex: 1; }
+  .step-message strong { color: #1e293b; }
+
+  /* Sticky controls — stay visible while scrolling statements */
+  .step-sticky { position: sticky; top: 0; z-index: 50; background: linear-gradient(180deg, #f1f5f9 0%, #f1f5f9 92%, rgba(241,245,249,0)); padding: 14px 0 16px; margin: -14px 0 8px; }
+  .step-row { display: flex; gap: 12px; align-items: stretch; }
+  .step-row .step-message { margin-bottom: 0; }
+  .step-side-ctrl { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; justify-content: center; }
+  .step-side-ctrl .sc-next { padding: 14px 22px; font-size: .9rem; min-width: 220px; line-height: 1.2; }
+  .step-side-ctrl .sc-prev { padding: 8px 16px; font-size: .78rem; min-width: 100px; }
+  @media(max-width:560px) {
+    .step-row { flex-direction: column; }
+    .step-side-ctrl { flex-direction: row; }
+    .step-side-ctrl .sc-btn { flex: 1; }
+  }
+
+  /* ── Statement cards ── */
+  .stmt-stack { display: flex; flex-direction: column; gap: 16px; }
+
+  .stmt { border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.08); transition: opacity .4s, box-shadow .3s; }
+  .stmt.dimmed { opacity: .28; }
+  .stmt.spotlight { box-shadow: 0 0 0 3px #3b82f6, 0 4px 16px rgba(59,130,246,.2); }
+
+  .stmt-hdr  { padding: 12px 18px; font-weight: 900; font-size: .95rem; display: flex; align-items: center; gap: 10px; }
+  .stmt-sub  { padding: 4px 18px 8px; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; }
+  .stmt-body { background: white; }
+
+  .stmt-row  { display: flex; justify-content: space-between; align-items: center; padding: 7px 18px; border-bottom: 1px solid #f8fafc; font-size: .9rem; }
+  .stmt-row:last-child { border-bottom: none; }
+  .stmt-row .lbl { color: #475569; }
+  .stmt-row .lbl.indent { padding-left: 18px; font-size: .87rem; }
+  .stmt-row .amt { font-family: monospace; font-weight: 700; font-size: .92rem; }
+  .stmt-row.total-row { border-top: 2px solid #e2e8f0; background: #f8fafc; font-weight: 800; }
+  .stmt-row.double-rule { border-top: 2.5px solid #1e293b; border-bottom: 3px double #1e293b; }
+
+  .stmt-is  .stmt-hdr { background: #1d4ed8; color: white; }
+  .stmt-is  .stmt-sub { background: #1e40af; color: #bfdbfe; }
+  .stmt-re  .stmt-hdr { background: #6b21a8; color: white; }
+  .stmt-re  .stmt-sub { background: #581c87; color: #e9d5ff; }
+  .stmt-bs  .stmt-hdr { background: #0f766e; color: white; }
+  .stmt-bs  .stmt-sub { background: #115e59; color: #99f6e4; }
+
+  /* ── Linking number highlights ── */
+  .hi-ni { background: #fef3c7 !important; }
+  .hi-ni .lbl, .hi-ni .amt { color: #92400e !important; font-weight: 900 !important; }
+  .hi-ni .amt::after { content: ' ←'; font-size: .7rem; color: #f59e0b; }
+
+  .hi-re { background: #f0fdf4 !important; }
+  .hi-re .lbl, .hi-re .amt { color: #15803d !important; font-weight: 900 !important; }
+  .hi-re .amt::after { content: ' ←'; font-size: .7rem; color: #22c55e; }
+
+  /* source highlight (the number in its original statement) */
+  .hi-ni-src { background: #fef3c7 !important; }
+  .hi-ni-src .lbl, .hi-ni-src .amt { color: #92400e !important; font-weight: 900 !important; }
+
+  .hi-re-src { background: #f0fdf4 !important; }
+  .hi-re-src .lbl, .hi-re-src .amt { color: #15803d !important; font-weight: 900 !important; }
+
+  /* connecting arrow between stmts */
+  .link-arrow { display: flex; flex-direction: column; align-items: center; padding: 2px 0; opacity: 0; transition: opacity .4s; }
+  .link-arrow.show { opacity: 1; }
+  .la-line { width: 2px; height: 24px; }
+  .la-head { width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; }
+  .la-label { font-size: .75rem; font-weight: 700; margin-top: 4px; padding: 2px 10px; border-radius: 10px; }
+  .la-ni { --c:#f59e0b; }
+  .la-ni .la-line { background: #f59e0b; }
+  .la-ni .la-head { border-top: 10px solid #f59e0b; }
+  .la-ni .la-label { background: #fef3c7; color: #92400e; }
+  .la-re { --c:#22c55e; }
+  .la-re .la-line { background: #22c55e; }
+  .la-re .la-head { border-top: 10px solid #22c55e; }
+  .la-re .la-label { background: #f0fdf4; color: #15803d; }
+
+  /* step controls */
+  .step-ctrl { display: flex; justify-content: center; gap: 12px; margin-top: 20px; }
+  .sc-btn { padding: 10px 26px; border-radius: 9px; border: none; font-weight: 700; font-size: .88rem; cursor: pointer; transition: all .15s; }
+  .sc-prev { background: #e2e8f0; color: #475569; }
+  .sc-prev:hover:not(:disabled) { background: #cbd5e1; }
+  .sc-next {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white;
+    font-weight: 900;
+    box-shadow: 0 4px 14px rgba(245,158,11,.45);
+    animation: nextPulse 1.6s ease-in-out infinite;
+    position: relative;
+  }
+  .sc-next:hover:not(:disabled) {
+    background: linear-gradient(135deg, #d97706, #dc2626);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(245,158,11,.55);
+  }
+  .sc-next:disabled { animation: none; box-shadow: none; background: #94a3b8; }
+  .sc-btn:disabled { opacity: .55; cursor: default; }
+  @keyframes nextPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(245,158,11,.45); }
+    50%      { box-shadow: 0 4px 20px rgba(239,68,68,.7), 0 0 0 4px rgba(245,158,11,.18); }
+  }
+
+  /* ── Together tab ── */
+  .together-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  @media(max-width:700px) { .together-grid { grid-template-columns: 1fr; } }
+  .legend { display: flex; gap: 16px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap; }
+  .leg-item { display: flex; align-items: center; gap: 6px; font-size: .85rem; font-weight: 700; }
+  .leg-dot { width: 14px; height: 14px; border-radius: 50%; }
+
+  /* ── Quiz ── */
+  .quiz-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .q-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .q-num  { font-size: .72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+  .q-text { font-size: 1rem; font-weight: 700; margin-bottom: 14px; }
+  .q-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .q-opt  { padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f8fafc; font-size: .88rem; font-weight: 600; cursor: pointer; transition: all .15s; text-align: left; color: #334155; }
+  .q-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .q-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-opt.wrong   { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
+  .q-opt:disabled { cursor: default; }
+  .q-explain { margin-top: 10px; font-size: .85rem; padding: 9px 13px; border-radius: 7px; display: none; }
+  .q-explain.show { display: block; }
+  .q-explain.ok  { background: #dcfce7; color: #15803d; }
+  .q-explain.bad { background: #fee2e2; color: #991b1b; }
+  .score-line { text-align: center; font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
+
+  /* ── Nav ── */
+  .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; }
+  .nav-btn { padding: 9px 22px; border-radius: 8px; border: none; font-weight: 700; font-size: .85rem; cursor: pointer; }
+  .nav-btn.prev { background: #1e293b; color: #94a3b8; }
+  .nav-btn.prev:hover:not(:disabled) { background: #334155; }
+  .nav-btn.nxt  { background: #3b82f6; color: white; }
+  .nav-btn.nxt:hover:not(:disabled)  { background: #2563eb; }
+  .nav-btn:disabled { opacity: .4; cursor: default; }
+  .nav-ind { font-size: .8rem; color: #64748b; font-weight: 600; }
+
+  @keyframes popIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .stmt { animation: popIn .35s ease both; }
+
+  /* Scroll target offset — keeps target below sticky header */
+  .stmt, .link-arrow { scroll-margin-top: 220px; }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>🔗 How the Financial Statements Link</h1>
+  <p>Kieso, Weygandt &amp; Warfield · Intermediate Accounting 18th Ed. · Chapter 3 · Pioneer Advertising</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab(0)">① The Big Picture</div>
+  <div class="tab"        onclick="showTab(1)">② Follow the Numbers</div>
+  <div class="tab"        onclick="showTab(2)">③ All Together</div>
+  <div class="tab"        onclick="showTab(3)">④ Self-Check</div>
+</div>
+
+<!-- ═══════════════════════════
+     TAB 0 — Big Picture
+═══════════════════════════ -->
+<div class="panel active" id="tab-0">
+  <div class="sec-title">Three Statements. Two Links.</div>
+  <div class="sec-sub">
+    The financial statements are not independent — they are connected by specific numbers that flow
+    from one statement into the next. Two numbers do all the linking:
+    <strong>Net Income</strong> and <strong>Retained Earnings</strong>.
+  </div>
+
+  <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:28px">
+    <div class="link-chip chip-ni">Net Income — the first link</div>
+    <div class="link-chip chip-re">Retained Earnings — the second link</div>
+  </div>
+
+  <div class="flow-chain">
+
+    <div class="fc-box fc-is" onclick="showTab(1);goStep(0)">
+      <div class="fc-hdr">📈 Income Statement</div>
+      <div class="fc-body">
+        Reports all <strong>revenues</strong> and <strong>expenses</strong> for the period.
+        The bottom line — <strong>Net Income</strong> — is the first number that travels to the next statement.
+        <div class="fc-produces">Produces → Net Income: <strong>$4,050</strong></div>
+      </div>
+    </div>
+
+    <div class="fc-arrow">
+      <div class="fc-arrow-line" style="background:#f59e0b"></div>
+      <div class="fc-arrow-head" style="border-top-color:#f59e0b"></div>
+      <div style="font-size:.75rem;font-weight:800;color:#92400e;background:#fef3c7;padding:3px 12px;border-radius:10px;margin-top:4px">Net Income $4,050 flows down</div>
+      <div class="fc-arrow-line" style="background:#f59e0b;margin-top:4px"></div>
+    </div>
+
+    <div class="fc-box fc-re" onclick="showTab(1);goStep(2)">
+      <div class="fc-hdr">📋 Statement of Retained Earnings</div>
+      <div class="fc-body">
+        Shows how <strong>Retained Earnings changed</strong> during the period.
+        Takes Net Income from the Income Statement, subtracts dividends, and produces the
+        Ending Retained Earnings balance.
+        <div class="fc-produces">Produces → Ending RE: <strong>$3,550</strong></div>
+      </div>
+    </div>
+
+    <div class="fc-arrow">
+      <div class="fc-arrow-line" style="background:#22c55e"></div>
+      <div class="fc-arrow-head" style="border-top-color:#22c55e"></div>
+      <div style="font-size:.75rem;font-weight:800;color:#15803d;background:#f0fdf4;padding:3px 12px;border-radius:10px;margin-top:4px">Ending RE $3,550 flows down</div>
+      <div class="fc-arrow-line" style="background:#22c55e;margin-top:4px"></div>
+    </div>
+
+    <div class="fc-box fc-bs" onclick="showTab(1);goStep(4)">
+      <div class="fc-hdr">⚖️ Balance Sheet</div>
+      <div class="fc-body">
+        Reports <strong>assets, liabilities, and equity</strong> at a point in time.
+        The Ending Retained Earnings from the RE Statement plugs directly into the
+        Stockholders' Equity section, completing the equation: Assets = Liabilities + Equity.
+      </div>
+    </div>
+
+  </div>
+
+  <div style="margin-top:24px;background:white;border-radius:10px;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,.07);font-size:.9rem;color:#475569;line-height:1.7;max-width:540px;margin-left:auto;margin-right:auto">
+    <strong style="color:#1e293b">Why does this matter?</strong><br>
+    The linkages mean you cannot prepare statements in any order. You must prepare the
+    <strong>Income Statement first</strong> (to get Net Income), then the
+    <strong>Retained Earnings Statement</strong> (to get Ending RE), then the
+    <strong>Balance Sheet</strong> last.
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     TAB 1 — Follow the Numbers
+═══════════════════════════ -->
+<div class="panel" id="tab-1">
+  <div class="sec-title">Follow the Numbers — Step by Step</div>
+  <div class="sec-sub">Step through each statement to see exactly where the linking numbers come from and where they go.</div>
+
+  <!-- Sticky control area: progress dots + message + nav buttons -->
+  <div class="step-sticky">
+    <!-- Step progress dots -->
+    <div class="step-progress">
+      <div class="sp-dot active" id="sp0">1</div>
+      <div class="sp-line" id="sl0"></div>
+      <div class="sp-dot" id="sp1">2</div>
+      <div class="sp-line" id="sl1"></div>
+      <div class="sp-dot" id="sp2">3</div>
+      <div class="sp-line" id="sl2"></div>
+      <div class="sp-dot" id="sp3">4</div>
+      <div class="sp-line" id="sl3"></div>
+      <div class="sp-dot" id="sp4">5</div>
+    </div>
+
+    <!-- Step message + nav buttons side by side -->
+    <div class="step-row">
+      <div class="step-message" id="stepMsg">
+        <strong>Step 1 — Income Statement:</strong>
+        We start here. The Income Statement reports all revenues and expenses for October.
+        Subtracting total expenses from total revenues gives us <strong>Net Income: $4,050</strong>.
+      </div>
+      <div class="step-side-ctrl">
+        <button class="sc-btn sc-next" id="scNext" onclick="goStep(currentStep+1)">Next →</button>
+        <button class="sc-btn sc-prev" id="scPrev" onclick="goStep(currentStep-1)" disabled>← Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- The three statements (always visible, highlighted based on step) -->
+  <div class="stmt-stack">
+
+    <!-- Income Statement -->
+    <div class="stmt stmt-is" id="stmtIS">
+      <div class="stmt-hdr">📈 Income Statement</div>
+      <div class="stmt-sub">For the Month Ended October 31, 2022</div>
+      <div class="stmt-body">
+        <div class="stmt-row"><span class="lbl"><strong>Revenues</strong></span><span class="amt"></span></div>
+        <div class="stmt-row"><span class="lbl indent">Service Revenue</span><span class="amt">$10,600</span></div>
+        <div class="stmt-row"><span class="lbl"><strong>Expenses</strong></span><span class="amt"></span></div>
+        <div class="stmt-row"><span class="lbl indent">Salaries &amp; Wages Expense</span><span class="amt">$4,000</span></div>
+        <div class="stmt-row"><span class="lbl indent">Rent Expense</span><span class="amt">$900</span></div>
+        <div class="stmt-row"><span class="lbl indent">Supplies Expense</span><span class="amt">$1,500</span></div>
+        <div class="stmt-row"><span class="lbl indent">Depreciation Expense</span><span class="amt">$40</span></div>
+        <div class="stmt-row"><span class="lbl indent">Insurance Expense</span><span class="amt">$50</span></div>
+        <div class="stmt-row"><span class="lbl indent">Interest Expense</span><span class="amt">$60</span></div>
+        <div class="stmt-row total-row"><span class="lbl">Total Expenses</span><span class="amt">$6,550</span></div>
+        <div class="stmt-row double-rule" id="rowNI"><span class="lbl"><strong>Net Income</strong></span><span class="amt">$4,050</span></div>
+      </div>
+    </div>
+
+    <!-- Arrow 1: NI travels -->
+    <div class="link-arrow la-ni" id="arrow1">
+      <div class="la-line"></div>
+      <div class="la-head"></div>
+      <div class="la-label">Net Income $4,050 → enters Retained Earnings Statement</div>
+    </div>
+
+    <!-- Retained Earnings Statement -->
+    <div class="stmt stmt-re" id="stmtRE">
+      <div class="stmt-hdr">📋 Statement of Retained Earnings</div>
+      <div class="stmt-sub">For the Month Ended October 31, 2022</div>
+      <div class="stmt-body">
+        <div class="stmt-row"><span class="lbl">Retained Earnings, October 1</span><span class="amt">$0</span></div>
+        <div class="stmt-row" id="rowNI_RE"><span class="lbl">Add: Net Income</span><span class="amt">$4,050</span></div>
+        <div class="stmt-row"><span class="lbl">Less: Dividends</span><span class="amt">$(500)</span></div>
+        <div class="stmt-row double-rule" id="rowEndRE"><span class="lbl"><strong>Retained Earnings, October 31</strong></span><span class="amt">$3,550</span></div>
+      </div>
+    </div>
+
+    <!-- Arrow 2: RE travels -->
+    <div class="link-arrow la-re" id="arrow2">
+      <div class="la-line"></div>
+      <div class="la-head"></div>
+      <div class="la-label">Ending RE $3,550 → enters Balance Sheet equity section</div>
+    </div>
+
+    <!-- Balance Sheet -->
+    <div class="stmt stmt-bs" id="stmtBS">
+      <div class="stmt-hdr">⚖️ Balance Sheet</div>
+      <div class="stmt-sub">October 31, 2022</div>
+      <div class="stmt-body">
+        <div class="stmt-row"><span class="lbl"><strong>Assets</strong></span><span class="amt"></span></div>
+        <div class="stmt-row"><span class="lbl indent">Cash</span><span class="amt">$15,200</span></div>
+        <div class="stmt-row"><span class="lbl indent">Supplies</span><span class="amt">$1,000</span></div>
+        <div class="stmt-row"><span class="lbl indent">Prepaid Insurance</span><span class="amt">$550</span></div>
+        <div class="stmt-row"><span class="lbl indent">Equipment (net)</span><span class="amt">$4,960</span></div>
+        <div class="stmt-row total-row"><span class="lbl"><strong>Total Assets</strong></span><span class="amt"><strong>$21,710</strong></span></div>
+        <div class="stmt-row" style="padding-top:10px"><span class="lbl"><strong>Liabilities &amp; Stockholders' Equity</strong></span></div>
+        <div class="stmt-row"><span class="lbl indent">Notes Payable</span><span class="amt">$5,000</span></div>
+        <div class="stmt-row"><span class="lbl indent">Accounts Payable</span><span class="amt">$2,500</span></div>
+        <div class="stmt-row"><span class="lbl indent">Interest Payable</span><span class="amt">$60</span></div>
+        <div class="stmt-row"><span class="lbl indent">Salaries Payable</span><span class="amt">$200</span></div>
+        <div class="stmt-row"><span class="lbl indent">Unearned Revenue</span><span class="amt">$400</span></div>
+        <div class="stmt-row total-row"><span class="lbl">Total Liabilities</span><span class="amt">$8,160</span></div>
+        <div class="stmt-row"><span class="lbl indent">Common Stock</span><span class="amt">$10,000</span></div>
+        <div class="stmt-row" id="rowRE_BS"><span class="lbl indent"><strong>Retained Earnings</strong></span><span class="amt"><strong>$3,550</strong></span></div>
+        <div class="stmt-row total-row"><span class="lbl">Total Stockholders' Equity</span><span class="amt">$13,550</span></div>
+        <div class="stmt-row double-rule" id="rowBSTotal"><span class="lbl"><strong>Total Liabilities &amp; Equity</strong></span><span class="amt"><strong>$21,710</strong></span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════
+     TAB 2 — All Together
+═══════════════════════════ -->
+<div class="panel" id="tab-2">
+  <div class="sec-title">All Three Statements at Once</div>
+  <div class="sec-sub">The same two numbers appear in two statements each — highlighted in matching colors so you can see the connections at a glance.</div>
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#f59e0b"></div> Net Income — links IS → RE Statement</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#22c55e"></div> Retained Earnings — links RE Statement → Balance Sheet</div>
+  </div>
+
+  <div class="together-grid">
+
+    <!-- IS -->
+    <div class="stmt stmt-is">
+      <div class="stmt-hdr" style="font-size:.82rem">📈 Income Statement</div>
+      <div class="stmt-sub">Oct. 2022</div>
+      <div class="stmt-body">
+        <div class="stmt-row"><span class="lbl indent">Service Revenue</span><span class="amt" style="color:#1d4ed8">$10,600</span></div>
+        <div class="stmt-row"><span class="lbl indent">Salaries Exp.</span><span class="amt">$4,000</span></div>
+        <div class="stmt-row"><span class="lbl indent">Rent Exp.</span><span class="amt">$900</span></div>
+        <div class="stmt-row"><span class="lbl indent">Supplies Exp.</span><span class="amt">$1,500</span></div>
+        <div class="stmt-row"><span class="lbl indent">Other Exp.</span><span class="amt">$150</span></div>
+        <div class="stmt-row total-row"><span class="lbl">Total Exp.</span><span class="amt">$6,550</span></div>
+        <div class="stmt-row double-rule" style="background:#fef3c7">
+          <span class="lbl" style="color:#92400e;font-weight:800">Net Income</span>
+          <span class="amt" style="color:#92400e">$4,050</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RE Stmt -->
+    <div class="stmt stmt-re">
+      <div class="stmt-hdr" style="font-size:.82rem">📋 Retained Earnings Stmt</div>
+      <div class="stmt-sub">Oct. 2022</div>
+      <div class="stmt-body">
+        <div class="stmt-row"><span class="lbl">Beg. RE (Oct 1)</span><span class="amt">$0</span></div>
+        <div class="stmt-row" style="background:#fef3c7">
+          <span class="lbl" style="color:#92400e;font-weight:800">+ Net Income</span>
+          <span class="amt" style="color:#92400e">$4,050</span>
+        </div>
+        <div class="stmt-row"><span class="lbl">− Dividends</span><span class="amt">$(500)</span></div>
+        <div class="stmt-row double-rule" style="background:#f0fdf4">
+          <span class="lbl" style="color:#15803d;font-weight:800">End. RE (Oct 31)</span>
+          <span class="amt" style="color:#15803d">$3,550</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- BS -->
+    <div class="stmt stmt-bs">
+      <div class="stmt-hdr" style="font-size:.82rem">⚖️ Balance Sheet</div>
+      <div class="stmt-sub">Oct. 31, 2022</div>
+      <div class="stmt-body">
+        <div class="stmt-row"><span class="lbl" style="font-weight:700">Total Assets</span><span class="amt">$21,710</span></div>
+        <div class="stmt-row" style="padding-top:8px"><span class="lbl" style="font-weight:700">Liabilities</span><span class="amt"></span></div>
+        <div class="stmt-row"><span class="lbl indent">Total Liabilities</span><span class="amt">$8,160</span></div>
+        <div class="stmt-row" style="padding-top:4px"><span class="lbl" style="font-weight:700">Equity</span><span class="amt"></span></div>
+        <div class="stmt-row"><span class="lbl indent">Common Stock</span><span class="amt">$10,000</span></div>
+        <div class="stmt-row" style="background:#f0fdf4">
+          <span class="lbl indent" style="color:#15803d;font-weight:800">Retained Earnings</span>
+          <span class="amt" style="color:#15803d">$3,550</span>
+        </div>
+        <div class="stmt-row"><span class="lbl indent">Total Equity</span><span class="amt">$13,550</span></div>
+        <div class="stmt-row double-rule"><span class="lbl" style="font-weight:800">Total L + E</span><span class="amt"><strong>$21,710</strong></span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- linking callout -->
+  <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div style="background:#fef3c7;border-radius:10px;padding:14px 18px;border:1.5px solid #f59e0b">
+      <div style="font-weight:800;color:#92400e;margin-bottom:6px">Link 1 — Net Income</div>
+      <div style="font-size:.87rem;color:#78350f;line-height:1.6">
+        Net Income ($4,050) is calculated on the Income Statement and immediately
+        carried over to the Retained Earnings Statement as an addition to equity.
+        It is the <em>same number</em> on both statements.
+      </div>
+    </div>
+    <div style="background:#f0fdf4;border-radius:10px;padding:14px 18px;border:1.5px solid #22c55e">
+      <div style="font-weight:800;color:#15803d;margin-bottom:6px">Link 2 — Retained Earnings</div>
+      <div style="font-size:.87rem;color:#166534;line-height:1.6">
+        Ending Retained Earnings ($3,550) calculated on the RE Statement is carried
+        directly into the Stockholders' Equity section of the Balance Sheet.
+        It is the <em>same number</em> on both statements.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     TAB 3 — Quiz
+═══════════════════════════ -->
+<div class="panel" id="tab-3">
+  <div class="sec-title">Practice — Statement Linkages</div>
+  <div class="sec-sub">Test your understanding of how the financial statements connect.</div>
+  <div class="score-line">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <br>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</div>
+
+<!-- Nav -->
+<div class="nav-bar">
+  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>← Previous</button>
+  <span class="nav-ind" id="navInd">Tab 1 of 4</span>
+  <button class="nav-btn nxt"  id="btnNext" onclick="navigate(1)">Next →</button>
+</div>
+
+<script>
+// ── Tabs ──
+const TABS = ['The Big Picture', 'Follow the Numbers', 'All Together', 'Self-Check'];
+let cur = 0;
+function showTab(i) {
+  document.querySelectorAll('.panel').forEach((p,j) => p.classList.toggle('active', j===i));
+  document.querySelectorAll('.tab').forEach((t,j)   => t.classList.toggle('active', j===i));
+  cur = i;
+  document.getElementById('btnPrev').disabled = i===0;
+  document.getElementById('btnNext').disabled = i===TABS.length-1;
+  document.getElementById('navInd').textContent = `Tab ${i+1} of ${TABS.length} — ${TABS[i]}`;
+  if (i===3 && !quizBuilt) buildQuiz();
+}
+function navigate(d) { showTab(cur+d); }
+
+// ── Step-by-step logic ──
+let currentStep = 0;
+const TOTAL_STEPS = 5;
+
+const STEP_CONFIG = [
+  // step 0: IS spotlight, everything else dimmed
+  {
+    msg: '<strong>Step 1 — Income Statement:</strong> We start here. The Income Statement reports all revenues and expenses for October. Subtracting total expenses from total revenues gives us <strong style="color:#92400e">Net Income: $4,050</strong>.',
+    is: 'spotlight', re: 'dimmed', bs: 'dimmed',
+    hiRowNI: true, hiRowNI_RE: false, hiArrow1: false,
+    hiRowEndRE: false, hiArrow2: false, hiRowRE_BS: false
+  },
+  // step 1: NI travels — both IS and RE NI rows highlighted, arrow shown
+  {
+    msg: '<strong>Step 2 — Net Income travels:</strong> The bottom line of the Income Statement — <strong style="color:#92400e">Net Income $4,050</strong> — is carried directly into the Retained Earnings Statement. It is the exact same number.',
+    is: '', re: '', bs: 'dimmed',
+    hiRowNI: true, hiRowNI_RE: true, hiArrow1: true,
+    hiRowEndRE: false, hiArrow2: false, hiRowRE_BS: false
+  },
+  // step 2: RE Statement spotlight
+  {
+    msg: '<strong>Step 3 — Statement of Retained Earnings:</strong> Beginning RE was $0 (first month of operations). We add Net Income, subtract Dividends ($500), and compute <strong style="color:#15803d">Ending Retained Earnings: $3,550</strong>.',
+    is: 'dimmed', re: 'spotlight', bs: 'dimmed',
+    hiRowNI: false, hiRowNI_RE: true, hiArrow1: false,
+    hiRowEndRE: true, hiArrow2: false, hiRowRE_BS: false
+  },
+  // step 3: Ending RE travels to BS
+  {
+    msg: '<strong>Step 4 — Ending RE travels:</strong> The Ending Retained Earnings balance — <strong style="color:#15803d">$3,550</strong> — is carried directly into the Stockholders\' Equity section of the Balance Sheet. Same number, different statement.',
+    is: 'dimmed', re: '', bs: '',
+    hiRowNI: false, hiRowNI_RE: false, hiArrow1: false,
+    hiRowEndRE: true, hiArrow2: true, hiRowRE_BS: true
+  },
+  // step 4: BS spotlight, everything complete
+  {
+    msg: '<strong>Step 5 — Balance Sheet:</strong> With Retained Earnings in place, the Balance Sheet is complete. Total Assets ($21,710) = Total Liabilities ($8,160) + Total Equity ($13,550). The accounting equation holds.',
+    is: 'dimmed', re: 'dimmed', bs: 'spotlight',
+    hiRowNI: false, hiRowNI_RE: false, hiArrow1: false,
+    hiRowEndRE: false, hiArrow2: false, hiRowRE_BS: true
+  },
+];
+
+function goStep(s) {
+  if (s < 0 || s >= TOTAL_STEPS) return;
+  currentStep = s;
+
+  const cfg = STEP_CONFIG[s];
+
+  // Update message
+  document.getElementById('stepMsg').innerHTML = cfg.msg;
+
+  // Statement classes
+  const stmts = { IS: 'stmtIS', RE: 'stmtRE', BS: 'stmtBS' };
+  ['IS','RE','BS'].forEach(k => {
+    const el = document.getElementById(stmts[k]);
+    el.classList.remove('spotlight','dimmed');
+    const cls = cfg[k.toLowerCase()];
+    if (cls) el.classList.add(cls);
+  });
+
+  // Row highlights
+  setHi('rowNI',      cfg.hiRowNI,      'hi-ni-src');
+  setHi('rowNI_RE',   cfg.hiRowNI_RE,   'hi-ni');
+  setHi('rowEndRE',   cfg.hiRowEndRE,   'hi-re-src');
+  setHi('rowRE_BS',   cfg.hiRowRE_BS,   'hi-re');
+
+  // Arrows
+  document.getElementById('arrow1').classList.toggle('show', !!cfg.hiArrow1);
+  document.getElementById('arrow2').classList.toggle('show', !!cfg.hiArrow2);
+
+  // Step progress dots
+  for (let i = 0; i < TOTAL_STEPS; i++) {
+    const dot  = document.getElementById('sp'+i);
+    const line = document.getElementById('sl'+i);
+    if (i < s)       { dot.className = 'sp-dot done'; dot.textContent = '✓'; }
+    else if (i === s){ dot.className = 'sp-dot active'; dot.textContent = i+1; }
+    else             { dot.className = 'sp-dot'; dot.textContent = i+1; }
+    if (line) line.className = 'sp-line' + (i < s ? ' done' : '');
+  }
+
+  // Buttons
+  document.getElementById('scPrev').disabled = s === 0;
+  document.getElementById('scNext').disabled = s === TOTAL_STEPS - 1;
+  const nextLabels = [
+    'Link Net Income → RE Statement',     // step 0 → 1
+    'Show Retained Earnings Statement →', // step 1 → 2
+    'Link Ending RE → Balance Sheet',     // step 2 → 3
+    'Show Balance Sheet →',               // step 3 → 4
+    '✓ Done — All Statements Linked'      // step 4 (disabled)
+  ];
+  document.getElementById('scNext').innerHTML = nextLabels[s];
+
+  // Scroll to the relevant element so the user sees the link being built
+  const scrollTargets = ['stmtIS', 'arrow1', 'stmtRE', 'arrow2', 'stmtBS'];
+  const target = document.getElementById(scrollTargets[s]);
+  if (target) {
+    setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+  }
+}
+
+function setHi(id, on, cls) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle(cls, !!on);
+}
+
+// ── Quiz ──
+let quizBuilt = false, score = 0;
+
+const QUESTIONS = [
+  {
+    q: 'In what order must the three financial statements be prepared?',
+    correct: 'Income Statement → Retained Earnings Statement → Balance Sheet',
+    opts: ['Income Statement → Retained Earnings Statement → Balance Sheet',
+           'Balance Sheet → Income Statement → Retained Earnings Statement',
+           'Any order — the statements are independent',
+           'Retained Earnings Statement → Income Statement → Balance Sheet'],
+    exp: 'Each statement depends on the one before it. Net Income from the IS flows into the RE Statement; Ending RE from the RE Statement flows into the Balance Sheet.'
+  },
+  {
+    q: 'Which number links the Income Statement to the Statement of Retained Earnings?',
+    correct: 'Net Income',
+    opts: ['Net Income', 'Total Revenue', 'Retained Earnings', 'Dividends'],
+    exp: 'Net Income is calculated at the bottom of the Income Statement and carried directly to the Retained Earnings Statement as the period\'s addition to equity.'
+  },
+  {
+    q: 'Which number links the Statement of Retained Earnings to the Balance Sheet?',
+    correct: 'Ending Retained Earnings',
+    opts: ['Net Income', 'Beginning Retained Earnings', 'Ending Retained Earnings', 'Dividends'],
+    exp: 'The Ending Retained Earnings balance computed in the RE Statement plugs directly into the Stockholders\' Equity section of the Balance Sheet.'
+  },
+  {
+    q: 'Pioneer\'s Net Income is $4,050 and Dividends are $500. Beginning RE was $0. What is Ending Retained Earnings?',
+    correct: '$3,550',
+    opts: ['$4,550', '$3,550', '$4,050', '$500'],
+    exp: 'Ending RE = Beginning RE + Net Income − Dividends = $0 + $4,050 − $500 = $3,550.'
+  },
+  {
+    q: 'Where does Retained Earnings appear on the Balance Sheet?',
+    correct: 'Stockholders\' Equity section',
+    opts: ['Stockholders\' Equity section', 'Current Assets section',
+           'Long-term Liabilities section', 'It does not appear on the Balance Sheet'],
+    exp: 'Retained Earnings is a component of Stockholders\' Equity — the accumulated profits that have been kept in the business rather than distributed as dividends.'
+  },
+  {
+    q: 'If a company reports a Net Loss (expenses exceed revenues), how does this affect Retained Earnings?',
+    correct: 'Retained Earnings decreases',
+    opts: ['Retained Earnings increases', 'Retained Earnings decreases',
+           'Retained Earnings is unaffected', 'Retained Earnings goes to zero'],
+    exp: 'A Net Loss reduces Retained Earnings. The RE Statement formula is: End RE = Beg RE + Net Income − Dividends. A loss (negative Net Income) reduces the result.'
+  },
+  {
+    q: 'A company\'s Balance Sheet shows Total Assets of $50,000 and Total Liabilities of $20,000. If Common Stock is $25,000, what is Retained Earnings?',
+    correct: '$5,000',
+    opts: ['$5,000', '$30,000', '$25,000', '$45,000'],
+    exp: 'Assets = Liabilities + Equity → $50,000 = $20,000 + Equity → Equity = $30,000. Equity = Common Stock + RE → $30,000 = $25,000 + RE → RE = $5,000.'
+  },
+  {
+    q: 'Why is the Income Statement prepared before the Balance Sheet?',
+    correct: 'Net Income must be known before Retained Earnings can be calculated',
+    opts: ['Net Income must be known before Retained Earnings can be calculated',
+           'The Balance Sheet is too complex to prepare first',
+           'Assets must be verified before income can be calculated',
+           'Revenues are listed on the Balance Sheet'],
+    exp: 'The Balance Sheet includes Retained Earnings in equity. Retained Earnings depends on Net Income. Net Income comes from the Income Statement — so the IS must be prepared first.'
+  },
+];
+
+function buildQuiz() {
+  quizBuilt = true;
+  const wrap = document.getElementById('quizWrap');
+  document.getElementById('total').textContent = QUESTIONS.length;
+  QUESTIONS.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML =
+      `<div class="q-num">Question ${qi+1} of ${QUESTIONS.length}</div>` +
+      `<div class="q-text">${q.q}</div>` +
+      `<div class="q-opts">${q.opts.map(o =>
+        `<button class="q-opt" onclick="answer(${qi},this)">${o}</button>`
+      ).join('')}</div>` +
+      `<div class="q-explain" id="qe-${qi}"></div>`;
+    wrap.appendChild(card);
+  });
+}
+
+function answer(qi, btn) {
+  const card = btn.closest('.q-card');
+  if (card.dataset.done) return;
+  card.dataset.done = '1';
+  const q = QUESTIONS[qi];
+  const chosen = btn.textContent.trim();
+  card.querySelectorAll('.q-opt').forEach(b => {
+    b.disabled = true;
+    if (b.textContent.trim() === q.correct) b.classList.add('correct');
+    else b.classList.add('wrong');
+  });
+  const exp = document.getElementById('qe-'+qi);
+  exp.classList.add('show');
+  if (chosen === q.correct) {
+    score++;
+    exp.classList.add('ok');
+    exp.textContent = '✅ Correct! ' + q.exp;
+  } else {
+    exp.classList.add('bad');
+    exp.textContent = '❌ The answer is: ' + q.correct + '. ' + q.exp;
+  }
+  document.getElementById('score').textContent = score;
+}
+
+// Init
+goStep(0);
+</script>
+</body>
+</html>

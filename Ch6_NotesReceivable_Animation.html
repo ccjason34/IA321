@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notes Receivable: Present Value and Journal Entries | Kieso Ch. 6</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.2rem; font-weight: 800; letter-spacing: 0; }
+  .header p { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab { padding: 11px 18px; font-size: .88rem; font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; }
+  .tab:hover { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+  .scenario-wrap { max-width: 1040px; margin: 10px auto 0; padding: 0 16px; }
+  .scenario-card { background: white; border-radius: 12px; box-shadow: 0 3px 14px rgba(0,0,0,.08); border: 1px solid #e2e8f0; overflow: hidden; }
+  .scenario-head { background: linear-gradient(135deg, #0f766e, #0891b2); color: white; padding: 9px 14px; display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .scenario-title { font-size: .9rem; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
+  .scenario-badge { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.28); border-radius: 999px; padding: 5px 10px; font-size: .76rem; font-weight: 900; }
+  .inputs-row { display: flex; gap: 10px; flex-wrap: wrap; padding: 10px 12px; }
+  .inp-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 135px; }
+  .inp-group label { font-size: .7rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: .5px; }
+  .inp-group input, .inp-group select { padding: 6px 9px; border: 1.5px solid #e2e8f0; border-radius: 6px; font-size: .9rem; font-weight: 800; color: #1e293b; font-family: monospace; background: white; }
+  .inp-group input:focus, .inp-group select:focus { outline: none; border-color: #3b82f6; }
+  .preset-row { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 12px 10px; }
+  .preset-btn { border: 2px solid #e2e8f0; background: #f8fafc; color: #334155; border-radius: 8px; padding: 6px 10px; font-size: .78rem; font-weight: 900; cursor: pointer; transition: all .15s; }
+  .preset-btn:hover { border-color: #3b82f6; background: #eff6ff; }
+
+  .panel { display: none; max-width: 1040px; margin: 0 auto; padding: 20px 16px 90px; }
+  .panel.active { display: block; }
+  .sec-title { font-size: 1.35rem; font-weight: 800; margin-bottom: 8px; }
+  .sec-sub { font-size: .97rem; color: #475569; margin-bottom: 18px; line-height: 1.7; max-width: 930px; }
+  .quote { background: white; border-left: 4px solid #3b82f6; border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: .94rem; color: #334155; line-height: 1.65; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+  .quote strong { color: #1d4ed8; }
+  .formula-strip { background: #1e293b; color: #fef3c7; border-radius: 10px; padding: 14px 18px; font-family: monospace; font-size: .94rem; font-weight: 900; text-align: center; line-height: 1.55; overflow-x: auto; margin-bottom: 18px; box-shadow: 0 3px 12px rgba(15,23,42,.18); }
+
+  .concept-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
+  @media(max-width:820px) { .concept-grid { grid-template-columns: 1fr; } }
+  .concept-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .concept-hdr { padding: 13px 16px; color: white; font-weight: 900; font-size: .94rem; }
+  .concept-body { padding: 14px 16px; font-size: .88rem; color: #475569; line-height: 1.65; }
+  .concept-body strong { color: #1e293b; }
+  .concept-body .mini-formula { margin-top: 8px; background: #f8fafc; border-radius: 7px; padding: 8px 9px; font-family: monospace; color: #1e293b; font-weight: 900; text-align: center; }
+  .c-blue .concept-hdr { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+  .c-teal .concept-hdr { background: linear-gradient(135deg, #0f766e, #14b8a6); }
+  .c-gold .concept-hdr { background: linear-gradient(135deg, #b45309, #f59e0b); }
+
+  .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  @media(max-width:880px) { .metric-grid { grid-template-columns: 1fr 1fr; } }
+  @media(max-width:560px) { .metric-grid { grid-template-columns: 1fr; } }
+  .metric { background: white; border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,.07); border-top: 4px solid #cbd5e1; min-height: 104px; }
+  .metric.blue { border-top-color: #3b82f6; }
+  .metric.teal { border-top-color: #14b8a6; }
+  .metric.gold { border-top-color: #f59e0b; }
+  .metric.red { border-top-color: #ef4444; }
+  .metric .label { font-size: .72rem; color: #64748b; text-transform: uppercase; letter-spacing: .55px; font-weight: 900; margin-bottom: 5px; }
+  .metric .value { font-family: monospace; font-size: 1.08rem; font-weight: 900; color: #1e293b; overflow-wrap: anywhere; }
+  .metric .hint { margin-top: 5px; font-size: .78rem; color: #64748b; line-height: 1.4; }
+
+  .step-ctrl { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; margin: 0 0 14px; }
+  .sc-btn { padding: 10px 20px; border-radius: 9px; border: none; font-weight: 800; font-size: .85rem; cursor: pointer; transition: all .15s; }
+  .sc-step { background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; font-weight: 900; padding: 13px 24px; font-size: .92rem; min-width: 230px; box-shadow: 0 4px 14px rgba(245,158,11,.38); animation: stepPulse 1.6s ease-in-out infinite; }
+  .sc-step:hover:not(:disabled) { background: linear-gradient(135deg, #d97706, #dc2626); transform: translateY(-1px); }
+  .sc-step:disabled { animation: none; box-shadow: none; background: #94a3b8; }
+  .sc-reset { background: #475569; color: white; padding: 9px 18px; font-size: .82rem; }
+  .sc-reset:hover { background: #334155; }
+  .sc-small { background: #e2e8f0; color: #475569; padding: 8px 12px; font-size: .78rem; }
+  .sc-small:hover { background: #cbd5e1; }
+  @keyframes stepPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(245,158,11,.38); }
+    50% { box-shadow: 0 4px 20px rgba(239,68,68,.66), 0 0 0 4px rgba(245,158,11,.16); }
+  }
+
+  .status-card { background: white; border-radius: 10px; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); margin-bottom: 14px; font-size: .92rem; color: #334155; line-height: 1.6; border-left: 4px solid #3b82f6; min-height: 64px; }
+  .status-card strong { color: #1e293b; }
+  .status-card .calc { display: inline-block; background: #fef3c7; color: #92400e; padding: 2px 10px; border-radius: 6px; font-family: monospace; font-weight: 900; margin-top: 4px; }
+
+  .pv-work { display: grid; grid-template-columns: 1.02fr .98fr; gap: 16px; align-items: start; }
+  @media(max-width:920px) { .pv-work { grid-template-columns: 1fr; } }
+  .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  @media(max-width:640px) { .calc-grid { grid-template-columns: 1fr; } }
+  .pv-build { grid-template-columns: 1fr; }
+  .pv-build .calc-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 10px; }
+  .pv-build .calc-card { min-height: 102px; padding: 10px 11px; }
+  .pv-build .calc-title { font-size: .66rem; margin-bottom: 5px; }
+  .pv-build .calc-line { font-size: .74rem; line-height: 1.28; margin-bottom: 5px; }
+  .pv-build .calc-value { font-size: .98rem; }
+  .pv-build .calc-formula { font-size: .68rem; line-height: 1.28; padding: 5px 6px; margin-top: 5px; }
+  .pv-build > div:nth-child(2) { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(260px, .65fr); gap: 12px; align-items: start; }
+  .pv-build > div:nth-child(2) .calc-card { opacity: 1; min-height: 0; margin-bottom: 0; }
+  @media(max-width:920px) { .pv-build .calc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .pv-build > div:nth-child(2) { grid-template-columns: 1fr; } }
+  @media(max-width:620px) { .pv-build .calc-grid { grid-template-columns: 1fr; } }
+  .calc-card { background: white; border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,.07); border: 2px solid #e2e8f0; opacity: .62; transition: all .2s; min-height: 148px; }
+  .calc-card.active { opacity: 1; border-color: #3b82f6; transform: translateY(-1px); }
+  .calc-card.done { opacity: 1; border-color: #16a34a; }
+  .calc-title { font-size: .74rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .55px; margin-bottom: 8px; }
+  .calc-line { font-size: .86rem; color: #475569; line-height: 1.55; margin-bottom: 8px; }
+  .calc-value { font-family: monospace; font-size: 1.08rem; font-weight: 900; color: #1e293b; overflow-wrap: anywhere; }
+  .calc-formula { margin-top: 8px; background: #f8fafc; border-radius: 7px; padding: 8px 9px; color: #334155; font-family: monospace; font-size: .74rem; line-height: 1.45; overflow-wrap: anywhere; }
+
+  .timeline-card { background: white; border-radius: 12px; box-shadow: 0 3px 14px rgba(0,0,0,.09); padding: 16px; margin-bottom: 16px; overflow-x: auto; }
+  .timeline-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; min-width: 720px; }
+  .timeline-title { font-size: .82rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .6px; }
+  .timeline-mode { font-size: .82rem; color: #475569; font-weight: 800; text-align: right; }
+  .cash-timeline { display: grid; grid-template-columns: 100px repeat(var(--years), minmax(116px, 1fr)); gap: 8px; min-width: 720px; }
+  .time-cell { border: 2px solid #e2e8f0; border-radius: 10px; min-height: 116px; padding: 9px 7px; background: #f8fafc; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; transition: all .2s; }
+  .time-cell.today { background: #ecfeff; border-color: #67e8f9; }
+  .time-cell.coupon-on { background: #eff6ff; border-color: #93c5fd; }
+  .time-cell.face-on { background: #f0fdf4; border-color: #86efac; }
+  .time-cell.total-on { background: #fffbeb; border-color: #fbbf24; transform: translateY(-2px); box-shadow: 0 0 0 3px rgba(245,158,11,.16); }
+  .time-top { font-size: .66rem; color: #64748b; font-weight: 900; text-transform: uppercase; letter-spacing: .35px; }
+  .cash-pill { border-radius: 999px; padding: 4px 8px; font-size: .67rem; font-weight: 900; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .cash-pill.coupon { background: #dbeafe; color: #1d4ed8; }
+  .cash-pill.face { background: #dcfce7; color: #15803d; }
+  .cash-pill.pv { background: #fef3c7; color: #92400e; font-family: monospace; }
+  .cash-pill.muted { background: #e2e8f0; color: #64748b; }
+  .time-note { font-size: .64rem; color: #64748b; font-weight: 800; line-height: 1.25; min-height: 15px; }
+
+  #tab-1 { padding-top: 12px; }
+  #tab-1 .sec-title { font-size: 1.18rem; margin-bottom: 4px; }
+  #tab-1 .sec-sub { font-size: .88rem; line-height: 1.45; margin-bottom: 10px; }
+  #tab-1 .step-ctrl { margin-bottom: 10px; }
+  #tab-1 .sc-step { min-width: 190px; padding: 10px 18px; font-size: .84rem; }
+  #tab-1 .sc-reset { padding: 8px 14px; font-size: .78rem; }
+  #tab-1 .status-card { padding: 10px 12px; margin-bottom: 10px; min-height: 46px; font-size: .84rem; line-height: 1.4; }
+  #tab-1 .result-ribbon { padding: 10px 12px; margin-bottom: 10px; font-size: .84rem; line-height: 1.4; }
+  #tab-1 .timeline-card { padding: 10px; margin-bottom: 0; }
+  #tab-1 .timeline-head { min-width: 620px; margin-bottom: 7px; }
+  #tab-1 .cash-timeline { min-width: 620px; grid-template-columns: 80px repeat(var(--years), minmax(92px, 1fr)); gap: 6px; }
+  #tab-1 .time-cell { min-height: 82px; padding: 6px 5px; border-radius: 8px; }
+  #tab-1 .time-top { font-size: .58rem; }
+  #tab-1 .cash-pill { padding: 3px 6px; font-size: .58rem; }
+  #tab-1 .time-note { font-size: .55rem; min-height: 12px; }
+  #tab-1 .pv-bar-h { padding: 6px 8px; font-size: .64rem; }
+  #tab-1 .pv-fill { height: 24px; font-size: .68rem; }
+
+  .result-ribbon { display: none; border-radius: 10px; padding: 16px 18px; margin-bottom: 16px; font-size: .92rem; line-height: 1.55; font-weight: 800; }
+  .result-ribbon.show { display: block; animation: rowIn .35s ease both; }
+  .result-ribbon.discount { background: #fee2e2; border: 2px solid #ef4444; color: #991b1b; }
+  .result-ribbon.par { background: #dbeafe; border: 2px solid #3b82f6; color: #1d4ed8; }
+  .result-ribbon.premium { background: #dcfce7; border: 2px solid #16a34a; color: #15803d; }
+  .result-ribbon .big { font-family: monospace; font-size: 1.08rem; color: #1e293b; }
+  @keyframes rowIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+
+  .pv-bars { display: grid; gap: 8px; }
+  .pv-bar { border: 2px solid #e2e8f0; border-radius: 9px; overflow: hidden; background: #f8fafc; }
+  .pv-bar-h { padding: 8px 10px; font-size: .72rem; text-transform: uppercase; letter-spacing: .5px; color: #64748b; font-weight: 900; }
+  .pv-fill { height: 28px; background: #3b82f6; min-width: 2px; color: white; font-family: monospace; font-size: .76rem; font-weight: 900; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; transition: width .25s; }
+  .pv-fill.face { background: #14b8a6; }
+  .pv-fill.total { background: #f59e0b; }
+
+  .je-layout { display: grid; grid-template-columns: .95fr 1.05fr; gap: 16px; align-items: start; }
+  @media(max-width:920px) { .je-layout { grid-template-columns: 1fr; } }
+  .journal-card { background: white; color: #334155; border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; box-shadow: 0 3px 12px rgba(0,0,0,.08); border: 1px solid #e2e8f0; }
+  .journal-title { color: #0f766e; font-weight: 900; font-size: .82rem; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 10px; }
+  .journal-row { display: grid; grid-template-columns: 1fr 112px 112px; gap: 8px; font-family: monospace; font-size: .86rem; padding: 5px 0; border-bottom: 1px solid #f1f5f9; }
+  .journal-row.head { color: #64748b; font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; font-weight: 900; }
+  .journal-row:last-child { border-bottom: none; }
+  .journal-row .dr, .journal-row .cr { text-align: right; color: #1e293b; font-weight: 900; white-space: nowrap; }
+  .journal-row .indent { padding-left: 26px; color: #475569; }
+  @media(max-width:560px) { .journal-row { grid-template-columns: 1fr 82px 82px; font-size: .74rem; } }
+
+  .je-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .je-btn { border: 2px solid #e2e8f0; background: #f8fafc; color: #334155; border-radius: 8px; padding: 8px 11px; font-size: .78rem; font-weight: 900; cursor: pointer; transition: all .15s; }
+  .je-btn:hover { border-color: #3b82f6; background: #eff6ff; }
+  .je-btn.active { background: #dbeafe; border-color: #3b82f6; color: #1d4ed8; }
+
+  .ledger-card { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 3px 14px rgba(0,0,0,.08); }
+  .ledger-title { text-align: center; font-size: .78rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 12px; }
+  .tgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media(max-width:620px) { .tgrid { grid-template-columns: 1fr; } }
+  .tacct { border: 2px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #f8fafc; }
+  .tacct-h { background: #334155; color: white; padding: 8px 10px; text-align: center; font-size: .78rem; font-weight: 900; }
+  .tacct-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 108px; }
+  .tcol { padding: 8px; font-size: .74rem; border-right: 1px solid #e2e8f0; min-width: 0; }
+  .tcol:last-child { border-right: none; }
+  .side-label { font-weight: 900; color: #94a3b8; text-transform: uppercase; font-size: .62rem; margin-bottom: 5px; }
+  .entry-line { display: grid; grid-template-columns: minmax(0, 1fr) minmax(66px, auto); align-items: baseline; column-gap: 7px; padding: 2px 0; color: #475569; }
+  .entry-line span:first-child { min-width: 0; overflow-wrap: anywhere; }
+  .entry-line span:last-child { text-align: right; white-space: nowrap; font-family: monospace; }
+  .entry-line.hot { color: #b45309; font-weight: 900; }
+  .balance-line { border-top: 1px solid #cbd5e1; margin-top: 5px; padding: 6px 8px; font-family: monospace; font-weight: 900; color: #1e293b; overflow-wrap: anywhere; background: white; }
+
+  .schedule-wrap { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 3px 14px rgba(0,0,0,.09); margin-bottom: 16px; }
+  .schedule-hdr { padding: 14px 18px; background: linear-gradient(135deg, #0f766e, #0891b2); color: white; text-align: center; }
+  .schedule-hdr .co { font-size: 1rem; font-weight: 900; }
+  .schedule-hdr .doc { font-size: .82rem; font-weight: 700; opacity: .9; margin-top: 2px; }
+  .schedule-table { width: 100%; border-collapse: collapse; }
+  .schedule-table th { background: #f8fafc; color: #64748b; text-transform: uppercase; letter-spacing: .5px; font-size: .68rem; padding: 9px 8px; border-bottom: 1px solid #e2e8f0; text-align: right; }
+  .schedule-table th:first-child, .schedule-table td:first-child { text-align: left; }
+  .schedule-table td { padding: 9px 8px; border-bottom: 1px solid #f1f5f9; font-size: .84rem; text-align: right; transition: background .25s; }
+  .schedule-table td.amt { font-family: monospace; font-weight: 800; }
+  .schedule-table tr.locked { opacity: .36; }
+  .schedule-table tr.active td { background: #fffbeb; }
+  .schedule-table tr.done td { background: #f0fdf4; }
+  .schedule-table tr.total-row td { background: #ecfeff; border-top: 2px solid #0e7490; font-weight: 900; color: #0e7490; }
+  @media(max-width:760px) {
+    .schedule-wrap { overflow-x: auto; }
+    .schedule-table { min-width: 760px; }
+  }
+
+  #tab-2 { padding-top: 10px; }
+  #tab-2 .sec-title { font-size: 1.14rem; margin-bottom: 4px; }
+  #tab-2 .sec-sub { font-size: .84rem; line-height: 1.35; margin-bottom: 8px; }
+  #tab-2 .je-buttons { gap: 6px; margin-bottom: 8px; }
+  #tab-2 .je-btn { padding: 5px 8px; font-size: .7rem; border-radius: 7px; }
+  #tab-2 .schedule-wrap { margin-bottom: 10px; }
+  #tab-2 .schedule-hdr { padding: 7px 12px; }
+  #tab-2 .schedule-hdr .co { font-size: .86rem; }
+  #tab-2 .schedule-hdr .doc { font-size: .66rem; margin-top: 1px; }
+  #tab-2 .schedule-table th { padding: 5px 6px; font-size: .56rem; letter-spacing: .35px; }
+  #tab-2 .schedule-table td { padding: 5px 6px; font-size: .72rem; }
+  #tab-2 .je-layout { grid-template-columns: minmax(265px, .62fr) minmax(0, 1.38fr); gap: 10px; }
+  #tab-2 .journal-card { padding: 9px 11px; margin-bottom: 8px; }
+  #tab-2 .journal-title { font-size: .7rem; margin-bottom: 5px; }
+  #tab-2 .journal-row { grid-template-columns: minmax(0, 1fr) 76px 76px; gap: 5px; font-size: .72rem; padding: 3px 0; }
+  #tab-2 .journal-row.head { font-size: .58rem; }
+  #tab-2 .journal-row .indent { padding-left: 16px; }
+  #tab-2 .status-card { padding: 8px 10px; margin-bottom: 0; min-height: 42px; font-size: .76rem; line-height: 1.32; }
+  #tab-2 .status-card .calc { padding: 1px 6px; margin-top: 2px; }
+  #tab-2 .ledger-card { padding: 9px; }
+  #tab-2 .ledger-title { font-size: .66rem; margin-bottom: 7px; }
+  #tab-2 .tgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+  #tab-2 .tacct { border-width: 1.5px; border-radius: 8px; }
+  #tab-2 .tacct-h { padding: 5px 6px; font-size: .62rem; }
+  #tab-2 .tacct-body { min-height: 62px; }
+  #tab-2 .tcol { padding: 4px; font-size: .58rem; }
+  #tab-2 .side-label { font-size: .52rem; margin-bottom: 3px; }
+  #tab-2 .entry-line { grid-template-columns: minmax(0, 1fr) minmax(44px, auto); column-gap: 4px; padding: 1px 0; }
+  #tab-2 .balance-line { margin-top: 3px; padding: 4px 5px; font-size: .6rem; }
+  @media(max-width:920px) {
+    #tab-2 .je-layout { grid-template-columns: 1fr; }
+    #tab-2 .tgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media(max-width:620px) { #tab-2 .tgrid { grid-template-columns: 1fr; } }
+
+  .quiz-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .q-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .q-num { font-size: .72rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+  .q-text { font-size: 1rem; font-weight: 800; margin-bottom: 14px; }
+  .q-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media(max-width:560px) { .q-opts { grid-template-columns: 1fr; } }
+  .q-opt { padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f8fafc; font-size: .88rem; font-weight: 700; cursor: pointer; transition: all .15s; text-align: left; color: #334155; }
+  .q-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .q-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-opt.wrong { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
+  .q-opt:disabled { cursor: default; }
+  .q-explain { margin-top: 10px; font-size: .85rem; padding: 9px 13px; border-radius: 7px; display: none; }
+  .q-explain.show { display: block; }
+  .q-explain.ok { background: #dcfce7; color: #15803d; }
+  .q-explain.bad { background: #fee2e2; color: #991b1b; }
+  .score-line { text-align: center; font-size: 1rem; font-weight: 900; margin-bottom: 6px; }
+
+  .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; z-index: 100; }
+  .nav-btn { padding: 9px 22px; border-radius: 8px; border: none; font-weight: 800; font-size: .85rem; cursor: pointer; }
+  .nav-btn.prev { background: #1e293b; color: #94a3b8; }
+  .nav-btn.prev:hover:not(:disabled) { background: #334155; }
+  .nav-btn.nxt { background: #3b82f6; color: white; }
+  .nav-btn.nxt:hover:not(:disabled) { background: #2563eb; }
+  .nav-btn:disabled { opacity: .4; cursor: default; }
+  .nav-ind { font-size: .8rem; color: #64748b; font-weight: 700; text-align: center; padding: 0 10px; }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>Notes Receivable: Present Value and Journal Entries</h1>
+  <p>Kieso, Weygandt &amp; Warfield · Intermediate Accounting 18th Ed. · Chapter 6 · Notes Receivable</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab(0)">1. PV Rule</div>
+  <div class="tab" onclick="showTab(1)">2. Calculate PV</div>
+  <div class="tab" onclick="showTab(2)">3. Related JEs</div>
+  <div class="tab" onclick="showTab(3)">4. Self-Check</div>
+</div>
+
+<div class="scenario-wrap">
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-title">Note Scenario Used Across All Tabs</div>
+      <div class="scenario-badge" id="scenarioBadge">Discount note</div>
+    </div>
+    <div class="inputs-row">
+      <div class="inp-group">
+        <label>Face value ($)</label>
+        <input type="number" id="faceInput" value="10000" min="1000" step="1000" oninput="resetAll()">
+      </div>
+      <div class="inp-group">
+        <label>Stated annual rate (%)</label>
+        <input type="number" id="statedInput" value="10" min="0" max="30" step="0.25" oninput="resetAll()">
+      </div>
+      <div class="inp-group">
+        <label>Market annual rate (%)</label>
+        <input type="number" id="marketInput" value="12" min="0" max="30" step="0.25" oninput="resetAll()">
+      </div>
+      <div class="inp-group">
+        <label>Years to maturity</label>
+        <input type="number" id="yearsInput" value="3" min="1" max="6" step="1" oninput="resetAll()">
+      </div>
+      <div class="inp-group">
+        <label>Transaction source</label>
+        <select id="sourceInput" onchange="renderAll()">
+          <option value="cash" selected>Cash loan</option>
+          <option value="service">Service or sale</option>
+        </select>
+      </div>
+    </div>
+    <div class="preset-row">
+      <button class="preset-btn" onclick="setPreset(10000,10,12,3)">Discount example</button>
+      <button class="preset-btn" onclick="setPreset(10000,10,10,3)">Par example</button>
+      <button class="preset-btn" onclick="setPreset(10000,12,10,3)">Premium example</button>
+      <button class="preset-btn" onclick="setPreset(10000,0,9,3)">Zero-interest note</button>
+    </div>
+  </div>
+</div>
+
+<div class="panel active" id="tab-0">
+  <div class="sec-title">Present Value Answers the First Measurement Question</div>
+  <div class="sec-sub">
+    When a long-term note receivable is accepted, the payee records the note at the present value of the cash expected to be collected.
+    The note may equal face value, or it may carry a discount or premium when the stated rate and market rate differ.
+  </div>
+
+  <div class="formula-strip">
+    Present value of note = PV of interest payments + PV of principal at maturity
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept-card c-blue">
+      <div class="concept-hdr">1. Cash Interest</div>
+      <div class="concept-body">
+        <strong>The stated rate computes the cash received each year.</strong>
+        For a zero-interest note, this cash interest is zero.
+        <div class="mini-formula">Face value x stated rate</div>
+      </div>
+    </div>
+    <div class="concept-card c-teal">
+      <div class="concept-hdr">2. Present Value</div>
+      <div class="concept-body">
+        <strong>The market rate discounts the promised cash flows.</strong>
+        Interest payments are an ordinary annuity; principal is a single future sum.
+        <div class="mini-formula">Discount at market rate</div>
+      </div>
+    </div>
+    <div class="concept-card c-gold">
+      <div class="concept-hdr">3. Journal Entries</div>
+      <div class="concept-body">
+        <strong>The JE follows the PV result.</strong>
+        Face value goes into Notes Receivable, while the difference from PV is recorded as Discount or Premium.
+        <div class="mini-formula">Face value - PV = difference</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quote">
+    <strong>Key habit:</strong> stated rate affects the cash interest line; market rate affects present value and interest revenue.
+    Do not use the stated rate to discount the note unless the problem says it equals the market rate.
+  </div>
+
+  <div class="metric-grid">
+    <div class="metric blue">
+      <div class="label">Cash Interest</div>
+      <div class="value" id="metricCash">$0.00</div>
+      <div class="hint">Face value times stated annual rate.</div>
+    </div>
+    <div class="metric teal">
+      <div class="label">PV of Interest</div>
+      <div class="value" id="metricPvInterest">$0.00</div>
+      <div class="hint">Cash interest times PV ordinary annuity factor.</div>
+    </div>
+    <div class="metric gold">
+      <div class="label">PV of Principal</div>
+      <div class="value" id="metricPvPrincipal">$0.00</div>
+      <div class="hint">Face value times PV of 1 factor.</div>
+    </div>
+    <div class="metric red">
+      <div class="label">Present Value</div>
+      <div class="value" id="metricPrice">$0.00</div>
+      <div class="hint" id="metricClass">Initial carrying amount.</div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="tab-1">
+  <div class="sec-title">Calculate the Present Value Step by Step</div>
+  <div class="sec-sub">
+    Click through the calculation in the same order students should write it: compute cash interest, discount the interest annuity, discount the principal, then add both present values.
+  </div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="pvStepBtn" onclick="pvStep()">Show Step 1</button>
+    <button class="sc-btn sc-reset" onclick="resetPVSteps()">Reset PV Steps</button>
+  </div>
+
+  <div class="pv-work pv-build">
+    <div>
+      <div class="calc-grid">
+        <div class="calc-card" id="cardCash">
+          <div class="calc-title">Step 1: Cash Interest</div>
+          <div class="calc-line">Use the stated rate in the note contract.</div>
+          <div class="calc-value" id="cashValue">Waiting</div>
+          <div class="calc-formula" id="cashFormula"></div>
+        </div>
+        <div class="calc-card" id="cardInterest">
+          <div class="calc-title">Step 2: PV of Interest</div>
+          <div class="calc-line">Annual interest payments are an ordinary annuity.</div>
+          <div class="calc-value" id="pvInterestValue">Waiting</div>
+          <div class="calc-formula" id="pvInterestFormula"></div>
+        </div>
+        <div class="calc-card" id="cardPrincipal">
+          <div class="calc-title">Step 3: PV of Principal</div>
+          <div class="calc-line">Face value is a single sum due at maturity.</div>
+          <div class="calc-value" id="pvPrincipalValue">Waiting</div>
+          <div class="calc-formula" id="pvPrincipalFormula"></div>
+        </div>
+        <div class="calc-card" id="cardTotal">
+          <div class="calc-title">Step 4: Present Value</div>
+          <div class="calc-line">Add both present values to get the initial carrying amount.</div>
+          <div class="calc-value" id="pvTotalValue">Waiting</div>
+          <div class="calc-formula" id="pvTotalFormula"></div>
+        </div>
+      </div>
+      <div class="status-card" id="pvStatus"></div>
+      <div class="result-ribbon" id="pvRibbon"></div>
+    </div>
+
+    <div>
+      <div class="timeline-card">
+        <div class="timeline-head">
+          <div class="timeline-title">Cash flows discounted back to today</div>
+          <div class="timeline-mode" id="timelineMode">Start by identifying future cash flows.</div>
+        </div>
+        <div class="cash-timeline" id="cashTimeline"></div>
+      </div>
+      <div class="calc-card">
+        <div class="calc-title">Present value composition</div>
+        <div class="pv-bars" id="pvBars"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="tab-2">
+  <div class="sec-title">Related Journal Entries Follow the PV</div>
+  <div class="sec-sub">
+    The initial entry records the note at face value and uses Discount or Premium to bring the carrying amount to present value.
+    Each year, interest revenue equals beginning carrying amount times the market rate.
+  </div>
+
+  <div class="je-buttons" id="jeButtons"></div>
+
+  <div class="schedule-wrap">
+    <div class="schedule-hdr">
+      <div class="co">Effective-Interest Amortization Schedule</div>
+      <div class="doc" id="scheduleSubtitle">Interest revenue, amortization, and carrying amount</div>
+    </div>
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Beginning Carrying Amount</th>
+          <th>Cash Interest Received</th>
+          <th>Interest Revenue</th>
+          <th>Amortization</th>
+          <th>Ending Carrying Amount</th>
+        </tr>
+      </thead>
+      <tbody id="scheduleBody"></tbody>
+    </table>
+  </div>
+
+  <div class="je-layout">
+    <div>
+      <div class="journal-card">
+        <div class="journal-title" id="jeTitle">Initial entry</div>
+        <div class="journal-row head"><div>Account</div><div class="dr">Debit</div><div class="cr">Credit</div></div>
+        <div id="jeBody"></div>
+      </div>
+      <div class="status-card" id="jeStatus"></div>
+    </div>
+
+    <div class="ledger-card">
+      <div class="ledger-title" id="ledgerTitle">T accounts through selected step</div>
+      <div class="tgrid" id="ledgerGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="tab-3">
+  <div class="sec-title">Practice: PV of Notes Receivable and JEs</div>
+  <div class="sec-sub">Check whether students can connect the PV calculation to the correct initial and annual journal entries.</div>
+  <div class="score-line">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</div>
+
+<div class="nav-bar">
+  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>Previous</button>
+  <div class="nav-ind" id="navInd">Tab 1 of 4 - PV Rule</div>
+  <button class="nav-btn nxt" id="btnNext" onclick="navigate(1)">Next</button>
+</div>
+
+<script>
+const TABS = ['PV Rule', 'Calculate PV', 'Related JEs', 'Self-Check'];
+let cur = 0;
+let pvStepIdx = 0;
+let jeStepIdx = 0;
+let quizBuilt = false;
+let score = 0;
+
+function showTab(i) {
+  document.querySelectorAll('.panel').forEach((p, j) => p.classList.toggle('active', j === i));
+  document.querySelectorAll('.tab').forEach((t, j) => t.classList.toggle('active', j === i));
+  cur = i;
+  document.getElementById('btnPrev').disabled = i === 0;
+  document.getElementById('btnNext').disabled = i === TABS.length - 1;
+  document.getElementById('navInd').textContent = 'Tab ' + (i + 1) + ' of ' + TABS.length + ' - ' + TABS[i];
+  if (i === 3 && !quizBuilt) buildQuiz();
+}
+function navigate(d) { showTab(cur + d); }
+
+function money(n) {
+  return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function money0(n) {
+  return '$' + Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+function pct(n, digits) {
+  return Number(n).toFixed(typeof digits === 'number' ? digits : 2) + '%';
+}
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+function round2(n) {
+  return Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+}
+function annuityPVFactor(rate, periods) {
+  if (rate === 0) return periods;
+  return (1 - Math.pow(1 + rate, -periods)) / rate;
+}
+function singlePVFactor(rate, periods) {
+  return Math.pow(1 + rate, -periods);
+}
+function classifyNote(price, face) {
+  const diff = price - face;
+  if (Math.abs(diff) < 0.5) return { label: 'Par note', short: 'Par', css: 'par', amount: 0, relation: 'PV equals face value' };
+  if (diff < 0) return { label: 'Discount note', short: 'Discount', css: 'discount', amount: Math.abs(diff), relation: 'PV is less than face value' };
+  return { label: 'Premium note', short: 'Premium', css: 'premium', amount: diff, relation: 'PV is greater than face value' };
+}
+function computeNote(face, statedPct, marketPct, years) {
+  const n = Math.max(1, Math.round(years));
+  const stated = statedPct / 100;
+  const market = marketPct / 100;
+  const cashInterest = face * stated;
+  const annFactor = annuityPVFactor(market, n);
+  const singleFactor = singlePVFactor(market, n);
+  const pvInterest = cashInterest * annFactor;
+  const pvPrincipal = face * singleFactor;
+  const price = pvInterest + pvPrincipal;
+  const cls = classifyNote(price, face);
+  const rows = [];
+  let carrying = price;
+  for (let year = 1; year <= n; year++) {
+    const beginning = carrying;
+    let interestRevenue = beginning * market;
+    let amortization = Math.abs(interestRevenue - cashInterest);
+    let ending = beginning;
+    if (cls.css === 'discount') ending = beginning + amortization;
+    if (cls.css === 'premium') ending = beginning - amortization;
+    if (cls.css === 'par') {
+      amortization = 0;
+      interestRevenue = cashInterest;
+      ending = face;
+    }
+    if (year === n) {
+      if (cls.css === 'discount') {
+        amortization = face - beginning;
+        interestRevenue = cashInterest + amortization;
+      }
+      if (cls.css === 'premium') {
+        amortization = beginning - face;
+        interestRevenue = cashInterest - amortization;
+      }
+      if (cls.css === 'par') {
+        amortization = 0;
+        interestRevenue = cashInterest;
+      }
+      ending = face;
+    }
+    rows.push({
+      year,
+      beginning: round2(beginning),
+      cash: round2(cashInterest),
+      interestRevenue: round2(interestRevenue),
+      amortization: round2(Math.abs(amortization)),
+      ending: round2(ending)
+    });
+    carrying = ending;
+  }
+  return { face, statedPct, marketPct, years: n, stated, market, cashInterest, annFactor, singleFactor, pvInterest, pvPrincipal, price, cls, rows };
+}
+function readNote() {
+  const faceEl = document.getElementById('faceInput');
+  const statedEl = document.getElementById('statedInput');
+  const marketEl = document.getElementById('marketInput');
+  const yearsEl = document.getElementById('yearsInput');
+  const face = clamp(parseFloat(faceEl.value) || 0, 1000, 10000000);
+  const stated = clamp(parseFloat(statedEl.value) || 0, 0, 30);
+  const market = clamp(parseFloat(marketEl.value) || 0, 0, 30);
+  const years = clamp(parseInt(yearsEl.value, 10) || 1, 1, 6);
+  faceEl.value = face;
+  statedEl.value = stated;
+  marketEl.value = market;
+  yearsEl.value = years;
+  return computeNote(face, stated, market, years);
+}
+function setPreset(face, stated, market, years) {
+  document.getElementById('faceInput').value = face;
+  document.getElementById('statedInput').value = stated;
+  document.getElementById('marketInput').value = market;
+  document.getElementById('yearsInput').value = years;
+  resetAll();
+}
+function resetAll() {
+  pvStepIdx = 0;
+  jeStepIdx = 0;
+  renderAll();
+}
+function resetPVSteps() {
+  pvStepIdx = 0;
+  renderAll();
+}
+function pvStep() {
+  if (pvStepIdx < 4) pvStepIdx++;
+  renderAll();
+}
+function setJEStep(i) {
+  jeStepIdx = i;
+  renderAll();
+}
+
+function journalRow(account, dr, cr, indent) {
+  return '<div class="journal-row">' +
+    '<div class="' + (indent ? 'indent' : '') + '">' + account + '</div>' +
+    '<div class="dr">' + (dr ? money(dr) : '') + '</div>' +
+    '<div class="cr">' + (cr ? money(cr) : '') + '</div>' +
+  '</div>';
+}
+function ledgerEntry(label, amount, hot) {
+  return '<div class="entry-line ' + (hot ? 'hot' : '') + '"><span>' + label + '</span><span>' + money(amount) + '</span></div>';
+}
+function tAccount(title, debitLines, creditLines, balanceLabel, balanceAmount) {
+  return '<div class="tacct">' +
+    '<div class="tacct-h">' + title + '</div>' +
+    '<div class="tacct-body">' +
+      '<div class="tcol"><div class="side-label">Debit</div>' + debitLines.join('') + '</div>' +
+      '<div class="tcol"><div class="side-label">Credit</div>' + creditLines.join('') + '</div>' +
+    '</div>' +
+    '<div class="balance-line">' + balanceLabel + ': ' + money(balanceAmount) + '</div>' +
+  '</div>';
+}
+
+function updateMetrics(n) {
+  document.getElementById('metricCash').textContent = money(n.cashInterest);
+  document.getElementById('metricPvInterest').textContent = money(n.pvInterest);
+  document.getElementById('metricPvPrincipal').textContent = money(n.pvPrincipal);
+  document.getElementById('metricPrice').textContent = money(n.price);
+  document.getElementById('metricClass').textContent = n.cls.short + ': ' + n.cls.relation + '.';
+  document.getElementById('scenarioBadge').textContent = n.cls.label + ' | PV ' + money(n.price);
+}
+function updatePVStepCards(n) {
+  const ids = ['cardCash', 'cardInterest', 'cardPrincipal', 'cardTotal'];
+  ids.forEach((id, idx) => {
+    const card = document.getElementById(id);
+    card.classList.toggle('active', pvStepIdx === idx + 1);
+    card.classList.toggle('done', pvStepIdx > idx + 1);
+  });
+  document.getElementById('cashValue').textContent = pvStepIdx >= 1 ? money(n.cashInterest) : 'Waiting';
+  document.getElementById('pvInterestValue').textContent = pvStepIdx >= 2 ? money(n.pvInterest) : 'Waiting';
+  document.getElementById('pvPrincipalValue').textContent = pvStepIdx >= 3 ? money(n.pvPrincipal) : 'Waiting';
+  document.getElementById('pvTotalValue').textContent = pvStepIdx >= 4 ? money(n.price) : 'Waiting';
+  document.getElementById('cashFormula').textContent = money(n.face) + ' x ' + pct(n.statedPct) + ' = ' + money(n.cashInterest);
+  document.getElementById('pvInterestFormula').textContent = money(n.cashInterest) + ' x ' + n.annFactor.toFixed(5) + ' = ' + money(n.pvInterest);
+  document.getElementById('pvPrincipalFormula').textContent = money(n.face) + ' x ' + n.singleFactor.toFixed(5) + ' = ' + money(n.pvPrincipal);
+  document.getElementById('pvTotalFormula').textContent = money(n.pvInterest) + ' + ' + money(n.pvPrincipal) + ' = ' + money(n.price);
+  document.getElementById('pvStepBtn').textContent = pvStepIdx < 4 ? 'Show Step ' + (pvStepIdx + 1) : 'PV Complete';
+  document.getElementById('pvStepBtn').disabled = pvStepIdx >= 4;
+}
+function pvStatusText(n) {
+  if (pvStepIdx === 0) return '<strong>Start:</strong> identify the note cash flows. The payee expects annual interest payments plus the face value at maturity.';
+  if (pvStepIdx === 1) return '<strong>Step 1:</strong> compute cash interest using the stated rate. <span class="calc">' + money(n.face) + ' x ' + pct(n.statedPct) + ' = ' + money(n.cashInterest) + '</span>';
+  if (pvStepIdx === 2) return '<strong>Step 2:</strong> discount the interest payments as an ordinary annuity using the market rate. <span class="calc">' + money(n.cashInterest) + ' x ' + n.annFactor.toFixed(5) + ' = ' + money(n.pvInterest) + '</span>';
+  if (pvStepIdx === 3) return '<strong>Step 3:</strong> discount the face value as one future amount. <span class="calc">' + money(n.face) + ' x ' + n.singleFactor.toFixed(5) + ' = ' + money(n.pvPrincipal) + '</span>';
+  return '<strong>Step 4:</strong> add the present values. This is the initial carrying amount. <span class="calc">' + money(n.pvInterest) + ' + ' + money(n.pvPrincipal) + ' = ' + money(n.price) + '</span>';
+}
+function renderCashTimeline(n) {
+  let html = '<div class="time-cell today ' + (pvStepIdx >= 4 ? 'total-on' : '') + '">' +
+    '<div class="time-top">t=0</div>' +
+    '<div class="cash-pill pv">' + (pvStepIdx >= 4 ? money(n.price) : 'PV today') + '</div>' +
+    '<div class="time-note">record at present value</div>' +
+  '</div>';
+  for (let y = 1; y <= n.years; y++) {
+    const maturity = y === n.years;
+    let cls = 'time-cell';
+    if (pvStepIdx >= 2) cls += ' coupon-on';
+    if (maturity && pvStepIdx >= 3) cls += ' face-on';
+    html += '<div class="' + cls + '">' +
+      '<div class="time-top">Year ' + y + '</div>' +
+      '<div class="cash-pill ' + (pvStepIdx >= 1 ? 'coupon' : 'muted') + '">' + (pvStepIdx >= 1 ? money0(n.cashInterest) : 'interest') + '</div>' +
+      (maturity ? '<div class="cash-pill ' + (pvStepIdx >= 3 ? 'face' : 'muted') + '">' + (pvStepIdx >= 3 ? money0(n.face) : 'principal') + '</div>' : '<div class="time-note">&nbsp;</div>') +
+      '<div class="time-note">' + (maturity ? 'last interest + face' : 'annual interest') + '</div>' +
+    '</div>';
+  }
+  const wrap = document.getElementById('cashTimeline');
+  wrap.style.setProperty('--years', n.years);
+  wrap.innerHTML = html;
+  document.getElementById('timelineMode').textContent = pvStepIdx === 0 ? 'Start by identifying future cash flows.' : 'Step ' + pvStepIdx + ' of 4';
+}
+function renderPVBars(n) {
+  const max = Math.max(n.face, n.price, n.pvInterest, n.pvPrincipal, 1);
+  function bar(label, value, cls) {
+    const width = Math.max(4, Math.min(100, value / max * 100));
+    return '<div class="pv-bar"><div class="pv-bar-h">' + label + '</div><div class="pv-fill ' + cls + '" style="width:' + width + '%">' + money(value) + '</div></div>';
+  }
+  document.getElementById('pvBars').innerHTML =
+    bar('PV of interest payments', n.pvInterest, '') +
+    bar('PV of principal', n.pvPrincipal, 'face') +
+    bar('Initial carrying amount', n.price, 'total');
+}
+function renderPVRibbon(n) {
+  const ribbon = document.getElementById('pvRibbon');
+  ribbon.className = 'result-ribbon ' + n.cls.css + (pvStepIdx >= 4 ? ' show' : '');
+  ribbon.innerHTML = '<span class="big">' + n.cls.label + ':</span> present value is ' + money(n.price) + ', face value is ' + money(n.face) + ', and the ' + n.cls.short.toLowerCase() + ' amount is ' + money(n.cls.amount) + '.';
+}
+
+function sourceCreditLabel() {
+  return document.getElementById('sourceInput').value === 'service' ? 'Service Revenue or Sales Revenue' : 'Cash';
+}
+function initialJE(n) {
+  const rows = [journalRow('Notes Receivable', n.face, 0, false)];
+  if (n.cls.css === 'discount') {
+    rows.push(journalRow('Discount on Notes Receivable', 0, n.cls.amount, true));
+    rows.push(journalRow(sourceCreditLabel(), 0, n.price, true));
+  } else if (n.cls.css === 'premium') {
+    rows.push(journalRow('Premium on Notes Receivable', n.cls.amount, 0, false));
+    rows.push(journalRow(sourceCreditLabel(), 0, n.price, true));
+  } else {
+    rows.push(journalRow(sourceCreditLabel(), 0, n.face, true));
+  }
+  return rows.join('');
+}
+function interestJE(n, row) {
+  const rows = [];
+  if (row.cash > 0) rows.push(journalRow('Cash', row.cash, 0, false));
+  if (n.cls.css === 'discount') rows.push(journalRow('Discount on Notes Receivable', row.amortization, 0, false));
+  if (n.cls.css === 'premium') rows.push(journalRow('Premium on Notes Receivable', 0, row.amortization, true));
+  rows.push(journalRow('Interest Revenue', 0, row.interestRevenue, true));
+  return rows.join('');
+}
+function maturityJE(n) {
+  return journalRow('Cash', n.face, 0, false) + journalRow('Notes Receivable', 0, n.face, true);
+}
+function renderJEButtons(n) {
+  let html = '<button class="je-btn ' + (jeStepIdx === 0 ? 'active' : '') + '" onclick="setJEStep(0)">Initial</button>';
+  n.rows.forEach((r, idx) => {
+    html += '<button class="je-btn ' + (jeStepIdx === idx + 1 ? 'active' : '') + '" onclick="setJEStep(' + (idx + 1) + ')">Year ' + r.year + '</button>';
+  });
+  html += '<button class="je-btn ' + (jeStepIdx === n.years + 1 ? 'active' : '') + '" onclick="setJEStep(' + (n.years + 1) + ')">Maturity</button>';
+  document.getElementById('jeButtons').innerHTML = html;
+}
+function jeStatus(n) {
+  if (jeStepIdx === 0) {
+    if (n.cls.css === 'discount') return '<strong>Initial entry:</strong> Notes Receivable is recorded at face value, and Discount on Notes Receivable is credited so the net carrying amount equals PV. <span class="calc">' + money(n.face) + ' - ' + money(n.cls.amount) + ' = ' + money(n.price) + '</span>';
+    if (n.cls.css === 'premium') return '<strong>Initial entry:</strong> Notes Receivable is recorded at face value, and Premium on Notes Receivable is debited so the carrying amount equals PV. <span class="calc">' + money(n.face) + ' + ' + money(n.cls.amount) + ' = ' + money(n.price) + '</span>';
+    return '<strong>Initial entry:</strong> stated rate equals market rate, so the note is recorded at face value with no discount or premium.';
+  }
+  if (jeStepIdx === n.years + 1) {
+    return '<strong>Maturity entry:</strong> after the final interest entry, collect the face value and remove Notes Receivable.';
+  }
+  const row = n.rows[jeStepIdx - 1];
+  if (n.cls.css === 'discount') return '<strong>Year ' + row.year + ':</strong> interest revenue is greater than cash interest. The difference amortizes the discount. <span class="calc">' + money(row.beginning) + ' x ' + pct(n.marketPct) + ' = ' + money(row.interestRevenue) + '</span>';
+  if (n.cls.css === 'premium') return '<strong>Year ' + row.year + ':</strong> interest revenue is less than cash interest. The difference reduces the premium. <span class="calc">' + money(row.beginning) + ' x ' + pct(n.marketPct) + ' = ' + money(row.interestRevenue) + '</span>';
+  return '<strong>Year ' + row.year + ':</strong> cash interest equals interest revenue because the note is issued at par.';
+}
+function renderJE(n) {
+  if (jeStepIdx > n.years + 1) jeStepIdx = n.years + 1;
+  renderJEButtons(n);
+  let title = 'Initial entry';
+  let body = initialJE(n);
+  if (jeStepIdx > 0 && jeStepIdx <= n.years) {
+    const row = n.rows[jeStepIdx - 1];
+    title = 'Year ' + row.year + ' interest entry';
+    body = interestJE(n, row);
+  }
+  if (jeStepIdx === n.years + 1) {
+    title = 'Maturity principal collection';
+    body = maturityJE(n);
+  }
+  document.getElementById('jeTitle').textContent = title;
+  document.getElementById('jeBody').innerHTML = body;
+  document.getElementById('jeStatus').innerHTML = jeStatus(n);
+}
+function renderLedgers(n) {
+  const shownInterestRows = n.rows.slice(0, Math.min(jeStepIdx, n.years));
+  const noteDr = [ledgerEntry('Initial note', n.face, jeStepIdx === 0)];
+  const noteCr = [];
+  const cashDr = [];
+  const cashCr = [];
+  const sourceCr = [];
+  const valDr = [];
+  const valCr = [];
+  let cashDebitTotal = 0;
+  let cashCreditTotal = 0;
+  const isCashLoan = document.getElementById('sourceInput').value === 'cash';
+  if (isCashLoan) {
+    cashCr.push(ledgerEntry('Cash lent', n.price, jeStepIdx === 0));
+    cashCreditTotal += n.price;
+  } else {
+    sourceCr.push(ledgerEntry('Initial note PV', n.price, jeStepIdx === 0));
+  }
+  if (n.cls.css === 'discount') valCr.push(ledgerEntry('Initial discount', n.cls.amount, jeStepIdx === 0));
+  if (n.cls.css === 'premium') valDr.push(ledgerEntry('Initial premium', n.cls.amount, jeStepIdx === 0));
+  shownInterestRows.forEach(r => {
+    if (r.cash > 0) {
+      cashDr.push(ledgerEntry('Year ' + r.year + ' interest', r.cash, jeStepIdx === r.year));
+      cashDebitTotal += r.cash;
+    }
+    if (n.cls.css === 'discount') valDr.push(ledgerEntry('Year ' + r.year + ' amort.', r.amortization, jeStepIdx === r.year));
+    if (n.cls.css === 'premium') valCr.push(ledgerEntry('Year ' + r.year + ' amort.', r.amortization, jeStepIdx === r.year));
+  });
+  if (jeStepIdx === n.years + 1) {
+    cashDr.push(ledgerEntry('Collect principal', n.face, true));
+    cashDebitTotal += n.face;
+    noteCr.push(ledgerEntry('Remove note', n.face, true));
+  }
+  const amortized = shownInterestRows.reduce((s, r) => s + r.amortization, 0);
+  const valuationBalance = n.cls.css === 'par' ? 0 : Math.max(0, n.cls.amount - amortized);
+  const carrying = jeStepIdx === n.years + 1 ? 0 : (shownInterestRows.length ? shownInterestRows[shownInterestRows.length - 1].ending : n.price);
+  const noteFaceBalance = jeStepIdx === n.years + 1 ? 0 : n.face;
+  let valuationAccount = tAccount('No Discount/Premium', [], [], 'Balance', 0);
+  if (n.cls.css === 'discount') valuationAccount = tAccount('Discount on Notes Receivable', valDr, valCr, 'Unamortized discount', valuationBalance);
+  if (n.cls.css === 'premium') valuationAccount = tAccount('Premium on Notes Receivable', valDr, valCr, 'Unamortized premium', valuationBalance);
+  const cashNet = cashDebitTotal - cashCreditTotal;
+  const cashLabel = cashNet < 0 ? 'Net credit change' : 'Net debit change';
+  let html =
+    tAccount('Notes Receivable', noteDr, noteCr, 'Face balance', noteFaceBalance) +
+    valuationAccount +
+    tAccount('Cash', cashDr, cashCr, cashLabel, Math.abs(cashNet));
+  if (!isCashLoan) {
+    html += tAccount('Service/Sales Revenue', [], sourceCr, 'Credit total', n.price);
+  }
+  document.getElementById('ledgerGrid').innerHTML = html;
+}
+function renderSchedule(n) {
+  let html = '<tr class="' + (jeStepIdx === 0 ? 'active' : 'done') + '"><td>Date of issue</td><td></td><td></td><td></td><td></td><td class="amt">' + money(n.price) + '</td></tr>';
+  n.rows.forEach((r, idx) => {
+    let cls = 'locked';
+    if (idx + 1 < jeStepIdx) cls = 'done';
+    if (idx + 1 === jeStepIdx) cls = 'active';
+    html += '<tr class="' + cls + '">' +
+      '<td>End of year ' + r.year + '</td>' +
+      '<td class="amt">' + money(r.beginning) + '</td>' +
+      '<td class="amt">' + money(r.cash) + '</td>' +
+      '<td class="amt">' + money(r.interestRevenue) + '</td>' +
+      '<td class="amt">' + money(r.amortization) + '</td>' +
+      '<td class="amt">' + money(r.ending) + '</td>' +
+    '</tr>';
+  });
+  const shownRows = n.rows.slice(0, Math.min(jeStepIdx, n.years));
+  html += '<tr class="total-row"><td>Shown totals</td><td></td><td class="amt">' + money(shownRows.reduce((s, r) => s + r.cash, 0)) + '</td><td class="amt">' + money(shownRows.reduce((s, r) => s + r.interestRevenue, 0)) + '</td><td class="amt">' + money(shownRows.reduce((s, r) => s + r.amortization, 0)) + '</td><td></td></tr>';
+  document.getElementById('scheduleBody').innerHTML = html;
+  document.getElementById('scheduleSubtitle').textContent = n.cls.label + ' | stated ' + pct(n.statedPct) + ' | market ' + pct(n.marketPct);
+}
+
+function renderAll() {
+  const n = readNote();
+  if (jeStepIdx > n.years + 1) jeStepIdx = n.years + 1;
+  updateMetrics(n);
+  updatePVStepCards(n);
+  document.getElementById('pvStatus').innerHTML = pvStatusText(n);
+  renderCashTimeline(n);
+  renderPVBars(n);
+  renderPVRibbon(n);
+  renderJE(n);
+  renderLedgers(n);
+  renderSchedule(n);
+}
+
+const quiz = [
+  {
+    q: 'A long-term note receivable is initially measured at:',
+    opts: ['Present value of expected cash flows', 'Always the maturity value', 'Only the interest payments', 'Zero until collected'],
+    a: 0,
+    exp: 'The note is recorded at the present value of the cash expected to be collected.'
+  },
+  {
+    q: 'Which rate computes the cash interest payment on an interest-bearing note?',
+    opts: ['Market rate', 'Stated rate', 'Inflation rate', 'Prime rate only'],
+    a: 1,
+    exp: 'Cash interest uses the stated rate written in the note contract.'
+  },
+  {
+    q: 'Which rate discounts the note cash flows to present value?',
+    opts: ['Stated rate', 'Market or effective rate', 'Tax rate', 'Gross profit rate'],
+    a: 1,
+    exp: 'The market or effective rate is the discount rate for present value and interest revenue.'
+  },
+  {
+    q: 'If the stated rate is less than the market rate, the note receivable is recorded with:',
+    opts: ['A discount', 'A premium', 'No interest revenue', 'A liability'],
+    a: 0,
+    exp: 'Lower stated interest means the PV is below face value, creating a discount.'
+  },
+  {
+    q: 'For a discount note receivable, the annual interest entry usually includes:',
+    opts: ['Debit Discount on Notes Receivable', 'Credit Discount on Notes Receivable', 'Debit Interest Revenue', 'Credit Notes Receivable'],
+    a: 0,
+    exp: 'The discount has a credit balance and is amortized with debits over the note life.'
+  },
+  {
+    q: 'For a premium note receivable, interest revenue is:',
+    opts: ['Greater than cash interest', 'Less than cash interest', 'Always zero', 'Equal to the face value'],
+    a: 1,
+    exp: 'Premium amortization reduces interest revenue below the cash interest received.'
+  },
+  {
+    q: 'A zero-interest-bearing note has:',
+    opts: ['No interest economics', 'Interest included in the face amount', 'A stated annual cash payment', 'No present value'],
+    a: 1,
+    exp: 'Zero-interest-bearing means no stated cash interest payments; interest is embedded in the discount.'
+  },
+  {
+    q: 'At maturity, after the final interest entry, the payee records:',
+    opts: ['Debit Cash and credit Notes Receivable', 'Debit Interest Revenue and credit Cash', 'Debit Discount and credit Cash', 'No entry'],
+    a: 0,
+    exp: 'Collection of principal debits Cash and credits Notes Receivable.'
+  }
+];
+function buildQuiz() {
+  quizBuilt = true;
+  score = 0;
+  document.getElementById('score').textContent = score;
+  document.getElementById('total').textContent = quiz.length;
+  const wrap = document.getElementById('quizWrap');
+  wrap.innerHTML = '';
+  quiz.forEach((item, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML =
+      '<div class="q-num">Question ' + (qi + 1) + '</div>' +
+      '<div class="q-text">' + item.q + '</div>' +
+      '<div class="q-opts">' + item.opts.map((opt, oi) => '<button class="q-opt" onclick="answerQ(' + qi + ',' + oi + ', this)">' + opt + '</button>').join('') + '</div>' +
+      '<div class="q-explain" id="exp-' + qi + '"></div>';
+    wrap.appendChild(card);
+  });
+}
+function answerQ(qi, oi, btn) {
+  const item = quiz[qi];
+  const card = btn.closest('.q-card');
+  const buttons = card.querySelectorAll('.q-opt');
+  buttons.forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === item.a) b.classList.add('correct');
+    if (idx === oi && idx !== item.a) b.classList.add('wrong');
+  });
+  const exp = document.getElementById('exp-' + qi);
+  if (oi === item.a) {
+    score++;
+    document.getElementById('score').textContent = score;
+    exp.className = 'q-explain ok show';
+    exp.textContent = 'Correct. ' + item.exp;
+  } else {
+    exp.className = 'q-explain bad show';
+    exp.textContent = 'Review this point: ' + item.exp;
+  }
+}
+
+renderAll();
+</script>
+</body>
+</html>

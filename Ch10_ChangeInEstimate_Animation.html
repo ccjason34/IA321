@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Change in Depreciation Estimate | Kieso Ch. 10</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f1f5f9; font-family: "Segoe UI", system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.22rem; font-weight: 800; letter-spacing: 0; }
+  .header p { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab { padding: 11px 18px; font-size: .88rem; font-weight: 700; color: #64748b; cursor: pointer; border: 0; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; background: transparent; font-family: inherit; }
+  .tab:hover { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+  .panel { display: none; max-width: 1080px; margin: 0 auto; padding: 22px 16px 90px; }
+  .panel.active { display: block; }
+  .sec-title { font-size: 1.34rem; font-weight: 800; margin-bottom: 8px; }
+  .sec-sub { font-size: .96rem; color: #475569; margin-bottom: 18px; line-height: 1.65; max-width: 950px; }
+
+  .scenario-card { background: white; border-radius: 12px; box-shadow: 0 3px 14px rgba(0,0,0,.08); border: 1px solid #e2e8f0; overflow: hidden; margin: 12px auto 0; max-width: 1080px; }
+  .scenario-head { background: linear-gradient(135deg, #0f766e, #0891b2); color: white; padding: 10px 14px; display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .scenario-title { font-size: .88rem; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
+  .scenario-badge { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.28); border-radius: 999px; padding: 5px 10px; font-size: .76rem; font-weight: 900; }
+  .fact-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 12px; }
+  @media(max-width:900px) { .fact-grid { grid-template-columns: 1fr 1fr; } }
+  @media(max-width:560px) { .fact-grid { grid-template-columns: 1fr; } }
+  .fact { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; }
+  .fact .label { font-size: .68rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .fact .value { font-size: 1rem; font-weight: 900; font-family: ui-monospace, Menlo, Consolas, monospace; color: #0f172a; }
+  .fact .hint { font-size: .73rem; font-weight: 700; color: #64748b; margin-top: 3px; line-height: 1.35; }
+
+  .rule-box { background: linear-gradient(135deg, #dbeafe, #ecfdf5); border: 2px solid #2563eb; border-radius: 12px; padding: 14px 18px; margin-bottom: 18px; color: #1e3a8a; font-size: .94rem; line-height: 1.6; font-weight: 750; }
+  .rule-box strong { color: #1d4ed8; font-weight: 900; }
+  .rule-box .trap { color: #b45309; font-weight: 900; }
+  .memcue {
+    display: inline-block;
+    background: #fef3c7;
+    border: 2px solid #f59e0b;
+    border-left: 6px solid #b45309;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    font-weight: 900;
+    color: #7c2d12;
+    font-size: 1rem;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, .15);
+  }
+  .memcue em { font-style: italic; color: #b45309; }
+  .trap-callout {
+    display: flex; gap: 10px; align-items: flex-start;
+    margin-top: 12px; padding: 12px 14px;
+    background: #fff7ed; border: 2px solid #f59e0b;
+    border-left: 6px solid #b45309; border-radius: 10px;
+    color: #7c2d12; font-weight: 850; line-height: 1.55;
+  }
+  .trap-callout .trap-icon { font-size: 1.5rem; line-height: 1; flex-shrink: 0; color: #b45309; }
+  .trap-callout strong { color: #7c2d12; font-weight: 900; }
+  .trap-callout u { text-decoration-color: #b45309; text-decoration-thickness: 2px; }
+
+  .trap-compare {
+    background: white; border: 2px solid #e2e8f0; border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 18px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.06);
+  }
+  .trap-h { font-weight: 900; color: #92400e; font-size: .98rem; margin-bottom: 12px; }
+  .trap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media(max-width:760px) { .trap-grid { grid-template-columns: 1fr; } }
+  .trap-card { border: 2px solid #e2e8f0; border-radius: 12px; padding: 13px 14px; }
+  .trap-card.wrong { border-color: #fca5a5; background: #fef2f2; }
+  .trap-card.right { border-color: #86efac; background: #ecfdf5; }
+  .trap-tag { font-size: .78rem; font-weight: 900; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px; }
+  .trap-card.wrong .trap-tag { color: #b91c1c; }
+  .trap-card.right .trap-tag { color: #166534; }
+  .trap-line { font-size: .9rem; font-weight: 850; color: #0f172a; margin-bottom: 4px; line-height: 1.45; }
+  .trap-line strong { color: #0f172a; }
+  .trap-note { font-size: .78rem; font-weight: 800; color: #475569; margin-top: 7px; line-height: 1.45; }
+  .trap-note strong { color: #1e293b; }
+
+  /* Year-by-year depreciation bar chart */
+  .dep-chart {
+    background: white; border: 2px solid #e2e8f0; border-radius: 14px;
+    padding: 14px 16px; margin-top: 14px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.06);
+  }
+  .dep-chart-h { font-weight: 900; color: #0f172a; margin-bottom: 12px; font-size: .98rem; }
+  .dep-row {
+    display: grid; grid-template-columns: 60px 1fr 80px;
+    gap: 10px; align-items: center; margin-bottom: 6px;
+    font-weight: 900;
+  }
+  .dep-row .yr { font-size: .82rem; color: #475569; }
+  .dep-row .bar {
+    height: 26px; border-radius: 6px;
+    display: flex; align-items: center; padding: 0 10px;
+    color: white; font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: .8rem; font-weight: 900;
+  }
+  .dep-row .bar.old { background: linear-gradient(90deg, #1d4ed8, #3b82f6); width: 100%; }
+  .dep-row .bar.new { background: linear-gradient(90deg, #047857, #16a34a); width: 92.86%; }
+  .dep-row .amt { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .82rem; color: #0f172a; text-align: right; }
+  .dep-divider {
+    border-top: 2px dashed #f59e0b; margin: 8px 0;
+    text-align: center; font-size: .78rem; font-weight: 900;
+    color: #b45309; padding: 4px 0; text-transform: uppercase; letter-spacing: .4px;
+  }
+  .dep-totals {
+    margin-top: 10px; padding: 10px 12px;
+    background: #f8fafc; border-radius: 10px;
+    font-size: .85rem; font-weight: 850; color: #475569;
+    line-height: 1.55;
+  }
+  .dep-totals strong { color: #0f172a; }
+
+  /* Why the difference callout */
+  .why-diff {
+    background: #fffbeb; border: 2px solid #f59e0b; border-radius: 12px;
+    padding: 13px 16px; margin-top: 14px;
+    color: #7c2d12; font-weight: 850; line-height: 1.55;
+  }
+  .why-diff h4 { font-size: .9rem; font-weight: 900; color: #92400e; margin-bottom: 8px; }
+  .why-diff .calc-line { font-family: ui-monospace, Menlo, Consolas, monospace; color: #0f172a; font-size: .88rem; padding: 2px 0; }
+  .why-diff .calc-line.tot { border-top: 1px solid #fbbf24; margin-top: 4px; padding-top: 6px; font-weight: 900; }
+
+  /* Side-by-side entries */
+  .entry-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  @media(max-width:760px) { .entry-compare { grid-template-columns: 1fr; } }
+  .entry-card { border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; background: #f8fafc; }
+  .entry-card.old-entry { border-color: #93c5fd; background: #eff6ff; }
+  .entry-card.new-entry { border-color: #86efac; background: #ecfdf5; }
+  .entry-tag { font-size: .76rem; font-weight: 900; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px; }
+  .entry-card.old-entry .entry-tag { color: #1e3a8a; }
+  .entry-card.new-entry .entry-tag { color: #166534; }
+  .entry-line {
+    display: grid; grid-template-columns: 1fr auto;
+    gap: 10px; padding: 4px 0;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: .82rem; font-weight: 850; color: #0f172a;
+  }
+  .entry-line.indent { padding-left: 20px; color: #475569; }
+  .same-form {
+    background: #fff7ed; border: 2px dashed #fb923c;
+    border-radius: 10px; padding: 9px 12px; margin-top: 10px;
+    color: #7c2d12; font-weight: 850; font-size: .85rem; text-align: center;
+  }
+  .takeaway { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 2px solid #16a34a; border-radius: 12px; padding: 14px 18px; margin-top: 16px; font-size: .92rem; color: #14532d; line-height: 1.6; }
+  .takeaway strong { color: #166534; }
+
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
+  @media(max-width:860px) { .grid-3 { grid-template-columns: 1fr; } }
+  .concept-card { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border-top: 5px solid #cbd5e1; }
+  .concept-card.blue { border-top-color: #2563eb; }
+  .concept-card.gold { border-top-color: #f59e0b; }
+  .concept-card.teal { border-top-color: #0f766e; }
+  .concept-card .h { padding: 12px 15px 6px; font-weight: 900; color: #0f172a; }
+  .concept-card .b { padding: 0 15px 14px; color: #475569; font-size: .88rem; line-height: 1.55; font-weight: 750; }
+  .formula { margin-top: 8px; background: #1e293b; color: #fef3c7; border-radius: 7px; padding: 8px 9px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .76rem; font-weight: 900; text-align: center; }
+
+  .step-ctrl { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; margin: 0 0 14px; }
+  .sc-btn { padding: 10px 20px; border-radius: 9px; border: none; font-weight: 800; font-size: .85rem; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .sc-step { background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; font-weight: 900; padding: 13px 24px; min-width: 235px; box-shadow: 0 4px 14px rgba(245,158,11,.38); animation: stepPulse 1.6s ease-in-out infinite; }
+  .sc-step:hover:not(:disabled) { background: linear-gradient(135deg, #d97706, #dc2626); transform: translateY(-1px); }
+  .sc-step:disabled { animation: none; box-shadow: none; background: #94a3b8; }
+  .sc-reset { background: #475569; color: white; padding: 9px 18px; font-size: .82rem; }
+  .sc-reset:hover { background: #334155; }
+  .sc-btn:disabled { opacity: .58; cursor: default; }
+  @keyframes stepPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(245,158,11,.38); }
+    50% { box-shadow: 0 4px 20px rgba(239,68,68,.66), 0 0 0 4px rgba(245,158,11,.16); }
+  }
+  .status-card { background: white; border-radius: 10px; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); margin-bottom: 14px; font-size: .92rem; color: #334155; line-height: 1.6; border-left: 4px solid #3b82f6; min-height: 64px; }
+  .status-card strong { color: #1e293b; }
+  .status-card .calc { display: inline-block; background: #fef3c7; color: #92400e; padding: 2px 10px; border-radius: 6px; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; margin-top: 4px; }
+
+  .work-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(320px, 1.05fr); gap: 14px; align-items: start; }
+  @media(max-width:900px) { .work-grid { grid-template-columns: 1fr; } }
+  .card { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border: 1px solid #e2e8f0; }
+  .card-h { background: #1e293b; color: white; padding: 12px 15px; font-weight: 900; font-size: .9rem; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .card-h small { color: #cbd5e1; font-weight: 800; }
+  .card-b { padding: 14px 16px; }
+  .calc-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(170px, .48fr); gap: 12px; padding: 9px 0; border-bottom: 1px solid #f1f5f9; align-items: start; }
+  @media(max-width:560px) { .calc-row { grid-template-columns: 1fr; } }
+  .calc-row:last-child { border-bottom: 0; }
+  .calc-row.hidden { opacity: .22; }
+  .calc-row.active { background: #fef3c7; margin: 0 -8px; padding: 9px 8px; border-radius: 8px; border-bottom: 0; }
+  .calc-label { font-size: .86rem; color: #475569; line-height: 1.45; font-weight: 750; }
+  .calc-label strong { color: #1e293b; }
+  .calc-value { font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; color: #0f172a; text-align: right; overflow-wrap: anywhere; line-height: 1.35; }
+  @media(max-width:560px) { .calc-value { text-align: left; } }
+
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #f8fafc; color: #64748b; text-align: left; padding: 8px; font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid #e2e8f0; }
+  td { padding: 8px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: .84rem; font-weight: 750; }
+  td.money, th.money { text-align: right; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; color: #0f172a; }
+  tr.old td { background: #f8fafc; color: #64748b; }
+  tr.new td { background: #ecfdf5; }
+
+  .timeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 16px; }
+  @media(max-width:760px) { .timeline { grid-template-columns: 1fr; } }
+  .time-card { background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.06); }
+  .time-card.active { border-color: #f59e0b; background: #fef3c7; box-shadow: 0 0 0 3px rgba(245,158,11,.14); }
+  .time-label { font-size: .68rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .time-main { font-size: .95rem; font-weight: 900; color: #0f172a; }
+  .time-sub { font-size: .76rem; font-weight: 750; color: #64748b; line-height: 1.35; margin-top: 4px; }
+
+  .journal-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .9fr); gap: 14px; align-items: start; }
+  @media(max-width:900px) { .journal-layout { grid-template-columns: 1fr; } }
+  .journal { width: 100%; border-collapse: collapse; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .86rem; }
+  .journal th.dr, .journal th.cr, .journal td.dr, .journal td.cr { text-align: right; width: 110px; }
+  .journal tr.hidden { opacity: .2; }
+  .journal tr.active td { background: #fef3c7; }
+  .journal tr.done td { background: #f0fdf4; }
+  .journal .indent { padding-left: 28px; }
+  .journal .dr, .journal .cr { color: #0f172a; font-weight: 900; white-space: nowrap; }
+  .why-panel { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border: 1px solid #e2e8f0; }
+  .why-head { background: #0f766e; color: white; padding: 12px 15px; font-weight: 900; font-size: .9rem; }
+  .why-body { padding: 14px 16px; }
+  .why-rule-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+  @media(max-width:560px) { .why-rule-grid { grid-template-columns: 1fr; } }
+  .why-rule { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 9px; padding: 9px 10px; }
+  .why-rule .tag { font-size: .66rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .45px; margin-bottom: 4px; }
+  .why-rule .text { font-size: .8rem; color: #334155; font-weight: 800; line-height: 1.35; }
+  .why-card { display: none; border-radius: 10px; padding: 12px 14px; border: 2px solid #e2e8f0; background: #f8fafc; color: #334155; line-height: 1.55; font-size: .88rem; font-weight: 750; }
+  .why-card.active { display: block; animation: fadeWhy .25s ease both; }
+  .why-card strong { color: #0f172a; font-weight: 900; }
+  .why-card .mini { display: block; margin-top: 8px; background: #1e293b; color: #fef3c7; border-radius: 7px; padding: 8px 10px; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; font-size: .78rem; }
+  .why-card.debit { border-color: #2563eb; background: #eff6ff; }
+  .why-card.credit { border-color: #f59e0b; background: #fffbeb; }
+  @keyframes fadeWhy { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .quiz-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .score { background: white; border-radius: 10px; padding: 12px 16px; box-shadow: 0 2px 8px rgba(0,0,0,.07); font-weight: 900; color: #1e293b; margin-bottom: 14px; }
+  .q-card { background: white; border-radius: 12px; padding: 15px 17px; box-shadow: 0 2px 8px rgba(0,0,0,.07); border: 1px solid #e2e8f0; }
+  .q-num { font-size: .72rem; color: #64748b; font-weight: 900; text-transform: uppercase; letter-spacing: .55px; margin-bottom: 6px; }
+  .q-text { font-weight: 850; color: #1e293b; margin-bottom: 11px; line-height: 1.45; }
+  .q-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .q-opt { border: 2px solid #e2e8f0; background: #f8fafc; color: #334155; border-radius: 8px; padding: 9px 12px; font-size: .84rem; font-weight: 850; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .q-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .q-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+  .q-opt:disabled { cursor: default; }
+  .explain { display: none; margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #f8fafc; color: #475569; font-size: .84rem; line-height: 1.55; font-weight: 700; }
+  .explain.show { display: block; }
+  .nav { position: fixed; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,.96); padding: 10px 16px; display: flex; justify-content: center; gap: 10px; box-shadow: 0 -4px 18px rgba(15,23,42,.22); }
+  .nav button { border: 0; border-radius: 8px; padding: 9px 18px; font-weight: 900; cursor: pointer; color: white; background: #334155; font-family: inherit; }
+  .nav button:hover { background: #475569; }
+  .nav button.primary { background: #2563eb; }
+  .nav button.primary:hover { background: #1d4ed8; }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>Change in Depreciation Estimate</h1>
+  <p>Kieso, Weygandt &amp; Warfield &middot; Intermediate Accounting 18th Ed. &middot; Chapter 10 &middot; Depreciation Estimates</p>
+</div>
+
+<div class="tabs" role="tablist" aria-label="Change in estimate lesson tabs">
+  <button class="tab active" role="tab" aria-selected="true" onclick="showTab(0)">1. Big Rule</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(1)">2. Old Depreciation</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(2)">3. New Estimate</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(3)">4. Journal Entry</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(4)">5. Self-Check</button>
+</div>
+
+<div class="scenario-card">
+  <div class="scenario-head">
+    <div class="scenario-title">Scenario: Boc Apparel revises equipment estimates after two years</div>
+    <div class="scenario-badge">Prospective treatment</div>
+  </div>
+  <div class="fact-grid">
+    <div class="fact"><div class="label">Original cost</div><div class="value">$90,000</div><div class="hint">Equipment acquired Jan. 1, 2025</div></div>
+    <div class="fact"><div class="label">Original residual</div><div class="value">$6,000</div><div class="hint">Original salvage estimate</div></div>
+    <div class="fact"><div class="label">Original life</div><div class="value">6 years</div><div class="hint">Straight-line depreciation</div></div>
+    <div class="fact"><div class="label">Revision date</div><div class="value">Jan. 1, 2027</div><div class="hint">After two years used</div></div>
+    <div class="fact"><div class="label">New estimate</div><div class="value">4 yrs left</div><div class="hint">New residual value: $10,000</div></div>
+  </div>
+</div>
+
+<section class="panel active">
+  <div class="sec-title">A Change in Estimate Is Prospective</div>
+  <div class="sec-sub">When useful life, residual value, or both are revised, depreciation is not recomputed for prior years. The company uses the asset's current book value and spreads the remaining depreciable amount over the revised remaining life.</div>
+
+  <div class="memcue">📌 Memory cue: change in estimate means <em>"from here forward."</em></div>
+
+  <div class="rule-box">
+    <strong>Core rule:</strong> no restatement, no catch-up entry, no correction of prior depreciation.
+    <div class="trap-callout">
+      <span class="trap-icon">⚠</span>
+      <div><strong>Student trap:</strong> do <u>not</u> go back to Year 1 and recalculate old depreciation. Prior years stay as originally recorded.</div>
+    </div>
+  </div>
+
+  <div class="trap-compare">
+    <div class="trap-h">What "prospective" actually means — wrong path vs right path</div>
+    <div class="trap-grid">
+      <div class="trap-card wrong">
+        <div class="trap-tag">❌ WRONG (retrospective)</div>
+        <div class="trap-line">Recompute 2025 &amp; 2026 at the new $13K rate.</div>
+        <div class="trap-line">Restate prior financial statements.</div>
+        <div class="trap-line">Adjust retained earnings.</div>
+        <div class="trap-note">This is what you'd do for an <strong>error correction</strong> or a <strong>change in principle</strong> — but NOT for a change in estimate.</div>
+      </div>
+      <div class="trap-card right">
+        <div class="trap-tag">✓ RIGHT (prospective)</div>
+        <div class="trap-line">Leave 2025 &amp; 2026 at $14K each.</div>
+        <div class="trap-line">Apply $13K starting in 2027.</div>
+        <div class="trap-line">Prior statements stay as issued.</div>
+        <div class="trap-note">No catch-up entry. No restatement. The new estimate just changes future depreciation.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="concept-card blue">
+      <div class="h">1. Keep Prior Years</div>
+      <div class="b">Depreciation already recorded stays in the books.
+        <div class="formula">Old depreciation remains old depreciation</div>
+      </div>
+    </div>
+    <div class="concept-card gold">
+      <div class="h">2. Start With Book Value</div>
+      <div class="b">At the revision date, find current book value.
+        <div class="formula">Cost - accumulated depreciation</div>
+      </div>
+    </div>
+    <div class="concept-card teal">
+      <div class="h">3. Recompute Going Forward</div>
+      <div class="b">Use revised residual value and revised remaining useful life.
+        <div class="formula">(Book value - new residual) / remaining life</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="card-h"><span>The 3 buckets of accounting changes</span><small>don't confuse them on exams</small></div>
+    <div class="card-b" style="padding:0">
+      <table>
+        <thead><tr><th>Type</th><th>Example</th><th>Treatment</th></tr></thead>
+        <tbody>
+          <tr style="background:#ecfdf5"><td><strong>Change in estimate</strong></td><td>Useful life, residual value, bad-debt %</td><td><strong style="color:#166534">Prospective</strong> — this lesson</td></tr>
+          <tr><td>Change in principle</td><td>FIFO → LIFO</td><td>Retrospective — restate prior years</td></tr>
+          <tr><td>Error correction</td><td>Math mistake, omitted accrual</td><td>Retrospective with disclosure of error</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="takeaway"><strong>Disclosure note:</strong> material changes in estimate must be disclosed in the footnotes — including the effect on net income and EPS for the period.</div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">First, Keep the Old Depreciation</div>
+  <div class="sec-sub">Boc used straight-line depreciation for the first two years under the original estimates.</div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="oldBtn" onclick="nextOld()">Show Step 1</button>
+    <button class="sc-btn sc-reset" onclick="resetOld()">Reset</button>
+  </div>
+  <div class="status-card" id="oldStatus">Ready: compute depreciation using the original estimates for Years 2025 and 2026.</div>
+
+  <div class="work-grid">
+    <div class="card">
+      <div class="card-h"><span>Original Estimate Workpaper</span><small>2025-2026</small></div>
+      <div class="card-b" id="oldRows"></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><span>Book Value at Revision Date</span><small>Jan. 1, 2027</small></div>
+      <div class="card-b">
+        <table>
+          <thead><tr><th>Year</th><th class="money">Depreciation</th><th class="money">Accum. Dep.</th><th class="money">End BV</th></tr></thead>
+          <tbody>
+            <tr class="old" id="schedOld25"><td>2025</td><td class="money" id="s25dep">?</td><td class="money" id="s25acc">?</td><td class="money" id="s25bv">?</td></tr>
+            <tr class="old" id="schedOld26"><td>2026</td><td class="money" id="s26dep">?</td><td class="money" id="s26acc">?</td><td class="money" id="s26bv">?</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Then Recompute Depreciation Going Forward</div>
+  <div class="sec-sub">At January 1, 2027, Boc revises the remaining useful life to 4 years and the residual value to $10,000. <em>(Note: in this textbook example the remaining life of 4 years is the same as the original would have implied — only the residual value actually changes. The same prospective method handles changes to either or both.)</em></div>
+
+  <div class="timeline">
+    <div class="time-card active"><div class="time-label">Past</div><div class="time-main">2025-2026</div><div class="time-sub">Keep old depreciation</div></div>
+    <div class="time-card" id="tcRevision"><div class="time-label">Revision date</div><div class="time-main">Jan. 1, 2027</div><div class="time-sub" id="tcBV">Book value: ?</div></div>
+    <div class="time-card" id="tcResidual"><div class="time-label">New residual</div><div class="time-main" id="tcResVal">?</div><div class="time-sub">Revised estimate</div></div>
+    <div class="time-card" id="tcLife"><div class="time-label">Remaining life</div><div class="time-main" id="tcLifeVal">?</div><div class="time-sub">2027-2030</div></div>
+    <div class="time-card" id="tcNewDep"><div class="time-label">New annual dep.</div><div class="time-main" id="tcNewDepVal">?</div><div class="time-sub">Prospective amount</div></div>
+  </div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="newBtn" onclick="nextNew()">Show Step 1</button>
+    <button class="sc-btn sc-reset" onclick="resetNew()">Reset</button>
+  </div>
+  <div class="status-card" id="newStatus">Ready: start with book value at the revision date.</div>
+
+  <div class="work-grid">
+    <div class="card">
+      <div class="card-h"><span>New Estimate Workpaper</span><small>2027 forward</small></div>
+      <div class="card-b" id="newRows"></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><span>After the Estimate Change</span><small>prospective schedule</small></div>
+      <div class="card-b">
+        <table>
+          <thead><tr><th>Year</th><th class="money">Depreciation</th><th class="money">Accum. Dep.</th><th class="money">End BV</th></tr></thead>
+          <tbody id="newSchedBody">
+            <tr class="new prospect-row"><td>2027</td><td class="money">?</td><td class="money">?</td><td class="money">?</td></tr>
+            <tr class="new prospect-row"><td>2028</td><td class="money">?</td><td class="money">?</td><td class="money">?</td></tr>
+            <tr class="new prospect-row"><td>2029</td><td class="money">?</td><td class="money">?</td><td class="money">?</td></tr>
+            <tr class="new prospect-row"><td>2030</td><td class="money">?</td><td class="money">?</td><td class="money">?</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="why-diff" id="whyDiff" style="display:none">
+    <h4>Why did annual depreciation drop from $14,000 to $13,000?</h4>
+    <div class="calc-line">Old residual:               $6,000</div>
+    <div class="calc-line">New residual:              $10,000</div>
+    <div class="calc-line">────────────────────────────────────</div>
+    <div class="calc-line">Extra $ NOT depreciated:    $4,000</div>
+    <div class="calc-line">Spread over remaining:     4 years</div>
+    <div class="calc-line tot">Annual reduction: $1,000/yr  →  $14,000 − $1,000 = $13,000</div>
+  </div>
+
+  <div class="dep-chart" id="depChart" style="display:none">
+    <div class="dep-chart-h">Year-by-year depreciation: the two regimes side by side</div>
+    <div class="dep-row"><span class="yr">2025</span><div class="bar old">$14,000 (old estimate)</div><span class="amt">$14,000</span></div>
+    <div class="dep-row"><span class="yr">2026</span><div class="bar old">$14,000 (old estimate)</div><span class="amt">$14,000</span></div>
+    <div class="dep-divider">↓ revision · Jan. 1, 2027 · prior years untouched ↓</div>
+    <div class="dep-row"><span class="yr">2027</span><div class="bar new">$13,000 (new estimate)</div><span class="amt">$13,000</span></div>
+    <div class="dep-row"><span class="yr">2028</span><div class="bar new">$13,000 (new estimate)</div><span class="amt">$13,000</span></div>
+    <div class="dep-row"><span class="yr">2029</span><div class="bar new">$13,000 (new estimate)</div><span class="amt">$13,000</span></div>
+    <div class="dep-row"><span class="yr">2030</span><div class="bar new">$13,000 (new estimate)</div><span class="amt">$13,000</span></div>
+    <div class="dep-totals">
+      Total dep. over the asset's life: $14K × 2 + $13K × 4 = <strong>$80,000</strong> &nbsp;·&nbsp;
+      Ending book value = $90K − $80K = <strong>$10,000</strong> ✓ (matches new residual)
+    </div>
+  </div>
+
+  <div class="takeaway"><strong>Key point:</strong> the new $13,000 annual depreciation starts in 2027. The 2025 and 2026 amounts stay $14,000.</div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Record the New Depreciation Entry</div>
+  <div class="sec-sub">The change in estimate does not create a special catch-up entry. Boc simply records the new depreciation amount each year going forward.</div>
+
+  <div class="entry-compare">
+    <div class="entry-card old-entry">
+      <div class="entry-tag">2026 entry (old estimate)</div>
+      <div class="entry-line"><span>Dr. Depreciation Expense</span><span>$14,000</span></div>
+      <div class="entry-line indent"><span>Cr. Accumulated Depreciation</span><span>$14,000</span></div>
+    </div>
+    <div class="entry-card new-entry">
+      <div class="entry-tag">2027 entry (revised estimate)</div>
+      <div class="entry-line"><span>Dr. Depreciation Expense</span><span>$13,000</span></div>
+      <div class="entry-line indent"><span>Cr. Accumulated Depreciation</span><span>$13,000</span></div>
+    </div>
+  </div>
+  <div class="same-form">Same accounts · Same direction · Only the dollar amount changed. There is no special "change in estimate" entry.</div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="journalBtn" onclick="nextJournal()">Show Debit</button>
+    <button class="sc-btn sc-reset" onclick="resetJournal()">Reset</button>
+  </div>
+  <div class="status-card" id="journalStatus">Ready: record 2027 depreciation using the revised estimate.</div>
+
+  <div class="journal-layout">
+    <div class="card">
+      <div class="card-h"><span>2027 Depreciation Entry</span><small>Dec. 31, 2027</small></div>
+      <div class="card-b">
+        <table class="journal">
+          <thead><tr><th>Account</th><th class="dr">Debit</th><th class="cr">Credit</th></tr></thead>
+          <tbody>
+            <tr class="hidden" id="jRow0"><td>Depreciation Expense</td><td class="dr">$13,000</td><td class="cr"></td></tr>
+            <tr class="hidden" id="jRow1"><td class="indent">Accumulated Depreciation</td><td class="dr"></td><td class="cr">$13,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="why-panel">
+      <div class="why-head">Why Debit or Credit?</div>
+      <div class="why-body">
+        <div class="why-rule-grid">
+          <div class="why-rule"><div class="tag">Estimate rule</div><div class="text">No catch-up entry. Use the new amount prospectively.</div></div>
+          <div class="why-rule"><div class="tag">Expense rule</div><div class="text">Expenses increase with debits.</div></div>
+          <div class="why-rule"><div class="tag">Contra-asset rule</div><div class="text">Accumulated depreciation increases with credits.</div></div>
+          <div class="why-rule"><div class="tag">Cash check</div><div class="text">No cash is paid when depreciation is recorded.</div></div>
+        </div>
+        <div class="why-card active" id="whyIntro">Click Show Debit. The entry uses the revised annual depreciation amount.</div>
+        <div class="why-card debit" id="whyDebit"><strong>Debit Depreciation Expense.</strong> The company used the equipment during 2027. The revised annual expense is $13,000, and expenses increase with debits.<span class="mini">Expense increases -> debit Depreciation Expense</span></div>
+        <div class="why-card credit" id="whyCredit"><strong>Credit Accumulated Depreciation.</strong> The contra-asset accumulates the cost allocated to expense. Contra-assets increase with credits.<span class="mini">Contra-asset increases -> credit Accumulated Depreciation</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Check Your Understanding</div>
+  <div class="sec-sub">Check whether students can avoid retroactive treatment and calculate the prospective depreciation amount.</div>
+  <div class="score">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</section>
+
+<div class="nav">
+  <button id="btnPrev" onclick="prevTab()">Previous</button>
+  <span class="nav-ind" id="navInd"></span>
+  <button class="primary" id="btnNext" onclick="nextTab()">Next</button>
+</div>
+
+<script>
+const tabs = Array.from(document.querySelectorAll('.tab'));
+const panels = Array.from(document.querySelectorAll('.panel'));
+let currentTab = 0;
+let quizBuilt = false;
+
+function showTab(i) {
+  currentTab = Math.max(0, Math.min(i, panels.length - 1));
+  panels.forEach((p, idx) => p.classList.toggle('active', idx === currentTab));
+  tabs.forEach((t, idx) => {
+    t.classList.toggle('active', idx === currentTab);
+    t.setAttribute('aria-selected', idx === currentTab ? 'true' : 'false');
+  });
+  updateBottomNav();
+  if (currentTab === 4 && !quizBuilt) buildQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function updateBottomNav() {
+  const navInd = document.getElementById('navInd');
+  const label = tabs[currentTab]
+    ? tabs[currentTab].textContent.trim().replace(/^[①②③④⑤⑥⑦⑧⑨⑩]\s*/, '').replace(/^\d+\.\s*/, '')
+    : '';
+  if (navInd) navInd.textContent = 'Tab ' + (currentTab + 1) + ' of ' + panels.length + ' — ' + label;
+  const prevBtn = document.getElementById('btnPrev');
+  const nextBtn = document.getElementById('btnNext');
+  if (prevBtn) prevBtn.disabled = currentTab === 0;
+  if (nextBtn) nextBtn.disabled = currentTab === panels.length - 1;
+}
+function nextTab() { showTab(currentTab + 1); }
+function prevTab() { showTab(currentTab - 1); }
+updateBottomNav();
+
+const oldRows = [
+  ['Original depreciable base', 'Cost - original residual value', '$90,000 - $6,000 = $84,000'],
+  ['Original annual depreciation', 'Depreciable base / original useful life', '$84,000 / 6 = $14,000'],
+  ['Accumulated depreciation after 2 years', 'Annual depreciation x years used', '$14,000 x 2 = $28,000'],
+  ['Book value at Jan. 1, 2027', 'Cost - accumulated depreciation', '$90,000 - $28,000 = $62,000']
+];
+const oldMessages = [
+  'Step 1: compute the original depreciable base: <span class="calc">$90,000 - $6,000 = $84,000</span>.',
+  'Step 2: under the original estimate, annual depreciation was <span class="calc">$84,000 / 6 = $14,000</span>.',
+  'Step 3: after two years, accumulated depreciation is <span class="calc">$14,000 x 2 = $28,000</span>.',
+  'Step 4: book value at the revision date is <span class="calc">$90,000 - $28,000 = $62,000</span>.'
+];
+let oldStep = -1;
+function renderRows(target, rows, prefix) {
+  document.getElementById(target).innerHTML = rows.map((r, idx) =>
+    '<div class="calc-row hidden" id="' + prefix + idx + '"><div class="calc-label"><strong>' + r[0] + '</strong><br>' + r[1] + '</div><div class="calc-value">' + r[2] + '</div></div>'
+  ).join('');
+}
+function resetOld() {
+  oldStep = -1;
+  renderRows('oldRows', oldRows, 'oRow');
+  document.getElementById('oldStatus').innerHTML = 'Ready: compute depreciation using the original estimates for Years 2025 and 2026.';
+  document.getElementById('oldBtn').disabled = false;
+  document.getElementById('oldBtn').textContent = 'Show Step 1';
+  // Reset right-side schedule to "?"
+  ['s25dep','s25acc','s25bv','s26dep','s26acc','s26bv'].forEach(id => {
+    document.getElementById(id).textContent = '?';
+  });
+}
+function nextOld() {
+  oldStep++;
+  for (let i = 0; i < oldRows.length; i++) {
+    const row = document.getElementById('oRow' + i);
+    row.className = i < oldStep ? 'calc-row' : i === oldStep ? 'calc-row active' : 'calc-row hidden';
+  }
+  if (oldStep < oldRows.length) {
+    document.getElementById('oldStatus').innerHTML = oldMessages[oldStep];
+    document.getElementById('oldBtn').textContent = oldStep === oldRows.length - 1 ? 'Finish' : 'Show Step ' + (oldStep + 2);
+  } else {
+    document.getElementById('oldStatus').innerHTML = '<strong>Complete.</strong> The starting point for the new estimate is book value of <span class="calc">$62,000</span>.';
+    document.getElementById('oldBtn').disabled = true;
+  }
+  // Progressively fill the right-side schedule as steps unlock
+  if (oldStep >= 1) { // annual dep computed
+    document.getElementById('s25dep').textContent = '$14,000';
+    document.getElementById('s25acc').textContent = '$14,000';
+    document.getElementById('s25bv').textContent = '$76,000';
+  }
+  if (oldStep >= 2) { // accum dep after 2 years
+    document.getElementById('s26dep').textContent = '$14,000';
+    document.getElementById('s26acc').textContent = '$28,000';
+    document.getElementById('s26bv').textContent = '$62,000';
+  }
+}
+
+const newRows = [
+  ['Book value at revision date', 'Use current carrying amount, not original cost', '$62,000'],
+  ['Less: revised residual value', 'Use the new residual estimate', '$10,000'],
+  ['Remaining depreciable amount', 'Book value - revised residual value', '$62,000 - $10,000 = $52,000'],
+  ['Revised remaining life', 'New remaining useful life', '4 years'],
+  ['New annual depreciation', 'Remaining depreciable amount / remaining life', '$52,000 / 4 = $13,000']
+];
+const newMessages = [
+  'Step 1: start with book value at the revision date: <span class="calc">$62,000</span>.',
+  'Step 2: use the revised residual value: <span class="calc">$10,000</span>.',
+  'Step 3: compute remaining depreciable amount: <span class="calc">$62,000 - $10,000 = $52,000</span>.',
+  'Step 4: use the revised remaining life: <span class="calc">4 years</span>.',
+  'Step 5: compute new annual depreciation: <span class="calc">$52,000 / 4 = $13,000</span>.'
+];
+let newStep = -1;
+function resetNew() {
+  newStep = -1;
+  renderRows('newRows', newRows, 'nRow');
+  document.getElementById('newStatus').innerHTML = 'Ready: start with book value at the revision date.';
+  document.getElementById('newBtn').disabled = false;
+  document.getElementById('newBtn').textContent = 'Show Step 1';
+  // Reset timeline cards
+  document.getElementById('tcBV').textContent = 'Book value: ?';
+  document.getElementById('tcResVal').textContent = '?';
+  document.getElementById('tcLifeVal').textContent = '?';
+  document.getElementById('tcNewDepVal').textContent = '?';
+  document.getElementById('tcRevision').classList.remove('active');
+  document.getElementById('tcResidual').classList.remove('active');
+  document.getElementById('tcLife').classList.remove('active');
+  document.getElementById('tcNewDep').classList.remove('active');
+  // Reset right-side schedule
+  document.querySelectorAll('#newSchedBody .prospect-row').forEach(tr => {
+    tr.querySelectorAll('td.money').forEach(td => td.textContent = '?');
+  });
+  document.getElementById('whyDiff').style.display = 'none';
+  document.getElementById('depChart').style.display = 'none';
+}
+function nextNew() {
+  newStep++;
+  for (let i = 0; i < newRows.length; i++) {
+    const row = document.getElementById('nRow' + i);
+    row.className = i < newStep ? 'calc-row' : i === newStep ? 'calc-row active' : 'calc-row hidden';
+  }
+  if (newStep < newRows.length) {
+    document.getElementById('newStatus').innerHTML = newMessages[newStep];
+    document.getElementById('newBtn').textContent = newStep === newRows.length - 1 ? 'Finish' : 'Show Step ' + (newStep + 2);
+  } else {
+    document.getElementById('newStatus').innerHTML = '<strong>Complete.</strong> Boc records <span class="calc">$13,000</span> depreciation each year from 2027 through 2030.';
+    document.getElementById('newBtn').disabled = true;
+  }
+  // Progressively reveal timeline cards
+  if (newStep >= 0) { // BV
+    document.getElementById('tcBV').textContent = 'Book value: $62,000';
+    document.getElementById('tcRevision').classList.add('active');
+  }
+  if (newStep >= 1) { // residual
+    document.getElementById('tcResVal').textContent = '$10,000';
+    document.getElementById('tcResidual').classList.add('active');
+  }
+  if (newStep >= 3) { // remaining life
+    document.getElementById('tcLifeVal').textContent = '4 years';
+    document.getElementById('tcLife').classList.add('active');
+  }
+  if (newStep >= 4) { // new annual dep
+    document.getElementById('tcNewDepVal').textContent = '$13,000';
+    document.getElementById('tcNewDep').classList.add('active');
+    // Fill the prospective schedule
+    const rows = document.querySelectorAll('#newSchedBody .prospect-row');
+    const data = [
+      ['2027','$13,000','$41,000','$49,000'],
+      ['2028','$13,000','$54,000','$36,000'],
+      ['2029','$13,000','$67,000','$23,000'],
+      ['2030','$13,000','$80,000','$10,000']
+    ];
+    rows.forEach((tr, i) => {
+      const tds = tr.querySelectorAll('td');
+      tds[1].textContent = data[i][1];
+      tds[2].textContent = data[i][2];
+      tds[3].textContent = data[i][3];
+    });
+    // Show the bar chart and "why" callout
+    document.getElementById('whyDiff').style.display = 'block';
+    document.getElementById('depChart').style.display = 'block';
+  }
+}
+
+let journalStep = -1;
+function showWhyCard(id) {
+  ['whyIntro','whyDebit','whyCredit'].forEach(cardId => {
+    document.getElementById(cardId).classList.toggle('active', cardId === id);
+  });
+}
+function resetJournal() {
+  journalStep = -1;
+  ['jRow0','jRow1'].forEach(id => document.getElementById(id).className = 'hidden');
+  showWhyCard('whyIntro');
+  document.getElementById('journalStatus').innerHTML = 'Ready: record 2027 depreciation using the revised estimate.';
+  document.getElementById('journalBtn').disabled = false;
+  document.getElementById('journalBtn').textContent = 'Show Debit';
+}
+function nextJournal() {
+  journalStep++;
+  const rows = ['jRow0','jRow1'];
+  rows.forEach((id, idx) => {
+    const row = document.getElementById(id);
+    if (idx < journalStep) row.className = 'done';
+    if (idx === journalStep) row.className = 'active';
+  });
+  if (journalStep === 0) {
+    showWhyCard('whyDebit');
+    document.getElementById('journalStatus').innerHTML = document.getElementById('whyDebit').innerHTML;
+    document.getElementById('journalBtn').textContent = 'Show Credit';
+  } else if (journalStep === 1) {
+    showWhyCard('whyCredit');
+    document.getElementById('journalStatus').innerHTML = document.getElementById('whyCredit').innerHTML;
+    document.getElementById('journalBtn').textContent = 'Finish';
+  } else {
+    rows.forEach(id => document.getElementById(id).className = 'done');
+    document.getElementById('journalStatus').innerHTML = '<strong>Complete.</strong> There is no entry to change 2025 or 2026 depreciation.';
+    document.getElementById('journalBtn').disabled = true;
+  }
+}
+
+let score = 0;
+const questions = [
+  { q: 'How are changes in depreciation estimates treated?', opts: ['Prospectively', 'Retroactively', 'As prior-period errors', 'By restating retained earnings'], a: 0, exp: 'Changes in estimates are handled prospectively: from the revision date forward.' },
+  { q: 'What is the original annual depreciation?', opts: ['$13,000', '$14,000', '$15,000', '$28,000'], a: 1, exp: '($90,000 - $6,000) / 6 = $14,000.' },
+  { q: 'What is accumulated depreciation after two years?', opts: ['$14,000', '$26,000', '$28,000', '$62,000'], a: 2, exp: '$14,000 x 2 years = $28,000.' },
+  { q: 'What is book value at January 1, 2027?', opts: ['$52,000', '$62,000', '$76,000', '$90,000'], a: 1, exp: '$90,000 cost - $28,000 accumulated depreciation = $62,000.' },
+  { q: 'What is the total remaining depreciable amount (the dollar amount to be spread over remaining years)?', opts: ['$52,000', '$62,000', '$84,000', '$90,000'], a: 0, exp: 'Remaining depreciable amount is current book value minus revised residual value: $62,000 - $10,000 = $52,000.' },
+  { q: 'What is the new annual depreciation from 2027 forward?', opts: ['$10,400', '$13,000', '$14,000', '$15,500'], a: 1, exp: '$52,000 remaining depreciable amount / 4 remaining years = $13,000.' },
+  { q: 'What happens to depreciation recorded in 2025 and 2026?', opts: ['It stays unchanged', 'It is reversed', 'It is restated using the new estimate', 'It is charged to retained earnings'], a: 0, exp: 'Prior depreciation stays as recorded. The new estimate affects current and future years only.' },
+  { q: 'What account is credited for 2027 depreciation?', opts: ['Cash', 'Equipment', 'Accumulated Depreciation', 'Accounts Payable'], a: 2, exp: 'Depreciation credits Accumulated Depreciation, a contra-asset.' }
+];
+function buildQuiz() {
+  quizBuilt = true;
+  document.getElementById('total').textContent = questions.length;
+  const wrap = document.getElementById('quizWrap');
+  questions.forEach((item, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML =
+      '<div class="q-num">Question ' + (qi + 1) + ' of ' + questions.length + '</div>' +
+      '<div class="q-text">' + item.q + '</div>' +
+      '<div class="q-opts">' + item.opts.map((opt, oi) =>
+        '<button class="q-opt" onclick="answerQ(' + qi + ',' + oi + ', this)">' + opt + '</button>'
+      ).join('') + '</div>' +
+      '<div class="explain" id="exp' + qi + '"></div>';
+    wrap.appendChild(card);
+  });
+}
+function answerQ(qi, oi, btn) {
+  const item = questions[qi];
+  const buttons = btn.parentElement.querySelectorAll('button');
+  if (buttons[0].disabled) return;
+  buttons.forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === item.a) b.classList.add('correct');
+  });
+  const exp = document.getElementById('exp' + qi);
+  if (oi === item.a) {
+    score++;
+    btn.classList.add('correct');
+    exp.textContent = 'Correct. ' + item.exp;
+  } else {
+    btn.classList.add('wrong');
+    exp.textContent = 'The answer is: ' + item.opts[item.a] + '. ' + item.exp;
+  }
+  exp.classList.add('show');
+  document.getElementById('score').textContent = score;
+}
+
+resetOld();
+resetNew();
+resetJournal();
+</script>
+</body>
+</html>

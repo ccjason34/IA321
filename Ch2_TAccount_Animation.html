@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T-Accounts & Normal Balances | Kieso Ch. 2</title>
+<style>
+  :root {
+    --bg:    #f1f5f9;
+    --panel: #1e293b;
+    --card:  #ffffff;
+    --blue1: #1e40af;
+    --blue2: #3b82f6;
+    --teal:  #0d9488;
+    --green: #16a34a;
+    --red:   #dc2626;
+    --amber: #d97706;
+    --gray3: #94a3b8;
+    --gray4: #64748b;
+    --dr-bg: #eff6ff;
+    --cr-bg: #f0fdf4;
+    --dr-border: #bfdbfe;
+    --cr-border: #bbf7d0;
+    --dr-text: #1d4ed8;
+    --cr-text: #15803d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); font-family: 'Segoe UI', system-ui, sans-serif; color: #1e293b; min-height: 100vh; font-size: 16px; }
+
+  /* ── Header ── */
+  .header { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.15rem; font-weight: 800; }
+  .header p  { font-size: .75rem; color: #94a3b8; margin-top: 3px; }
+
+  /* ── Tab bar ── */
+  .tabs { display: flex; background: #0f172a; border-bottom: 2px solid #1e293b; padding: 0 16px; gap: 4px; overflow-x: auto; }
+  .tab { padding: 11px 18px; font-size: .88rem; font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; }
+  .tab:hover { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+  /* ── Content area ── */
+  .content { max-width: 860px; margin: 0 auto; padding: 24px 16px 80px; }
+
+  /* ── Section title ── */
+  .sec-title { font-size: 1.35rem; font-weight: 800; color: #1e293b; margin-bottom: 8px; }
+  .sec-sub   { font-size: .97rem; color: #475569; margin-bottom: 20px; line-height: 1.7; }
+
+  /* ── Quote box ── */
+  .quote { background: #f8fafc; border-left: 4px solid #3b82f6; border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: .95rem; color: #334155; line-height: 1.7; margin-bottom: 20px; }
+  .quote strong { color: #1d4ed8; }
+
+  /* ══════════════════════════════
+     TAB 1 — What is a T-account?
+  ══════════════════════════════ */
+  .t-demo { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+
+  .t-account {
+    width: 280px;
+    border: 2.5px solid #334155;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,.1);
+  }
+  .t-name {
+    background: #1e293b;
+    color: white;
+    text-align: center;
+    font-weight: 800;
+    font-size: .9rem;
+    padding: 8px;
+    letter-spacing: .5px;
+  }
+  .t-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .t-col {
+    padding: 10px 12px;
+    min-height: 110px;
+  }
+  .t-col-hdr {
+    font-size: .68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .t-col.dr-side { background: var(--dr-bg); border-right: 2px solid #334155; }
+  .t-col.cr-side { background: var(--cr-bg); }
+  .t-col.dr-side .t-col-hdr { color: var(--dr-text); }
+  .t-col.cr-side .t-col-hdr { color: var(--cr-text); }
+
+  .t-entry { font-size: .82rem; padding: 3px 0; }
+  .t-entry.highlight { font-weight: 800; font-size: .9rem; animation: pop .4s ease; }
+  @keyframes pop { 0%{transform:scale(1.2);} 100%{transform:scale(1);} }
+
+  .t-divider { width: 2px; background: #334155; }
+
+  /* labels */
+  .side-labels { display: flex; justify-content: space-around; width: 280px; font-size: .72rem; font-weight: 700; }
+  .side-labels .dr-label { color: var(--dr-text); }
+  .side-labels .cr-label { color: var(--cr-text); }
+
+  .rule-box { background: #fefce8; border: 1.5px solid #fde68a; border-radius: 8px; padding: 12px 16px; font-size: .8rem; color: #78350f; line-height: 1.7; max-width: 340px; text-align: center; }
+  .rule-box strong { color: #92400e; }
+
+  /* ══════════════════════════════
+     TAB 2 — Normal Balances
+  ══════════════════════════════ */
+  .nb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media(max-width:540px){ .nb-grid { grid-template-columns: 1fr; } }
+
+  .nb-card {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .nb-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.13); }
+  .nb-card-hdr { padding: 12px 16px; font-weight: 800; font-size: .97rem; display: flex; align-items: center; gap: 8px; }
+  .nb-card-body { padding: 14px 16px; background: white; }
+
+  .nb-mini-t { display: grid; grid-template-columns: 1fr 1fr; border: 1.5px solid #e2e8f0; border-radius: 6px; overflow: hidden; font-family: monospace; font-size: .85rem; margin-bottom: 10px; }
+  .nb-mini-t .nb-dr { padding: 10px; background: var(--dr-bg); border-right: 1.5px solid #e2e8f0; }
+  .nb-mini-t .nb-cr { padding: 10px; background: var(--cr-bg); }
+  .nb-mini-t .nb-side-lbl { font-weight: 800; font-size: .75rem; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 5px; }
+  .nb-normal { font-size: .82rem; padding: 6px 10px; border-radius: 4px; text-align: center; font-weight: 700; margin-top: 8px; }
+  .nb-desc { font-size: .85rem; color: #475569; line-height: 1.7; margin-top: 8px; }
+
+  /* account type colors */
+  .type-asset    { background: #dbeafe; color: #1e40af; }
+  .type-liability{ background: #fce7f3; color: #9d174d; }
+  .type-equity   { background: #f3e8ff; color: #6b21a8; }
+  .type-revenue  { background: #dcfce7; color: #15803d; }
+  .type-expense  { background: #fef9c3; color: #92400e; }
+  .type-dividend { background: #ffedd5; color: #c2410c; }
+
+  .nb-normal.debit-normal  { background: #dbeafe; color: #1e40af; }
+  .nb-normal.credit-normal { background: #dcfce7; color: #15803d; }
+
+  /* ══════════════════════════════
+     TAB 3 — Interactive Quiz
+  ══════════════════════════════ */
+  .quiz-area { display: flex; flex-direction: column; gap: 16px; }
+  .q-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .q-prompt { font-size: 1rem; font-weight: 700; color: #1e293b; margin-bottom: 14px; }
+  .q-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .q-btn { padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f8fafc; font-size: .92rem; font-weight: 600; cursor: pointer; transition: all .15s; color: #334155; }
+  .q-btn:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
+  .q-btn.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-btn.wrong   { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
+  .q-btn:disabled { cursor: default; }
+  .q-result { font-size: .78rem; margin-top: 10px; padding: 8px 12px; border-radius: 6px; display: none; }
+  .q-result.show { display: block; }
+  .q-result.ok  { background: #dcfce7; color: #15803d; }
+  .q-result.bad { background: #fee2e2; color: #991b1b; }
+  .q-score { text-align: center; font-size: .9rem; font-weight: 800; color: #1e293b; margin-top: 8px; }
+
+  /* ══════════════════════════════
+     TAB 4 — Accounting Equation
+  ══════════════════════════════ */
+  .eq-wrap { display: flex; flex-direction: column; gap: 20px; }
+  .eq-banner { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; padding: 20px; background: #1e293b; border-radius: 12px; margin-bottom: 4px; }
+  .eq-box { background: white; border-radius: 8px; padding: 12px 20px; text-align: center; }
+  .eq-box .eq-label { font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+  .eq-box .eq-val   { font-size: 1.1rem; font-weight: 900; }
+  .eq-op { font-size: 1.4rem; font-weight: 900; color: #94a3b8; }
+  .eq-box.asset-box  { border-top: 4px solid #3b82f6; } .eq-box.asset-box .eq-label { color: #1d4ed8; } .eq-box.asset-box .eq-val { color: #1d4ed8; }
+  .eq-box.liab-box   { border-top: 4px solid #ec4899; } .eq-box.liab-box .eq-label  { color: #9d174d; } .eq-box.liab-box .eq-val  { color: #9d174d; }
+  .eq-box.equity-box { border-top: 4px solid #a855f7; } .eq-box.equity-box .eq-label{ color: #6b21a8; } .eq-box.equity-box .eq-val{ color: #6b21a8; }
+
+  .eq-detail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  @media(max-width:560px){ .eq-detail-grid { grid-template-columns: 1fr; } }
+  .eq-col { border-radius: 9px; overflow: hidden; }
+  .eq-col-hdr { padding: 9px 12px; font-weight: 800; font-size: .8rem; }
+  .eq-col-body { background: white; padding: 10px 12px; }
+  .eq-item { display: flex; justify-content: space-between; align-items: center; font-size: .87rem; padding: 6px 0; border-bottom: 1px solid #f1f5f9; color: #334155; }
+  .eq-item:last-child { border-bottom: none; }
+  .eq-item .badge { font-size: .7rem; font-weight: 700; padding: 2px 7px; border-radius: 3px; }
+  .eq-item.highlight-row { background: #fef9c3; border-radius: 6px; padding: 6px 8px; margin: 2px -8px; border-bottom: none; font-weight: 700; }
+  .badge-dr { background: #dbeafe; color: #1d4ed8; }
+  .badge-cr { background: #dcfce7; color: #15803d; }
+
+  /* ── Nav ── */
+  .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; }
+  .nav-btn { padding: 9px 22px; border-radius: 8px; border: none; font-weight: 700; font-size: .82rem; cursor: pointer; transition: background .15s; }
+  .nav-btn.prev { background: #1e293b; color: #94a3b8; }
+  .nav-btn.prev:hover { background: #334155; }
+  .nav-btn.next { background: #3b82f6; color: white; }
+  .nav-btn.next:hover { background: #2563eb; }
+  .nav-btn:disabled { opacity: .4; cursor: default; }
+  .nav-ind { font-size: .75rem; color: #64748b; font-weight: 600; }
+
+  /* panel hide/show */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* balance indicator */
+  .bal-row { display: flex; justify-content: space-between; align-items: center; font-size: .8rem; margin-top: 8px; padding-top: 8px; border-top: 2px solid #e2e8f0; font-weight: 800; }
+  .bal-dr { color: var(--dr-text); }
+  .bal-cr { color: var(--cr-text); }
+
+  /* interactive T highlight */
+  .pulse-dr { animation: flashDr .6s ease; }
+  .pulse-cr { animation: flashCr .6s ease; }
+  @keyframes flashDr { 0%{background:#bfdbfe} 100%{background:var(--dr-bg)} }
+  @keyframes flashCr { 0%{background:#bbf7d0} 100%{background:var(--cr-bg)} }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>📒 T-Accounts &amp; Normal Balances</h1>
+  <p>Kieso, Weygandt &amp; Warfield · Intermediate Accounting 18th Ed. · Chapter 2</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showPanel(0)">① What is a T-Account?</div>
+  <div class="tab" onclick="showPanel(1)">② Normal Balances</div>
+  <div class="tab" onclick="showPanel(2)">③ The Accounting Equation</div>
+  <div class="tab" onclick="showPanel(3)">④ Self-Check</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PANEL 0 — What is a T-Account?
+══════════════════════════════════════ -->
+<div class="content panel active" id="panel-0">
+  <div class="sec-title">The T-Account</div>
+  <div class="sec-sub">
+    Every account in the ledger can be drawn as a "T" shape. The account name sits at the top.
+    Entries on the <strong>left side</strong> are always called <strong>debits (Dr.)</strong>.
+    Entries on the <strong>right side</strong> are always called <strong>credits (Cr.)</strong>.
+  </div>
+
+  <div class="quote">
+    <strong>From the textbook (Illustration 2.2):</strong> "The terms <em>debit</em> and <em>credit</em> mean
+    <strong>left</strong> and <strong>right</strong>, respectively. These terms do not mean increase or decrease."
+    The positioning is simply an accounting convention — like driving on the right side of the road.
+  </div>
+
+  <div class="t-demo">
+    <!-- Anatomy of a T-account -->
+    <div>
+      <div style="text-align:center;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Anatomy of a T-Account</div>
+      <div class="t-account">
+        <div class="t-name">Account Name</div>
+        <div class="t-cols">
+          <div class="t-col dr-side">
+            <div class="t-col-hdr">Debit (Dr.) — LEFT</div>
+            <div class="t-entry" style="color:#64748b;font-style:italic;font-size:.75rem">entries recorded here</div>
+          </div>
+          <div class="t-col cr-side">
+            <div class="t-col-hdr">Credit (Cr.) — RIGHT</div>
+            <div class="t-entry" style="color:#64748b;font-style:italic;font-size:.75rem">entries recorded here</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live interactive Cash example -->
+    <div>
+      <div style="text-align:center;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Live Example — Cash Account (an Asset)</div>
+      <div class="t-account" id="cash-t">
+        <div class="t-name">Cash</div>
+        <div class="t-cols">
+          <div class="t-col dr-side" id="cash-dr-col">
+            <div class="t-col-hdr">Debit (Dr.)</div>
+            <div id="cash-dr-entries"></div>
+          </div>
+          <div class="t-col cr-side" id="cash-cr-col">
+            <div class="t-col-hdr">Credit (Cr.)</div>
+            <div id="cash-cr-entries"></div>
+          </div>
+        </div>
+        <div class="bal-row" style="padding:6px 12px 8px">
+          <span class="bal-dr">Dr. Total: $<span id="cash-dr-total">0</span></span>
+          <span id="cash-bal-label" style="font-size:.72rem;color:#64748b"></span>
+          <span class="bal-cr">Cr. Total: $<span id="cash-cr-total">0</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Buttons to add entries -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+      <button onclick="addCashEntry('dr', 10000, 'Owner invests cash')" style="background:#eff6ff;border:2px solid #3b82f6;color:#1d4ed8;padding:9px 16px;border-radius:8px;font-weight:700;font-size:.78rem;cursor:pointer">
+        + Debit $10,000 — Owner Invests
+      </button>
+      <button onclick="addCashEntry('dr', 5000, 'Borrowed cash')" style="background:#eff6ff;border:2px solid #3b82f6;color:#1d4ed8;padding:9px 16px;border-radius:8px;font-weight:700;font-size:.78rem;cursor:pointer">
+        + Debit $5,000 — Borrowed Cash
+      </button>
+      <button onclick="addCashEntry('cr', 2500, 'Paid for supplies')" style="background:#f0fdf4;border:2px solid #16a34a;color:#15803d;padding:9px 16px;border-radius:8px;font-weight:700;font-size:.78rem;cursor:pointer">
+        − Credit $2,500 — Paid Supplies
+      </button>
+      <button onclick="addCashEntry('cr', 1200, 'Paid rent')" style="background:#f0fdf4;border:2px solid #16a34a;color:#15803d;padding:9px 16px;border-radius:8px;font-weight:700;font-size:.78rem;cursor:pointer">
+        − Credit $1,200 — Paid Rent
+      </button>
+      <button onclick="resetCash()" style="background:#f8fafc;border:2px solid #94a3b8;color:#64748b;padding:9px 16px;border-radius:8px;font-weight:700;font-size:.78rem;cursor:pointer">
+        ↺ Reset
+      </button>
+    </div>
+
+    <div class="rule-box">
+      <strong>Key Rule:</strong> "Debit" and "Credit" are <em>position labels</em>, not value judgments.<br>
+      Left = Debit &nbsp;|&nbsp; Right = Credit<br><br>
+      Whether a debit increases or decreases depends on the <strong>account type</strong> — covered in Tab ②.
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PANEL 1 — Normal Balances
+══════════════════════════════════════ -->
+<div class="content panel" id="panel-1">
+  <div class="sec-title">Normal Balances by Account Type</div>
+  <div class="sec-sub">
+    Each account type has a "normal balance" — the side where increases are recorded.
+    Click any card to see a detailed explanation and example entries.
+  </div>
+
+  <div class="quote">
+    <strong>From Illustration 2.2:</strong> "Increases to all asset and expense accounts occur on the left (debit side).
+    Increases to all liability, revenue, and most stockholders' equity accounts occur on the right (credit side)."
+  </div>
+
+  <div class="nb-grid">
+
+    <!-- ASSETS -->
+    <div class="nb-card" onclick="toggleDetail('d-asset')">
+      <div class="nb-card-hdr type-asset">🏦 Assets</div>
+      <div class="nb-card-body">
+        <div class="nb-mini-t">
+          <div class="nb-dr">
+            <div class="nb-side-lbl" style="color:var(--dr-text)">Debit</div>
+            <div style="font-weight:800;color:var(--dr-text)">+ Increase ✓</div>
+          </div>
+          <div class="nb-cr">
+            <div class="nb-side-lbl" style="color:var(--cr-text)">Credit</div>
+            <div>− Decrease</div>
+          </div>
+        </div>
+        <div class="nb-normal debit-normal">Normal Balance: DEBIT (Left)</div>
+        <div id="d-asset" style="display:none">
+          <div class="nb-desc">
+            Assets are things the company <strong>owns or controls</strong> (Cash, Equipment, Accounts Receivable, Supplies).
+            They normally have a debit balance because we debit them to make them bigger.
+            <br><br>
+            <strong>Example — Cash:</strong><br>
+            Debit $10,000 (owner invests) → Cash increases<br>
+            Credit $2,500 (pay for supplies) → Cash decreases
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIABILITIES -->
+    <div class="nb-card" onclick="toggleDetail('d-liab')">
+      <div class="nb-card-hdr type-liability">📋 Liabilities</div>
+      <div class="nb-card-body">
+        <div class="nb-mini-t">
+          <div class="nb-dr">
+            <div class="nb-side-lbl" style="color:var(--dr-text)">Debit</div>
+            <div>− Decrease</div>
+          </div>
+          <div class="nb-cr">
+            <div class="nb-side-lbl" style="color:var(--cr-text)">Credit</div>
+            <div style="font-weight:800;color:var(--cr-text)">+ Increase ✓</div>
+          </div>
+        </div>
+        <div class="nb-normal credit-normal">Normal Balance: CREDIT (Right)</div>
+        <div id="d-liab" style="display:none">
+          <div class="nb-desc">
+            Liabilities are amounts the company <strong>owes</strong> (Accounts Payable, Notes Payable, Wages Payable).
+            They have a credit balance — we credit them to increase what is owed.
+            <br><br>
+            <strong>Example — Notes Payable:</strong><br>
+            Credit $5,000 (borrow from bank) → liability increases<br>
+            Debit $5,000 (repay the note) → liability decreases
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EQUITY -->
+    <div class="nb-card" onclick="toggleDetail('d-equity')">
+      <div class="nb-card-hdr type-equity">🏛️ Stockholders' Equity</div>
+      <div class="nb-card-body">
+        <div class="nb-mini-t">
+          <div class="nb-dr">
+            <div class="nb-side-lbl" style="color:var(--dr-text)">Debit</div>
+            <div>− Decrease</div>
+          </div>
+          <div class="nb-cr">
+            <div class="nb-side-lbl" style="color:var(--cr-text)">Credit</div>
+            <div style="font-weight:800;color:var(--cr-text)">+ Increase ✓</div>
+          </div>
+        </div>
+        <div class="nb-normal credit-normal">Normal Balance: CREDIT (Right)</div>
+        <div id="d-equity" style="display:none">
+          <div class="nb-desc">
+            Equity accounts (Common Stock, Retained Earnings) represent owners' claims.
+            They have a credit normal balance — owners' interests grow on the credit side.
+            <br><br>
+            <strong>Example — Common Stock:</strong><br>
+            Credit $10,000 (issue shares) → equity increases<br>
+            Debit (buyback shares) → equity decreases
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVENUE -->
+    <div class="nb-card" onclick="toggleDetail('d-rev')">
+      <div class="nb-card-hdr type-revenue">💰 Revenues</div>
+      <div class="nb-card-body">
+        <div class="nb-mini-t">
+          <div class="nb-dr">
+            <div class="nb-side-lbl" style="color:var(--dr-text)">Debit</div>
+            <div>− Decrease</div>
+          </div>
+          <div class="nb-cr">
+            <div class="nb-side-lbl" style="color:var(--cr-text)">Credit</div>
+            <div style="font-weight:800;color:var(--cr-text)">+ Increase ✓</div>
+          </div>
+        </div>
+        <div class="nb-normal credit-normal">Normal Balance: CREDIT (Right)</div>
+        <div id="d-rev" style="display:none">
+          <div class="nb-desc">
+            Revenues (Service Revenue, Sales Revenue) increase equity by increasing profit.
+            Since equity has a credit normal balance, so do revenues.
+            <br><br>
+            <strong>Example — Service Revenue:</strong><br>
+            Credit $8,000 (earned fees) → revenue increases<br>
+            Debit (closing entry at year-end) → balance zeroed out
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPENSES -->
+    <div class="nb-card" onclick="toggleDetail('d-exp')">
+      <div class="nb-card-hdr type-expense">📉 Expenses</div>
+      <div class="nb-card-body">
+        <div class="nb-mini-t">
+          <div class="nb-dr">
+            <div class="nb-side-lbl" style="color:var(--dr-text)">Debit</div>
+            <div style="font-weight:800;color:var(--dr-text)">+ Increase ✓</div>
+          </div>
+          <div class="nb-cr">
+            <div class="nb-side-lbl" style="color:var(--cr-text)">Credit</div>
+            <div>− Decrease</div>
+          </div>
+        </div>
+        <div class="nb-normal debit-normal">Normal Balance: DEBIT (Left)</div>
+        <div id="d-exp" style="display:none">
+          <div class="nb-desc">
+            Expenses (Rent Expense, Wages Expense, Supplies Expense) reduce equity.
+            Since they decrease equity (a credit-normal account), expenses carry a debit normal balance.
+            <br><br>
+            <strong>Example — Rent Expense:</strong><br>
+            Debit $1,200 (paid rent) → expense increases (equity decreases)<br>
+            Credit (closing entry) → balance zeroed out at year-end
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIVIDENDS -->
+    <div class="nb-card" onclick="toggleDetail('d-div')">
+      <div class="nb-card-hdr type-dividend">💸 Dividends</div>
+      <div class="nb-card-body">
+        <div class="nb-mini-t">
+          <div class="nb-dr">
+            <div class="nb-side-lbl" style="color:var(--dr-text)">Debit</div>
+            <div style="font-weight:800;color:var(--dr-text)">+ Increase ✓</div>
+          </div>
+          <div class="nb-cr">
+            <div class="nb-side-lbl" style="color:var(--cr-text)">Credit</div>
+            <div>− Decrease</div>
+          </div>
+        </div>
+        <div class="nb-normal debit-normal">Normal Balance: DEBIT (Left)</div>
+        <div id="d-div" style="display:none">
+          <div class="nb-desc">
+            Dividends reduce retained earnings (equity). Like expenses, they decrease equity
+            so they carry a debit normal balance — the opposite of equity accounts.
+            <br><br>
+            <strong>Example — Dividends:</strong><br>
+            Debit $500 (declare dividends) → dividends increase, equity decreases<br>
+            Credit (closing entry) → balance zeroed out at year-end
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Summary table -->
+  <div style="margin-top:24px;background:white;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+    <div style="background:#1e293b;color:white;padding:10px 16px;font-weight:800;font-size:.82rem">Quick Reference — Normal Balances</div>
+    <table style="width:100%;border-collapse:collapse;font-size:.8rem">
+      <thead>
+        <tr style="background:#f8fafc">
+          <th style="padding:9px 14px;text-align:left;color:#475569;font-weight:700">Account Type</th>
+          <th style="padding:9px 14px;text-align:center;color:#1d4ed8;font-weight:700">Debit (Left)</th>
+          <th style="padding:9px 14px;text-align:center;color:#15803d;font-weight:700">Credit (Right)</th>
+          <th style="padding:9px 14px;text-align:center;font-weight:700">Normal Balance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-top:1px solid #f1f5f9">
+          <td style="padding:9px 14px;font-weight:600">Assets</td>
+          <td style="text-align:center;color:#16a34a;font-weight:700">+ Increase</td>
+          <td style="text-align:center;color:#dc2626">− Decrease</td>
+          <td style="text-align:center"><span style="background:#dbeafe;color:#1e40af;padding:2px 10px;border-radius:4px;font-weight:700;font-size:.72rem">DEBIT</span></td>
+        </tr>
+        <tr style="border-top:1px solid #f1f5f9;background:#fafafa">
+          <td style="padding:9px 14px;font-weight:600">Liabilities</td>
+          <td style="text-align:center;color:#dc2626">− Decrease</td>
+          <td style="text-align:center;color:#16a34a;font-weight:700">+ Increase</td>
+          <td style="text-align:center"><span style="background:#dcfce7;color:#15803d;padding:2px 10px;border-radius:4px;font-weight:700;font-size:.72rem">CREDIT</span></td>
+        </tr>
+        <tr style="border-top:1px solid #f1f5f9">
+          <td style="padding:9px 14px;font-weight:600">Stockholders' Equity</td>
+          <td style="text-align:center;color:#dc2626">− Decrease</td>
+          <td style="text-align:center;color:#16a34a;font-weight:700">+ Increase</td>
+          <td style="text-align:center"><span style="background:#dcfce7;color:#15803d;padding:2px 10px;border-radius:4px;font-weight:700;font-size:.72rem">CREDIT</span></td>
+        </tr>
+        <tr style="border-top:1px solid #f1f5f9;background:#fafafa">
+          <td style="padding:9px 14px;font-weight:600">Revenues</td>
+          <td style="text-align:center;color:#dc2626">− Decrease</td>
+          <td style="text-align:center;color:#16a34a;font-weight:700">+ Increase</td>
+          <td style="text-align:center"><span style="background:#dcfce7;color:#15803d;padding:2px 10px;border-radius:4px;font-weight:700;font-size:.72rem">CREDIT</span></td>
+        </tr>
+        <tr style="border-top:1px solid #f1f5f9">
+          <td style="padding:9px 14px;font-weight:600">Expenses</td>
+          <td style="text-align:center;color:#16a34a;font-weight:700">+ Increase</td>
+          <td style="text-align:center;color:#dc2626">− Decrease</td>
+          <td style="text-align:center"><span style="background:#dbeafe;color:#1e40af;padding:2px 10px;border-radius:4px;font-weight:700;font-size:.72rem">DEBIT</span></td>
+        </tr>
+        <tr style="border-top:1px solid #f1f5f9;background:#fafafa">
+          <td style="padding:9px 14px;font-weight:600">Dividends</td>
+          <td style="text-align:center;color:#16a34a;font-weight:700">+ Increase</td>
+          <td style="text-align:center;color:#dc2626">− Decrease</td>
+          <td style="text-align:center"><span style="background:#dbeafe;color:#1e40af;padding:2px 10px;border-radius:4px;font-weight:700;font-size:.72rem">DEBIT</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PANEL 2 — Accounting Equation
+══════════════════════════════════════ -->
+<div class="content panel" id="panel-2">
+  <div class="sec-title">The Expanded Accounting Equation</div>
+  <div class="sec-sub">
+    Normal balances follow directly from the accounting equation. Assets are on the left → debit normal balance.
+    Liabilities and Equity are on the right → credit normal balance. Expenses and Dividends reduce equity, so they flip to debit.
+  </div>
+
+  <div class="eq-wrap">
+    <div class="eq-banner">
+      <div class="eq-box asset-box">
+        <div class="eq-label">Assets</div>
+        <div class="eq-val">Dr. side</div>
+      </div>
+      <div class="eq-op">=</div>
+      <div class="eq-box liab-box">
+        <div class="eq-label">Liabilities</div>
+        <div class="eq-val">Cr. side</div>
+      </div>
+      <div class="eq-op">+</div>
+      <div class="eq-box equity-box">
+        <div class="eq-label">Stockholders' Equity</div>
+        <div class="eq-val">Cr. side</div>
+      </div>
+    </div>
+
+    <div class="quote">
+      Because assets sit on the <strong>left side</strong> of the equation, debits increase them.
+      Because liabilities and equity sit on the <strong>right side</strong>, credits increase them.
+      Expenses and dividends <em>decrease</em> equity, so they work in reverse — debit to increase.
+    </div>
+
+    <div class="eq-detail-grid">
+      <div class="eq-col">
+        <div class="eq-col-hdr type-asset">🏦 Assets (Dr. Normal)</div>
+        <div class="eq-col-body">
+          <div class="eq-item"><span>Cash</span><span class="badge badge-dr">Dr</span></div>
+          <div class="eq-item"><span>Accounts Receivable</span><span class="badge badge-dr">Dr</span></div>
+          <div class="eq-item"><span>Supplies</span><span class="badge badge-dr">Dr</span></div>
+          <div class="eq-item"><span>Prepaid Insurance</span><span class="badge badge-dr">Dr</span></div>
+          <div class="eq-item"><span>Equipment</span><span class="badge badge-dr">Dr</span></div>
+          <div class="eq-item"><span>Buildings</span><span class="badge badge-dr">Dr</span></div>
+        </div>
+      </div>
+      <div class="eq-col">
+        <div class="eq-col-hdr type-liability">📋 Liabilities (Cr. Normal)</div>
+        <div class="eq-col-body">
+          <div class="eq-item"><span>Accounts Payable</span><span class="badge badge-cr">Cr</span></div>
+          <div class="eq-item"><span>Notes Payable</span><span class="badge badge-cr">Cr</span></div>
+          <div class="eq-item"><span>Wages Payable</span><span class="badge badge-cr">Cr</span></div>
+          <div class="eq-item"><span>Interest Payable</span><span class="badge badge-cr">Cr</span></div>
+          <div class="eq-item"><span>Unearned Revenue</span><span class="badge badge-cr">Cr</span></div>
+        </div>
+      </div>
+      <div class="eq-col">
+        <div class="eq-col-hdr type-equity">🏛️ Equity &amp; Sub-accounts</div>
+        <div class="eq-col-body">
+          <div class="eq-item"><span>Common Stock</span><span class="badge badge-cr">Cr</span></div>
+          <div class="eq-item"><span>Retained Earnings</span><span class="badge badge-cr">Cr</span></div>
+          <div class="eq-item"><span>Service Revenue</span><span class="badge badge-cr">Cr</span></div>
+          <div class="eq-item"><span>Sales Revenue</span><span class="badge badge-cr">Cr</span></div>
+          <div class="eq-item highlight-row"><span>Expenses (all) — reduce equity</span><span class="badge badge-dr">Dr</span></div>
+          <div class="eq-item highlight-row"><span>Dividends — reduce equity</span><span class="badge badge-dr">Dr</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visual double T -->
+    <div style="background:white;border-radius:10px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+      <div style="text-align:center;font-size:.78rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.8px;margin-bottom:16px">The "Master T" — How the Equation Becomes Debits &amp; Credits</div>
+      <div style="display:flex;gap:0;justify-content:center;align-items:stretch;font-family:monospace;font-size:.8rem;max-width:620px;margin:0 auto">
+        <div style="flex:1;border:2px solid #334155;border-right:none;border-radius:8px 0 0 8px;overflow:hidden">
+          <div style="background:#1d4ed8;color:white;text-align:center;padding:8px;font-weight:800">DEBIT SIDE (Left)</div>
+          <div style="padding:12px;background:#eff6ff">
+            <div style="font-weight:700;color:#1d4ed8;margin-bottom:6px">Normal balance for:</div>
+            <div style="line-height:2.2">
+              <span style="color:#1e40af">Assets</span><br>
+              <span style="background:#fef08a;color:#92400e;font-weight:800;padding:1px 6px;border-radius:4px">Expenses</span><br>
+              <span style="background:#fef08a;color:#92400e;font-weight:800;padding:1px 6px;border-radius:4px">Dividends</span>
+            </div>
+          </div>
+        </div>
+        <div style="width:4px;background:#334155"></div>
+        <div style="flex:1;border:2px solid #334155;border-left:none;border-radius:0 8px 8px 0;overflow:hidden">
+          <div style="background:#15803d;color:white;text-align:center;padding:8px;font-weight:800">CREDIT SIDE (Right)</div>
+          <div style="padding:12px;background:#f0fdf4">
+            <div style="font-weight:700;color:#15803d;margin-bottom:6px">Normal balance for:</div>
+            <div style="color:#166534;line-height:2">Liabilities<br>Equity<br>Revenues</div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:12px;font-size:.75rem;color:#64748b;font-weight:600">
+        Memory trick: <strong style="color:#1d4ed8">A</strong>ssets · <strong style="color:#1d4ed8">E</strong>xpenses · <strong style="color:#1d4ed8">D</strong>ividends = Debit &nbsp;|&nbsp; <strong style="color:#15803d">L</strong>iabilities · <strong style="color:#15803d">E</strong>quity · <strong style="color:#15803d">R</strong>evenues = Credit
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PANEL 3 — Self-Check
+══════════════════════════════════════ -->
+<div class="content panel" id="panel-3">
+  <div class="sec-title">Check Your Understanding — Normal Balances</div>
+  <div class="sec-sub">Test your understanding. For each account, identify whether its normal balance is Debit or Credit, and whether the given action increases or decreases the account.</div>
+
+  <div class="q-score">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <br>
+  <div class="quiz-area" id="quiz-area"></div>
+</div>
+
+<!-- ── Nav bar ── -->
+<div class="nav-bar">
+  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>← Previous</button>
+  <span class="nav-ind" id="navInd">Tab 1 of 4 — What is a T-Account?</span>
+  <button class="nav-btn next" id="btnNext" onclick="navigate(1)">Next →</button>
+</div>
+
+<script>
+// ── Tab / Panel logic ─────────────────────────
+const TABS = ['What is a T-Account?', 'Normal Balances', 'The Accounting Equation', 'Self-Check'];
+let currentPanel = 0;
+
+function showPanel(idx) {
+  document.querySelectorAll('.panel').forEach((p, i) => p.classList.toggle('active', i === idx));
+  document.querySelectorAll('.tab').forEach((t, i)   => t.classList.toggle('active', i === idx));
+  currentPanel = idx;
+  document.getElementById('btnPrev').disabled = idx === 0;
+  document.getElementById('btnNext').disabled = idx === TABS.length - 1;
+  document.getElementById('navInd').textContent = `Tab ${idx + 1} of ${TABS.length} — ${TABS[idx]}`;
+  if (idx === 3 && !quizBuilt) buildQuiz();
+}
+
+function navigate(d) { showPanel(currentPanel + d); }
+
+// ── T-account interactive ─────────────────────
+let cashDr = 0, cashCr = 0;
+
+function addCashEntry(side, amount, label) {
+  if (side === 'dr') {
+    cashDr += amount;
+    const el = document.getElementById('cash-dr-entries');
+    const row = document.createElement('div');
+    row.className = 't-entry highlight';
+    row.style.color = 'var(--dr-text)';
+    row.textContent = `${label}: $${amount.toLocaleString()}`;
+    el.appendChild(row);
+    const col = document.getElementById('cash-dr-col');
+    col.classList.remove('pulse-dr'); void col.offsetWidth; col.classList.add('pulse-dr');
+  } else {
+    cashCr += amount;
+    const el = document.getElementById('cash-cr-entries');
+    const row = document.createElement('div');
+    row.className = 't-entry highlight';
+    row.style.color = 'var(--cr-text)';
+    row.textContent = `${label}: $${amount.toLocaleString()}`;
+    el.appendChild(row);
+    const col = document.getElementById('cash-cr-col');
+    col.classList.remove('pulse-cr'); void col.offsetWidth; col.classList.add('pulse-cr');
+  }
+  document.getElementById('cash-dr-total').textContent = cashDr.toLocaleString();
+  document.getElementById('cash-cr-total').textContent = cashCr.toLocaleString();
+  const bal = cashDr - cashCr;
+  const lbl = document.getElementById('cash-bal-label');
+  lbl.textContent = bal >= 0 ? `Balance: $${bal.toLocaleString()} Dr.` : `Balance: $${Math.abs(bal).toLocaleString()} Cr.`;
+  lbl.style.color  = bal >= 0 ? 'var(--dr-text)' : 'var(--cr-text)';
+}
+
+function resetCash() {
+  cashDr = cashCr = 0;
+  document.getElementById('cash-dr-entries').innerHTML = '';
+  document.getElementById('cash-cr-entries').innerHTML = '';
+  document.getElementById('cash-dr-total').textContent = '0';
+  document.getElementById('cash-cr-total').textContent = '0';
+  document.getElementById('cash-bal-label').textContent = '';
+}
+
+// ── Normal balance detail toggle ──────────────
+function toggleDetail(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── Quiz ──────────────────────────────────────
+let quizBuilt = false;
+let score = 0, answered = 0;
+
+const QUESTIONS = [
+  { q: 'Accounts Receivable — what is its normal balance?', correct: 'Debit', choices: ['Debit','Credit'], explain: 'Accounts Receivable is an asset. Assets have a debit normal balance.' },
+  { q: 'Notes Payable — does a credit increase or decrease this account?', correct: 'Increase', choices: ['Increase','Decrease'], explain: 'Notes Payable is a liability (credit normal). A credit on the normal side = increase.' },
+  { q: 'Service Revenue — what is its normal balance?', correct: 'Credit', choices: ['Debit','Credit'], explain: 'Revenue increases equity, which has a credit normal balance.' },
+  { q: 'Rent Expense — does a debit increase or decrease this account?', correct: 'Increase', choices: ['Increase','Decrease'], explain: 'Expenses have a debit normal balance. A debit on the normal side = increase.' },
+  { q: 'Common Stock — what is its normal balance?', correct: 'Credit', choices: ['Debit','Credit'], explain: 'Common Stock is an equity account. Equity has a credit normal balance.' },
+  { q: 'Cash — does a credit increase or decrease this account?', correct: 'Decrease', choices: ['Increase','Decrease'], explain: 'Cash is an asset (debit normal). A credit is opposite to the normal side = decrease.' },
+  { q: 'Wages Payable — what is its normal balance?', correct: 'Credit', choices: ['Debit','Credit'], explain: 'Wages Payable is a liability. Liabilities have a credit normal balance.' },
+  { q: 'Supplies Expense — what is its normal balance?', correct: 'Debit', choices: ['Debit','Credit'], explain: 'All expense accounts have a debit normal balance.' },
+  { q: 'Dividends — does a debit increase or decrease this account?', correct: 'Increase', choices: ['Increase','Decrease'], explain: 'Dividends have a debit normal balance (they reduce equity). Debit = increase.' },
+  { q: 'Unearned Revenue — what is its normal balance?', correct: 'Credit', choices: ['Debit','Credit'], explain: 'Unearned Revenue is a liability — cash received before services are performed. Credit normal.' },
+];
+
+function buildQuiz() {
+  quizBuilt = true;
+  const area = document.getElementById('quiz-area');
+  QUESTIONS.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    const choiceHTML = q.choices.map(c =>
+      `<button class="q-btn" onclick="answer(${qi}, '${c}', this)">${c}</button>`
+    ).join('');
+    card.innerHTML = `
+      <div class="q-prompt">${qi + 1}. ${q.q}</div>
+      <div class="q-choices">${choiceHTML}</div>
+      <div class="q-result" id="qr-${qi}"></div>
+    `;
+    area.appendChild(card);
+  });
+  document.getElementById('total').textContent = QUESTIONS.length;
+}
+
+function answer(qi, chosen, btn) {
+  const q = QUESTIONS[qi];
+  const card = btn.closest('.q-card');
+  if (card.dataset.answered) return;
+  card.dataset.answered = '1';
+
+  card.querySelectorAll('.q-btn').forEach(b => {
+    b.disabled = true;
+    if (b.textContent === q.correct) b.classList.add('correct');
+    else b.classList.add('wrong');
+  });
+
+  const result = document.getElementById(`qr-${qi}`);
+  result.classList.add('show');
+  if (chosen === q.correct) {
+    score++;
+    result.classList.add('ok');
+    result.textContent = `✅ Correct! ${q.explain}`;
+    document.getElementById('score').textContent = score;
+  } else {
+    result.classList.add('bad');
+    result.textContent = `❌ The answer is ${q.correct}. ${q.explain}`;
+  }
+  answered++;
+  document.getElementById('score').textContent = score;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intermediate Accounting Animation Hub | Kieso 18th Ed.</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: #f1f5f9;
+    color: #0f172a;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+  .hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 56%, #0f766e 100%);
+    color: white;
+    padding: 32px 28px 28px;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, .18);
+  }
+  .hero-wrap { max-width: 1180px; margin: 0 auto; }
+  .eyebrow { font-size: .76rem; font-weight: 900; text-transform: uppercase; letter-spacing: .8px; opacity: .85; margin-bottom: 6px; }
+  h1 { font-size: clamp(1.7rem, 3vw, 2.4rem); line-height: 1.12; }
+  .hero-sub { margin-top: 10px; max-width: 880px; color: #dbeafe; font-weight: 700; line-height: 1.55; font-size: .98rem; }
+
+  .toolbar {
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 14px 20px;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, .04);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .toolbar-wrap { max-width: 1180px; margin: 0 auto; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .search {
+    flex: 1; min-width: 240px;
+    display: flex; align-items: center; gap: 10px;
+    background: #f1f5f9; border: 2px solid #e2e8f0; border-radius: 10px;
+    padding: 10px 14px;
+  }
+  .search:focus-within { border-color: #3b82f6; background: white; box-shadow: 0 0 0 3px rgba(59, 130, 246, .14); }
+  .search input {
+    border: 0; background: transparent; outline: none;
+    flex: 1; font-size: .96rem; font-weight: 700; color: #0f172a;
+    font-family: inherit;
+  }
+  .search-icon { font-size: 1rem; color: #64748b; }
+  .stats {
+    display: flex; gap: 16px; color: #475569; font-weight: 800; font-size: .86rem;
+  }
+  .stats strong { color: #0f172a; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1rem; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 24px 20px; }
+
+  .chapter { margin-bottom: 30px; scroll-margin-top: 80px; }
+  .chapter-h {
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, #0f172a, #1e3a5f);
+    color: white; border-radius: 12px 12px 0 0;
+  }
+  .chapter-num {
+    background: rgba(255, 255, 255, .18);
+    border: 1px solid rgba(255, 255, 255, .25);
+    padding: 4px 12px; border-radius: 999px;
+    font-weight: 900; font-size: .78rem;
+    letter-spacing: .6px; text-transform: uppercase;
+  }
+  .chapter-title { font-size: 1.22rem; font-weight: 900; letter-spacing: 0; flex: 1; }
+  .chapter-count { color: #94a3b8; font-weight: 800; font-size: .82rem; }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px;
+    padding: 16px;
+    background: white;
+    border: 1px solid #e2e8f0; border-top: 0;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, .06);
+  }
+  .card {
+    display: block; text-decoration: none; color: inherit;
+    background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px;
+    padding: 14px 15px; transition: all .18s;
+    position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 4px; background: #3b82f6; opacity: .3; transition: opacity .18s;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(15, 23, 42, .12);
+    border-color: #3b82f6;
+    background: white;
+  }
+  .card:hover::before { opacity: 1; }
+  .card-title { font-weight: 900; color: #0f172a; font-size: .98rem; line-height: 1.35; margin-bottom: 6px; }
+  .card-desc { color: #475569; font-size: .82rem; font-weight: 700; line-height: 1.45; }
+  .card-tag {
+    display: inline-block; margin-top: 8px;
+    font-size: .68rem; font-weight: 900; color: #64748b;
+    text-transform: uppercase; letter-spacing: .55px;
+    padding: 2px 8px; background: #e2e8f0; border-radius: 999px;
+  }
+  .card-tag.featured { background: #dbeafe; color: #1d4ed8; }
+
+  .other-section {
+    margin-top: 36px; padding: 18px;
+    background: linear-gradient(135deg, #eff6ff, #ecfdf5);
+    border: 2px dashed #94a3b8; border-radius: 12px;
+  }
+  .other-section h3 { color: #0f172a; font-size: 1rem; font-weight: 900; margin-bottom: 8px; }
+  .other-section p { color: #475569; font-weight: 700; font-size: .9rem; line-height: 1.55; margin-bottom: 12px; }
+  .other-links { display: flex; gap: 10px; flex-wrap: wrap; }
+  .other-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    text-decoration: none;
+    background: white; border: 2px solid #cbd5e1; border-radius: 10px;
+    padding: 9px 14px; color: #0f172a; font-weight: 900; font-size: .9rem;
+    transition: all .15s;
+  }
+  .other-link:hover { border-color: #3b82f6; background: #eff6ff; transform: translateY(-1px); }
+  .other-link .icon { font-size: 1.05rem; }
+
+  .toc {
+    background: white; border: 1px solid #e2e8f0; border-radius: 12px;
+    padding: 14px 18px; margin-bottom: 24px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, .04);
+  }
+  .toc-h { font-size: .72rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .55px; margin-bottom: 8px; }
+  .toc-links { display: flex; gap: 8px; flex-wrap: wrap; }
+  .toc-link {
+    text-decoration: none; color: #1d4ed8; font-weight: 900; font-size: .82rem;
+    padding: 5px 12px; background: #eff6ff; border-radius: 999px;
+    border: 1px solid #bfdbfe; transition: all .15s;
+  }
+  .toc-link:hover { background: #1d4ed8; color: white; border-color: #1d4ed8; }
+
+  .empty-msg {
+    grid-column: 1 / -1;
+    text-align: center; padding: 28px 14px;
+    color: #94a3b8; font-weight: 800;
+  }
+  .chapter.hidden { display: none; }
+
+  footer {
+    max-width: 1180px; margin: 30px auto 0;
+    padding: 16px 20px;
+    color: #64748b; font-size: .82rem; font-weight: 700;
+    text-align: center; line-height: 1.55;
+  }
+  footer a { color: #1d4ed8; text-decoration: none; font-weight: 900; }
+  footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 640px) {
+    .hero { padding: 24px 18px; }
+    .chapter-h { padding: 12px 14px; }
+    .chapter-title { font-size: 1.05rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-wrap">
+    <div class="eyebrow">Animation Hub · Kieso, Weygandt &amp; Warfield · 18th Ed.</div>
+    <h1>Intermediate Accounting</h1>
+    <div class="hero-sub">Interactive animations for each chapter — step through journal entries, depreciation methods, inventory cost flows, time value of money, and more. Click any card to launch.</div>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="toolbar-wrap">
+    <div class="search">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search animations (e.g., depreciation, FIFO, goodwill)..." oninput="filterCards()">
+    </div>
+    <div class="stats">
+      <span><strong id="visibleCount">28</strong> animations</span>
+      <span>· <strong>10</strong> chapters</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="toc">
+    <div class="toc-h">Jump to chapter</div>
+    <div class="toc-links">
+      <a class="toc-link" href="#ch2">Ch 2</a>
+      <a class="toc-link" href="#ch3">Ch 3</a>
+      <a class="toc-link" href="#ch4">Ch 4</a>
+      <a class="toc-link" href="#ch5">Ch 5</a>
+      <a class="toc-link" href="#ch6">Ch 6</a>
+      <a class="toc-link" href="#ch7">Ch 7</a>
+      <a class="toc-link" href="#ch8">Ch 8</a>
+      <a class="toc-link" href="#ch9">Ch 9</a>
+      <a class="toc-link" href="#ch10">Ch 10</a>
+      <a class="toc-link" href="#ch11">Ch 11</a>
+    </div>
+  </div>
+
+  <!-- Ch 2 -->
+  <section class="chapter" id="ch2" data-chapter="2">
+    <div class="chapter-h">
+      <span class="chapter-num">Ch 2</span>
+      <span class="chapter-title">The Accounting Information System</span>
+      <span class="chapter-count">5 animations</span>
+    </div>
+    <div class="grid">
+      <a class="card" href="Ch2_Accounting_Cycle_Animation.html" data-search="accounting cycle journal post adjusting closing">
+        <div class="card-title">📊 The Accounting Cycle</div>
+        <div class="card-desc">End-to-end walk through the 10-step cycle from analyze to closing.</div>
+        <span class="card-tag">Cycle overview</span>
+      </a>
+      <a class="card" href="Ch2_BasicJournalEntries_Animation.html" data-search="journal entries debit credit basic transactions">
+        <div class="card-title">Basic Journal Entries</div>
+        <div class="card-desc">Build common journal entries step-by-step with debit/credit logic.</div>
+        <span class="card-tag">Journals</span>
+      </a>
+      <a class="card" href="Ch2_ChartOfAccounts_Animation.html" data-search="chart of accounts classification">
+        <div class="card-title">📋 Chart of Accounts</div>
+        <div class="card-desc">Organize assets, liabilities, equity, revenue, and expense accounts.</div>
+        <span class="card-tag">Setup</span>
+      </a>
+      <a class="card" href="Ch2_TAccount_Animation.html" data-search="t-account normal balances debit credit">
+        <div class="card-title">📒 T-Accounts &amp; Normal Balances</div>
+        <div class="card-desc">Visualize debits and credits and the normal balance of each account type.</div>
+        <span class="card-tag">Mechanics</span>
+      </a>
+      <a class="card" href="Ch2_TrialBalance_Animation.html" data-search="trial balance unadjusted preparation">
+        <div class="card-title">⚖️ Trial Balance</div>
+        <div class="card-desc">Roll T-account balances into the trial balance and check totals.</div>
+        <span class="card-tag">Output</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Ch 3 -->
+  <section class="chapter" id="ch3" data-chapter="3">
+    <div class="chapter-h">
+      <span class="chapter-num">Ch 3</span>
+      <span class="chapter-title">Income Statement &amp; Related Information</span>
+      <span class="chapter-count">2 animations</span>
+    </div>
+    <div class="grid">
+      <a class="card" href="Ch3_FinancialStatementLinks_Animation.html" data-search="financial statement links articulation income retained earnings balance sheet">
+        <div class="card-title">🔗 How the Financial Statements Link</div>
+        <div class="card-desc">See how net income flows to retained earnings and ties the four statements together.</div>
+        <span class="card-tag">Articulation</span>
+      </a>
+      <a class="card" href="Ch3_IncomeStatementFormats_Animation.html" data-search="income statement single step multi-step format">
+        <div class="card-title">📊 Income Statement Formats</div>
+        <div class="card-desc">Compare single-step and multi-step income statement formats side-by-side.</div>
+        <span class="card-tag">Format</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Ch 4 -->
+  <section class="chapter" id="ch4" data-chapter="4">
+    <div class="chapter-h">
+      <span class="chapter-num">Ch 4</span>
+      <span class="chapter-title">Balance Sheet &amp; Statement of Cash Flows</span>
+      <span class="chapter-count">1 animation</span>
+    </div>
+    <div class="grid">
+      <a class="card" href="Ch4_ClassifiedBalanceSheet_Animation.html" data-search="classified balance sheet current assets liabilities">
+        <div class="card-title">📑 Classified Balance Sheet</div>
+        <div class="card-desc">Build the classified balance sheet with current/non-current sub-classifications.</div>
+        <span class="card-tag">Format</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Ch 5 -->
+  <section class="chapter" id="ch5" data-chapter="5">
+    <div class="chapter-h">
+      <span class="chapter-num">Ch 5</span>
+      <span class="chapter-title">Time Value of Money</span>
+      <span class="chapter-count">2 animations</span>
+    </div>
+    <div class="grid">
+      <a class="card" href="Ch5_TimeValueOfMoney_Animation.html" data-search="present value future value time value money discount compound">
+        <div class="card-title">⏰ Present Value vs Future Value</div>
+        <div class="card-desc">Discount and compound a single sum; visualize the time-line and rate effect.</div>
+        <span class="card-tag">Core concept</span>
+      </a>
+      <a class="card" href="Ch5_Annuities_Animation.html" data-search="annuity ordinary due present value future value">
+        <div class="card-title">Annuities: Ordinary vs Due</div>
+        <div class="card-desc">Contrast ordinary annuity and annuity due — timing of payments and PV/FV.</div>
+        <span class="card-tag">Annuities</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Ch 6 -->
+  <section class="chapter" id="ch6" data-chapter="6">
+    <div class="chapter-h">
+      <span class="chapter-num">Ch 6</span>
+      <span class="chapter-title">Cash and Receivables</span>
+      <span class="chapter-count">2 animations</span>
+    </div>
+    <div class="grid">
+      <a class="card" href="Ch6_AllowanceMethod_Animation.html" data-search="allowance bad debts uncollectible accounts receivable">
+        <div class="card-title">🧾 Allowance Method for Bad Debts</div>
+        <div class="card-desc">Record bad-debt expense and estimate the allowance for uncollectible accounts.</div>
+        <span class="card-tag">Receivables</span>
+      </a>
+      <a class="card" href="Ch6_NotesReceivable_Animation.html" data-search="notes receivable present value interest journal entries">
+        <div class="card-title">Notes Receivable: PV &amp; Journal Entries</div>
+        <div class="card-desc">Discount notes to present value and record interest over the note's life.</div>
+        <span class="card-tag">Notes</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Ch 7 -->
+  <section class="chapter" id="ch7" data-chapter="7">
+    <div class="chapter-h">
+      <span class="chapter-num">Ch 7</span>
+      <span class="chapter-title">Valuation of Inventories: A Cost-Basis Approach</span>
+      <span class="chapter-count">2 animations</span>
+    </div>
+    <div class="grid">
+      <a class="card" href="Ch7_InventoryCostFlowAssumptions_Animation.html" data-search="FIFO LIFO weighted average periodic perpetual cost flow">
+        <div class="card-title">Inventory Cost Flow Assumptions</div>
+        <div class="card-desc">FIFO vs LIFO vs Weighted Average under both periodic and perpetual systems.</div>
+        <span class="card-tag featured">Featured</span>
+      </a>
+      <a class="card" href="Ch7_MonthlyInventoryTransactions_Animation.html" data-search="january monthly inventory transactions FIFO LIFO ledger">
+        <div class="card-title">January Inventory Transactions: FIFO vs LIFO</div>
+        <div class="card-desc">Work through one month of purchases and sales using FIFO and LIFO.</div>
+        <span class="card-tag">Application</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Ch 8 -->
+  <section class="chapter" id="ch8" data-chapter="8">
+    <div class="chapter-h">
+      <span class="chapter-num">Ch 8</span>
+      <span class="chapter-title">Inventories: Additional Valuation Issues</span>
+      <span class="chapter-count">3 animations</span>
+    </div>
+    <div class="grid">
+      <a class="card" href="Ch8_InventoryValuation_Animation.html" data-search="LCM lower of cost or market NRV inventory valuation">
+        <div class="card-title">📦 Inventory Valuation Issues</div>
+        <div class="card-desc">Apply lower-of-cost-or-market (LCM) and net realizable value (NRV) rules.</div>
+        <span class="card-tag">LCM/NRV</span>
+      </a>
+      <a class="card" href="Ch8_GrossProfitMethod_Animation.html" data-search="gross profit method estimate inventory">
+        <div class="card-title">Gross Profit Method: Estimate Inventory</div>
+        <div class="card-desc">Estimate ending inventory using a known gross profit percentage.</div>
+        <span class="card-tag">Estimation</span>
+      </a>
+      <a class="card" href="Ch8_ConventionalRetailInventoryMethod_Animation.html" data-search="conventional retail inventory method cost to retail">
+        <div class="card-title">Conventional Retail Inventory Method</div>
+        <div class="card-desc">Compute cost-to-retail ratio and estimate ending inventory at cost.</div>
+        <span class="card-tag">Estimation</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Ch 9 -->
+  <section class="chapter" id="ch9" data-chapter="9">
+    <div class="chapter-h">
+      <span class="chapter-num">Ch 9</span>
+      <span class="chapter-title">Acquisition and Disposition of PP&amp;E</span>
+      <span class="chapter-count">3 animations</span>
+    </div>
+    <div class="grid">
+      <a class="card" href="Ch9_InterestDuringConstruction_Animation.html" data-search="interest capitalization construction WAAE avoidable actual">
+        <div class="card-title">Interest During Construction</div>
+        <div class="card-desc">Capitalize interest on self-constructed assets — WAAE, avoidable vs actual interest.</div>
+        <span class="card-tag">Capitalization</span>
+      </a>
+      <a class="card" href="Ch9_DispositionGainOrLoss_Animation.html" data-search="disposition gain loss sale PP&amp;E depreciation update">
+        <div class="card-title">Disposition: Gain or Loss</div>
+        <div class="card-desc">Update depreciation, compute book value, compare cash to record the gain or loss.</div>
+        <span class="card-tag">Disposal</span>
+      </a>
+      <a class="card" href="Ch9_NoncashExchangeCommercialSubstance_Animation.html" data-search="noncash exchange commercial substance fair value gain loss">
+        <div class="card-title">Noncash Exchanges (Commercial Substance)</div>
+        <div class="card-desc">Record exchanges at fair value and recognize gain or loss on the asset given up.</div>
+        <span class="card-tag">Exchanges</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Ch 10 -->
+  <section class="chapter" id="ch10" data-chapter="10">
+    <div class="chapter-h">
+      <span class="chapter-num">Ch 10</span>
+      <span class="chapter-title">Depreciation, Impairments &amp; Depletion</span>
+      <span class="chapter-count">4 animations</span>
+    </div>
+    <div class="grid">
+      <a class="card" href="Ch10_DepreciationMethods_Animation.html" data-search="depreciation methods straight-line DDB SYD units of production">
+        <div class="card-title">Depreciation Methods</div>
+        <div class="card-desc">SL / DDB / SYD / UOP side-by-side on the same asset, with pattern shapes.</div>
+        <span class="card-tag featured">Featured</span>
+      </a>
+      <a class="card" href="Ch10_PartialYearDepreciation_Animation.html" data-search="partial year depreciation proration months">
+        <div class="card-title">Partial-Year Depreciation</div>
+        <div class="card-desc">Prorate depreciation for assets placed in service mid-year — time-based vs UOP.</div>
+        <span class="card-tag">Timing</span>
+      </a>
+      <a class="card" href="Ch10_ChangeInEstimate_Animation.html" data-search="change estimate prospective useful life residual">
+        <div class="card-title">Change in Depreciation Estimate</div>
+        <div class="card-desc">Treat life/residual revisions prospectively — no restatement of prior years.</div>
+        <span class="card-tag">Estimates</span>
+      </a>
+      <a class="card" href="Ch10_ImpairmentPPE_Animation.html" data-search="impairment PP&amp;E two-step recoverability fair value">
+        <div class="card-title">Impairment of PP&amp;E</div>
+        <div class="card-desc">Two-step test under U.S. GAAP — recoverability gate, then fair value measurement.</div>
+        <span class="card-tag">Impairment</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Ch 11 -->
+  <section class="chapter" id="ch11" data-chapter="11">
+    <div class="chapter-h">
+      <span class="chapter-num">Ch 11</span>
+      <span class="chapter-title">Intangible Assets</span>
+      <span class="chapter-count">4 animations</span>
+    </div>
+    <div class="grid">
+      <a class="card" href="Ch11_PurchasedVsInternallyCreatedIntangibles_Animation.html" data-search="purchased internally created intangibles capitalize expense">
+        <div class="card-title">Purchased vs Internally Created Intangibles</div>
+        <div class="card-desc">Same item, different accounting — capitalize when purchased, often expense when internal.</div>
+        <span class="card-tag">Recognition</span>
+      </a>
+      <a class="card" href="Ch11_AmortizationLimitedLifeIntangibles_Animation.html" data-search="amortization limited life intangibles patent useful life">
+        <div class="card-title">Amortization of Limited-Life Intangibles</div>
+        <div class="card-desc">Amortize patents, copyrights, customer lists — and contrast with indefinite life.</div>
+        <span class="card-tag">Amortization</span>
+      </a>
+      <a class="card" href="Ch11_Goodwill_Animation.html" data-search="goodwill business combination purchase price identifiable net assets impairment">
+        <div class="card-title">Goodwill</div>
+        <div class="card-desc">Recognize purchased goodwill, calculate as the plug, and test for impairment.</div>
+        <span class="card-tag featured">Featured</span>
+      </a>
+      <a class="card" href="Ch11_ResearchAndDevelopmentCosts_Animation.html" data-search="research development costs R&amp;D expense capitalize">
+        <div class="card-title">Research and Development Costs</div>
+        <div class="card-desc">Most R&amp;D is expensed under U.S. GAAP — plus the alternative-future-use rule.</div>
+        <span class="card-tag">R&amp;D</span>
+      </a>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  Built for Kieso, Weygandt &amp; Warfield · <em>Intermediate Accounting, 18th Edition</em>.
+  Each animation walks through a key topic step-by-step with journal entries, visuals, and a self-check.
+</footer>
+
+<script>
+function filterCards() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const cards = document.querySelectorAll('.card');
+  const chapters = document.querySelectorAll('.chapter');
+  let visibleCount = 0;
+
+  cards.forEach(card => {
+    const text = (card.textContent + ' ' + (card.dataset.search || '')).toLowerCase();
+    const hit = q === '' || text.includes(q);
+    card.style.display = hit ? '' : 'none';
+    if (hit) visibleCount++;
+  });
+
+  // Hide chapters with no visible cards
+  chapters.forEach(ch => {
+    const anyVisible = Array.from(ch.querySelectorAll('.card')).some(c => c.style.display !== 'none');
+    ch.classList.toggle('hidden', !anyVisible);
+  });
+
+  document.getElementById('visibleCount').textContent = visibleCount;
+}
+</script>
+
+</body>
+</html>

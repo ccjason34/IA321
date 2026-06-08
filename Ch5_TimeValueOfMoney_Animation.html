@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Present Value vs Future Value | Kieso Ch. 5</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.2rem; font-weight: 800; }
+  .header p  { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab  { padding: 11px 18px; font-size: .88rem; font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; }
+  .tab:hover  { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+  .panel { display: none; max-width: 960px; margin: 0 auto; padding: 24px 16px 90px; }
+  .panel.active { display: block; }
+
+  .sec-title { font-size: 1.35rem; font-weight: 800; margin-bottom: 8px; }
+  .sec-sub   { font-size: .97rem; color: #475569; margin-bottom: 20px; line-height: 1.7; }
+  .quote { background: white; border-left: 4px solid #3b82f6; border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: .95rem; color: #334155; line-height: 1.7; margin-bottom: 22px; }
+  .quote strong { color: #1d4ed8; }
+
+  /* ── Concept cards (Tab 0) ── */
+  .concept-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px; }
+  @media(max-width:560px) { .concept-grid { grid-template-columns: 1fr; } }
+  .concept-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+  .concept-hdr  { padding: 14px 18px; color: white; font-weight: 800; font-size: 1rem; }
+  .concept-body { padding: 14px 18px; font-size: .9rem; color: #475569; line-height: 1.65; }
+  .concept-body strong { color: #1e293b; }
+  .formula { background: #1e293b; color: #fef3c7; padding: 10px 14px; border-radius: 8px; font-family: monospace; font-size: 1rem; text-align: center; margin: 10px 0; font-weight: 700; }
+
+  .fv-card .concept-hdr { background: linear-gradient(135deg, #15803d, #22c55e); }
+  .pv-card .concept-hdr { background: linear-gradient(135deg, #6b21a8, #a855f7); }
+
+  .why-tvm { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; border-radius: 10px; padding: 14px 18px; font-size: .92rem; color: #78350f; line-height: 1.65; }
+  .why-tvm strong { color: #92400e; }
+
+  /* ── Inputs ── */
+  .inputs-row { display: flex; gap: 12px; flex-wrap: wrap; background: white; padding: 14px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 16px; }
+  .inp-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 120px; }
+  .inp-group label { font-size: .72rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .5px; }
+  .inp-group input { padding: 8px 10px; border: 1.5px solid #e2e8f0; border-radius: 6px; font-size: .95rem; font-weight: 700; color: #1e293b; font-family: monospace; }
+  .inp-group input:focus { outline: none; border-color: #3b82f6; }
+
+  /* ── Timeline ── */
+  .tl-wrap { background: white; border-radius: 12px; padding: 18px 14px; box-shadow: 0 2px 12px rgba(0,0,0,.08); margin-bottom: 14px; overflow-x: auto; }
+  .tl-grid { display: grid; gap: 8px; min-width: 600px; }
+  .tl-grid.cols-6 { grid-template-columns: repeat(6, 1fr); }
+
+  .yc { background: #f8fafc; border-radius: 8px; border: 2px solid #e2e8f0; padding: 8px 6px 10px; text-align: center; position: relative; min-height: 220px; display: flex; flex-direction: column; transition: all .35s; }
+  .yc.locked { opacity: .3; }
+  .yc.active { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.25); transform: translateY(-2px); }
+  .yc.done   { border-color: #16a34a; background: #f0fdf4; }
+  .yc.start  { border-color: #3b82f6; background: #eff6ff; }
+  .yc-year { font-size: .68rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
+  .yc-bar-wrap { flex: 1; display: flex; align-items: flex-end; justify-content: center; min-height: 110px; padding: 0 4px; }
+  .yc-bar { width: 80%; max-width: 60px; background: linear-gradient(180deg, #60a5fa, #1d4ed8); border-radius: 4px 4px 0 0; height: 0; transition: height .8s cubic-bezier(.4,2,.6,1); position: relative; }
+  .yc.fv-mode .yc-bar { background: linear-gradient(180deg, #4ade80, #15803d); }
+  .yc.pv-mode .yc-bar { background: linear-gradient(180deg, #c084fc, #6b21a8); }
+  .yc-value { font-size: .85rem; font-weight: 800; color: #1e293b; margin-top: 6px; font-family: monospace; }
+  .yc.locked .yc-value { color: #cbd5e1; }
+  .yc-op { font-size: .65rem; font-weight: 700; color: #94a3b8; margin-top: 2px; min-height: 14px; }
+  .yc.active .yc-op { color: #b45309; }
+
+  /* arrow between years (FV) */
+  .tl-arrows { display: grid; gap: 8px; margin-bottom: 6px; padding-left: 14px; padding-right: 14px; min-width: 600px; }
+  .tl-arrows.cols-5 { grid-template-columns: repeat(5, 1fr); }
+  .tl-arrow { text-align: center; font-size: .72rem; color: #94a3b8; font-weight: 700; }
+  .tl-arrow .ar-line { color: #cbd5e1; font-size: 1.1rem; }
+  .tl-arrow.active .ar-line { color: #f59e0b; }
+  .tl-arrow.active { color: #b45309; font-weight: 800; }
+
+  /* ── Status / step area ── */
+  .status-card { background: white; border-radius: 10px; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); margin-bottom: 14px; font-size: .92rem; color: #334155; line-height: 1.6; border-left: 4px solid #3b82f6; min-height: 64px; }
+  .status-card strong { color: #1e293b; }
+  .status-card .calc { display: inline-block; background: #fef3c7; color: #92400e; padding: 2px 10px; border-radius: 6px; font-family: monospace; font-weight: 800; margin-top: 4px; }
+
+  /* ── Step controls ── */
+  .step-ctrl { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; margin-top: 6px; }
+  .sc-btn { padding: 11px 22px; border-radius: 9px; border: none; font-weight: 700; font-size: .88rem; cursor: pointer; transition: all .15s; }
+  .sc-step {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white; font-weight: 900;
+    padding: 13px 24px; font-size: .92rem; min-width: 220px;
+    box-shadow: 0 4px 14px rgba(245,158,11,.45);
+    animation: stepPulse 1.6s ease-in-out infinite;
+  }
+  .sc-step:hover:not(:disabled) { background: linear-gradient(135deg, #d97706, #dc2626); transform: translateY(-1px); }
+  .sc-step:disabled { animation: none; box-shadow: none; background: #94a3b8; }
+  .sc-reset { background: #475569; color: white; padding: 9px 18px; font-size: .82rem; }
+  .sc-reset:hover { background: #334155; }
+  .sc-btn:disabled { opacity: .55; cursor: default; }
+  @keyframes stepPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(245,158,11,.45); }
+    50%      { box-shadow: 0 4px 20px rgba(239,68,68,.7), 0 0 0 4px rgba(245,158,11,.18); }
+  }
+
+  /* ── Summary box (revealed at end) ── */
+  .summary-box { background: linear-gradient(135deg, #ecfeff, #cffafe); border: 2px solid #06b6d4; border-radius: 10px; padding: 16px 20px; margin-top: 14px; font-size: .92rem; color: #155e75; line-height: 1.6; display: none; }
+  .summary-box.show { display: block; animation: rowIn .5s ease both; }
+  .summary-box .total { font-size: 1.1rem; font-weight: 900; color: #0e7490; }
+  @keyframes rowIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── Quiz ── */
+  .quiz-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .q-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .q-num  { font-size: .72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+  .q-text { font-size: 1rem; font-weight: 700; margin-bottom: 14px; }
+  .q-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .q-opt  { padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f8fafc; font-size: .88rem; font-weight: 600; cursor: pointer; transition: all .15s; text-align: left; color: #334155; }
+  .q-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .q-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-opt.wrong   { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
+  .q-opt:disabled { cursor: default; }
+  .q-explain { margin-top: 10px; font-size: .85rem; padding: 9px 13px; border-radius: 7px; display: none; }
+  .q-explain.show { display: block; }
+  .q-explain.ok  { background: #dcfce7; color: #15803d; }
+  .q-explain.bad { background: #fee2e2; color: #991b1b; }
+  .score-line { text-align: center; font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
+
+  /* ── Nav ── */
+  .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; }
+  .nav-btn { padding: 9px 22px; border-radius: 8px; border: none; font-weight: 700; font-size: .85rem; cursor: pointer; }
+  .nav-btn.prev { background: #1e293b; color: #94a3b8; }
+  .nav-btn.prev:hover:not(:disabled) { background: #334155; }
+  .nav-btn.nxt  { background: #3b82f6; color: white; }
+  .nav-btn.nxt:hover:not(:disabled)  { background: #2563eb; }
+  .nav-btn:disabled { opacity: .4; cursor: default; }
+  .nav-ind { font-size: .8rem; color: #64748b; font-weight: 600; }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>⏰ Present Value vs Future Value</h1>
+  <p>Kieso, Weygandt &amp; Warfield · Intermediate Accounting 18th Ed. · Chapter 5 · Time Value of Money</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab(0)">① The Big Idea</div>
+  <div class="tab"        onclick="showTab(1)">② Watch It Grow (FV)</div>
+  <div class="tab"        onclick="showTab(2)">③ Discount Back (PV)</div>
+  <div class="tab"        onclick="showTab(3)">④ Self-Check</div>
+</div>
+
+<!-- ═══════════════════════════
+     TAB 0 — The Big Idea
+═══════════════════════════ -->
+<div class="panel active" id="tab-0">
+  <div class="sec-title">Money Has a Time Value</div>
+  <div class="sec-sub">
+    A dollar today is not the same as a dollar a year from now. If you have a dollar today, you can invest it
+    and earn interest. If you have a promise of a dollar in the future, you have to wait — and waiting has a cost.
+    <strong>Two operations</strong> connect the present to the future: <strong>compounding</strong> moves money forward
+    in time; <strong>discounting</strong> moves it backward.
+  </div>
+
+  <div class="quote">
+    <strong>The core insight:</strong> The interest rate (also called the <em>discount rate</em>) is the
+    bridge between dollars today and dollars in the future. The same formula handles both directions —
+    one direction multiplies, the other divides.
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept-card fv-card">
+      <div class="concept-hdr">📈 Future Value (FV)</div>
+      <div class="concept-body">
+        <strong>What it answers:</strong> If I invest $X today at rate <em>r</em> for <em>n</em> years, how much will I have?
+        <div class="formula">FV = PV × (1 + r)<sup>n</sup></div>
+        <strong>The operation:</strong> <em>Compounding</em> — multiply by (1 + r) for each year forward.
+        Each period's interest itself earns interest in subsequent periods. This is why compound interest is so powerful.
+      </div>
+    </div>
+
+    <div class="concept-card pv-card">
+      <div class="concept-hdr">📉 Present Value (PV)</div>
+      <div class="concept-body">
+        <strong>What it answers:</strong> If I'm promised $Y in <em>n</em> years at discount rate <em>r</em>, what is that worth today?
+        <div class="formula">PV = FV ÷ (1 + r)<sup>n</sup></div>
+        <strong>The operation:</strong> <em>Discounting</em> — divide by (1 + r) for each year backward.
+        A future amount is always worth <em>less</em> today, because today's dollar could be invested.
+      </div>
+    </div>
+  </div>
+
+  <div class="why-tvm">
+    <strong>Why this matters in accounting:</strong> Time value of money underlies almost every long-term measurement
+    in financial reporting — bond prices, lease liabilities, pension obligations, impairment tests, capital
+    budgeting decisions, and notes receivable/payable. If you understand PV/FV, you have the foundation for
+    most of intermediate accounting.
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     TAB 1 — Future Value
+═══════════════════════════ -->
+<div class="panel" id="tab-1">
+  <div class="sec-title">Future Value — Watch It Grow</div>
+  <div class="sec-sub">
+    Click <strong>Compound One Year Forward</strong> to step year-by-year. The bar height grows as the
+    investment compounds — each year's interest itself earns interest in later years.
+  </div>
+
+  <!-- Inputs -->
+  <div class="inputs-row">
+    <div class="inp-group">
+      <label>Present Value ($)</label>
+      <input type="number" id="fvInputPV" value="1000" min="0" step="100" oninput="resetFV()">
+    </div>
+    <div class="inp-group">
+      <label>Annual Rate (%)</label>
+      <input type="number" id="fvInputRate" value="10" min="0" step="0.5" oninput="resetFV()">
+    </div>
+    <div class="inp-group">
+      <label>Years</label>
+      <input type="number" id="fvInputYears" value="5" min="1" max="10" step="1" oninput="resetFV()">
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="tl-wrap">
+    <div class="tl-grid" id="fvGrid"></div>
+    <div class="tl-arrows" id="fvArrows"></div>
+  </div>
+
+  <!-- Status -->
+  <div class="status-card" id="fvStatus">
+    <strong>Year 0:</strong> You start with <strong style="color:#15803d">$1,000.00</strong> today.
+    Click the button to invest it and step forward year by year.
+  </div>
+
+  <!-- Controls -->
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="fvStepBtn" onclick="fvStep()">Compound One Year Forward →</button>
+    <button class="sc-btn sc-reset" onclick="resetFV()">↺ Reset</button>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-box" id="fvSummary"></div>
+</div>
+
+<!-- ═══════════════════════════
+     TAB 2 — Present Value
+═══════════════════════════ -->
+<div class="panel" id="tab-2">
+  <div class="sec-title">Present Value — Discount Back to Today</div>
+  <div class="sec-sub">
+    Click <strong>Discount One Year Backward</strong> to find what a future amount is worth today.
+    Each step divides by (1 + r), shrinking the bar as we move back through time.
+  </div>
+
+  <!-- Inputs -->
+  <div class="inputs-row">
+    <div class="inp-group">
+      <label>Future Value ($)</label>
+      <input type="number" id="pvInputFV" value="1610.51" min="0" step="100" oninput="resetPV()">
+    </div>
+    <div class="inp-group">
+      <label>Annual Rate (%)</label>
+      <input type="number" id="pvInputRate" value="10" min="0" step="0.5" oninput="resetPV()">
+    </div>
+    <div class="inp-group">
+      <label>Years</label>
+      <input type="number" id="pvInputYears" value="5" min="1" max="10" step="1" oninput="resetPV()">
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="tl-wrap">
+    <div class="tl-grid" id="pvGrid"></div>
+    <div class="tl-arrows" id="pvArrows"></div>
+  </div>
+
+  <!-- Status -->
+  <div class="status-card" id="pvStatus">
+    <strong>Year 5:</strong> You will receive <strong style="color:#6b21a8">$1,610.51</strong> in the future.
+    Click the button to discount it backward year by year and see what it is worth today.
+  </div>
+
+  <!-- Controls -->
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="pvStepBtn" onclick="pvStep()">← Discount One Year Backward</button>
+    <button class="sc-btn sc-reset" onclick="resetPV()">↺ Reset</button>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-box" id="pvSummary"></div>
+</div>
+
+<!-- ═══════════════════════════
+     TAB 3 — Quiz
+═══════════════════════════ -->
+<div class="panel" id="tab-3">
+  <div class="sec-title">Practice — Time Value of Money</div>
+  <div class="sec-sub">Test your understanding of compounding and discounting.</div>
+  <div class="score-line">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <br>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</div>
+
+<!-- Nav -->
+<div class="nav-bar">
+  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>← Previous</button>
+  <span class="nav-ind" id="navInd">Tab 1 of 4</span>
+  <button class="nav-btn nxt"  id="btnNext" onclick="navigate(1)">Next →</button>
+</div>
+
+<script>
+// ── Tabs ──
+const TABS = ['The Big Idea','Watch It Grow (FV)','Discount Back (PV)','Self-Check'];
+let cur = 0;
+function showTab(i) {
+  document.querySelectorAll('.panel').forEach((p,j) => p.classList.toggle('active', j===i));
+  document.querySelectorAll('.tab').forEach((t,j)   => t.classList.toggle('active', j===i));
+  cur = i;
+  document.getElementById('btnPrev').disabled = i===0;
+  document.getElementById('btnNext').disabled = i===TABS.length-1;
+  document.getElementById('navInd').textContent = "Tab " + (i+1) + " of " + TABS.length + " — " + TABS[i];
+  if (i===3 && !quizBuilt) buildQuiz();
+}
+function navigate(d) { showTab(cur+d); }
+
+// ── Helpers ──
+function fmt(n) { return '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+function fmtPct(p) { return p.toFixed(1) + '%'; }
+
+// ═══════════════════════════════════════════════
+// FUTURE VALUE simulation
+// ═══════════════════════════════════════════════
+let fvCurrentYear = 0;
+let fvPV = 1000, fvRate = 0.10, fvYears = 5;
+
+function fvCompute(year) { return fvPV * Math.pow(1 + fvRate, year); }
+function fvMaxValue() { return fvCompute(fvYears); }
+
+function fvBuildGrid() {
+  fvPV    = parseFloat(document.getElementById('fvInputPV').value)    || 0;
+  fvRate  = (parseFloat(document.getElementById('fvInputRate').value) || 0) / 100;
+  fvYears = parseInt(document.getElementById('fvInputYears').value, 10) || 1;
+  if (fvYears > 10) fvYears = 10;
+  if (fvYears < 1)  fvYears = 1;
+
+  const grid = document.getElementById('fvGrid');
+  const arrows = document.getElementById('fvArrows');
+  grid.innerHTML = '';
+  arrows.innerHTML = '';
+  grid.style.gridTemplateColumns = 'repeat(' + (fvYears + 1) + ', 1fr)';
+  arrows.style.gridTemplateColumns = 'repeat(' + fvYears + ', 1fr)';
+  grid.style.minWidth = ((fvYears + 1) * 100) + 'px';
+  arrows.style.minWidth = ((fvYears + 1) * 100) + 'px';
+
+  const max = fvMaxValue();
+
+  for (let y = 0; y <= fvYears; y++) {
+    const card = document.createElement('div');
+    card.className = 'yc fv-mode' + (y === 0 ? ' start' : ' locked');
+    card.id = 'yc-fv-' + y;
+    const value = (y === 0) ? fvPV : 0;
+    const heightPct = (y === 0) ? Math.max((fvPV / max) * 100, 4) : 0;
+    card.innerHTML =
+      '<div class="yc-year">Year ' + y + (y===0?' (Today)':'') + '</div>' +
+      '<div class="yc-bar-wrap"><div class="yc-bar" style="height:' + heightPct + '%"></div></div>' +
+      '<div class="yc-value">' + (y === 0 ? fmt(fvPV) : '?') + '</div>' +
+      '<div class="yc-op">' + (y === 0 ? 'PV' : '') + '</div>';
+    grid.appendChild(card);
+  }
+
+  for (let i = 0; i < fvYears; i++) {
+    const a = document.createElement('div');
+    a.className = 'tl-arrow';
+    a.id = 'fv-arrow-' + i;
+    a.innerHTML = '<div>× (1 + ' + fmtPct(fvRate*100) + ')</div><div class="ar-line">→</div>';
+    arrows.appendChild(a);
+  }
+}
+
+function fvStep() {
+  if (fvCurrentYear >= fvYears) return;
+  fvCurrentYear++;
+
+  const max = fvMaxValue();
+  const value = fvCompute(fvCurrentYear);
+  const prevValue = fvCompute(fvCurrentYear - 1);
+
+  // Prior card: mark done, remove active
+  if (fvCurrentYear > 1) {
+    const prevCard = document.getElementById('yc-fv-' + (fvCurrentYear - 1));
+    prevCard.classList.remove('active');
+    prevCard.classList.add('done');
+  } else {
+    // year 0 stays as "start" but clear visually
+    document.getElementById('yc-fv-0').classList.remove('start');
+    document.getElementById('yc-fv-0').classList.add('done');
+  }
+
+  // Current card: reveal
+  const card = document.getElementById('yc-fv-' + fvCurrentYear);
+  card.classList.remove('locked');
+  card.classList.add('active');
+  card.querySelector('.yc-bar').style.height = Math.max((value / max) * 100, 4) + '%';
+  card.querySelector('.yc-value').textContent = fmt(value);
+  card.querySelector('.yc-op').textContent = '× ' + (1 + fvRate).toFixed(2);
+
+  // Arrow active
+  document.querySelectorAll('#fvArrows .tl-arrow').forEach(a => a.classList.remove('active'));
+  const arrow = document.getElementById('fv-arrow-' + (fvCurrentYear - 1));
+  if (arrow) arrow.classList.add('active');
+
+  // Status
+  const interestThisYear = value - prevValue;
+  document.getElementById('fvStatus').innerHTML =
+    '<strong>Year ' + fvCurrentYear + ':</strong> ' +
+    fmt(prevValue) + ' × (1 + ' + fvRate.toFixed(2) + ') = <strong style="color:#15803d">' + fmt(value) + '</strong>. ' +
+    'This year alone earned <span class="calc">' + fmt(interestThisYear) + ' in interest</span>.';
+
+  // If done
+  if (fvCurrentYear === fvYears) {
+    document.getElementById('fvStepBtn').disabled = true;
+    document.getElementById('fvStepBtn').textContent = '✓ Reached Year ' + fvYears;
+    const totalInterest = value - fvPV;
+    const yearsTxt = fvYears + ' year' + (fvYears===1?'':'s');
+    const summary = document.getElementById('fvSummary');
+    summary.innerHTML =
+      '<div style="font-weight:800;margin-bottom:6px;color:#0e7490">📈 Future Value Summary</div>' +
+      'Starting amount: <strong>' + fmt(fvPV) + '</strong><br>' +
+      'After ' + yearsTxt + ' at ' + fmtPct(fvRate*100) + ': <span class="total">' + fmt(value) + '</span><br>' +
+      'Total interest earned: <strong>' + fmt(totalInterest) + '</strong> ' +
+      '(<strong>' + ((totalInterest/fvPV)*100).toFixed(1) + '%</strong> total return)<br>' +
+      '<span style="font-size:.85rem;color:#0e7490">Formula: ' + fmt(fvPV) + ' × (1 + ' + fvRate.toFixed(2) + ')<sup>' + fvYears + '</sup> = ' + fmt(value) + '</span>';
+    summary.classList.add('show');
+  }
+}
+
+function resetFV() {
+  fvCurrentYear = 0;
+  fvBuildGrid();
+  document.getElementById('fvStepBtn').disabled = false;
+  document.getElementById('fvStepBtn').textContent = 'Compound One Year Forward →';
+  document.getElementById('fvSummary').classList.remove('show');
+  document.getElementById('fvStatus').innerHTML =
+    '<strong>Year 0:</strong> You start with <strong style="color:#15803d">' + fmt(fvPV) + '</strong> today. ' +
+    'Click the button to invest it at ' + fmtPct(fvRate*100) + ' and step forward year by year.';
+}
+
+// ═══════════════════════════════════════════════
+// PRESENT VALUE simulation
+// ═══════════════════════════════════════════════
+let pvCurrentYear; // tracks the year being processed (decreases from pvYears toward 0)
+let pvFV = 1610.51, pvRate = 0.10, pvYears = 5;
+
+function pvCompute(year) { return pvFV / Math.pow(1 + pvRate, pvYears - year); }
+
+function pvBuildGrid() {
+  pvFV    = parseFloat(document.getElementById('pvInputFV').value)    || 0;
+  pvRate  = (parseFloat(document.getElementById('pvInputRate').value) || 0) / 100;
+  pvYears = parseInt(document.getElementById('pvInputYears').value, 10) || 1;
+  if (pvYears > 10) pvYears = 10;
+  if (pvYears < 1)  pvYears = 1;
+
+  const grid = document.getElementById('pvGrid');
+  const arrows = document.getElementById('pvArrows');
+  grid.innerHTML = '';
+  arrows.innerHTML = '';
+  grid.style.gridTemplateColumns = 'repeat(' + (pvYears + 1) + ', 1fr)';
+  arrows.style.gridTemplateColumns = 'repeat(' + pvYears + ', 1fr)';
+  grid.style.minWidth = ((pvYears + 1) * 100) + 'px';
+  arrows.style.minWidth = ((pvYears + 1) * 100) + 'px';
+
+  const max = pvFV; // largest is year n
+
+  for (let y = 0; y <= pvYears; y++) {
+    const card = document.createElement('div');
+    const isStart = (y === pvYears);
+    card.className = 'yc pv-mode' + (isStart ? ' start' : ' locked');
+    card.id = 'yc-pv-' + y;
+    const heightPct = isStart ? 100 : 0;
+    card.innerHTML =
+      '<div class="yc-year">Year ' + y + (isStart?' (Future)':(y===0?' (Today)':'')) + '</div>' +
+      '<div class="yc-bar-wrap"><div class="yc-bar" style="height:' + heightPct + '%"></div></div>' +
+      '<div class="yc-value">' + (isStart ? fmt(pvFV) : '?') + '</div>' +
+      '<div class="yc-op">' + (isStart ? 'FV' : '') + '</div>';
+    grid.appendChild(card);
+  }
+
+  // arrows go between cards, labelled with discount operation
+  for (let i = 0; i < pvYears; i++) {
+    const a = document.createElement('div');
+    a.className = 'tl-arrow';
+    a.id = 'pv-arrow-' + i;
+    a.innerHTML = '<div class="ar-line">←</div><div>÷ (1 + ' + fmtPct(pvRate*100) + ')</div>';
+    arrows.appendChild(a);
+  }
+
+  pvCurrentYear = pvYears; // start at end
+}
+
+function pvStep() {
+  if (pvCurrentYear <= 0) return;
+  const fromYear = pvCurrentYear;
+  pvCurrentYear--;
+  const toYear = pvCurrentYear;
+
+  const max = pvFV;
+  const fromValue = pvCompute(fromYear);
+  const toValue   = pvCompute(toYear);
+
+  // From card: mark done
+  const fromCard = document.getElementById('yc-pv-' + fromYear);
+  fromCard.classList.remove('active', 'start');
+  fromCard.classList.add('done');
+
+  // To card: reveal
+  const toCard = document.getElementById('yc-pv-' + toYear);
+  toCard.classList.remove('locked');
+  toCard.classList.add('active');
+  toCard.querySelector('.yc-bar').style.height = Math.max((toValue / max) * 100, 4) + '%';
+  toCard.querySelector('.yc-value').textContent = fmt(toValue);
+  toCard.querySelector('.yc-op').textContent = '÷ ' + (1 + pvRate).toFixed(2);
+
+  // Arrow active
+  document.querySelectorAll('#pvArrows .tl-arrow').forEach(a => a.classList.remove('active'));
+  const arrow = document.getElementById('pv-arrow-' + toYear);
+  if (arrow) arrow.classList.add('active');
+
+  // Status
+  document.getElementById('pvStatus').innerHTML =
+    '<strong>Year ' + toYear + ':</strong> ' +
+    fmt(fromValue) + ' ÷ (1 + ' + pvRate.toFixed(2) + ') = <strong style="color:#6b21a8">' + fmt(toValue) + '</strong>. ' +
+    '<span class="calc">' + fmt(fromValue - toValue) + ' was time-value discount</span>';
+
+  if (toYear === 0) {
+    document.getElementById('pvStepBtn').disabled = true;
+    document.getElementById('pvStepBtn').textContent = '✓ Reached Today';
+    const totalDiscount = pvFV - toValue;
+    const yearsTxt = pvYears + ' year' + (pvYears===1?'':'s');
+    const summary = document.getElementById('pvSummary');
+    summary.innerHTML =
+      '<div style="font-weight:800;margin-bottom:6px;color:#0e7490">📉 Present Value Summary</div>' +
+      'Future amount: <strong>' + fmt(pvFV) + '</strong> in ' + yearsTxt + '<br>' +
+      'Discounted at ' + fmtPct(pvRate*100) + ' to today: <span class="total">' + fmt(toValue) + '</span><br>' +
+      'Time-value discount: <strong>' + fmt(totalDiscount) + '</strong> ' +
+      '(' + ((totalDiscount/pvFV)*100).toFixed(1) + '% reduction)<br>' +
+      '<span style="font-size:.85rem;color:#0e7490">Formula: ' + fmt(pvFV) + ' ÷ (1 + ' + pvRate.toFixed(2) + ')<sup>' + pvYears + '</sup> = ' + fmt(toValue) + '</span>';
+    summary.classList.add('show');
+  }
+}
+
+function resetPV() {
+  pvBuildGrid();
+  document.getElementById('pvStepBtn').disabled = false;
+  document.getElementById('pvStepBtn').textContent = '← Discount One Year Backward';
+  document.getElementById('pvSummary').classList.remove('show');
+  document.getElementById('pvStatus').innerHTML =
+    '<strong>Year ' + pvYears + ':</strong> You will receive <strong style="color:#6b21a8">' + fmt(pvFV) + '</strong> in the future. ' +
+    'Click the button to discount it back year by year and see what it is worth today.';
+}
+
+// ═══════════════════════════════════════════════
+// QUIZ
+// ═══════════════════════════════════════════════
+let quizBuilt = false, score = 0;
+
+const QUESTIONS = [
+  {
+    q: "What does Future Value (FV) represent?",
+    correct: "The amount today's investment will grow to after compounding",
+    opts: [
+      "The amount today's investment will grow to after compounding",
+      "The current worth of a future cash flow",
+      "The interest rate used for discounting",
+      "The number of compounding periods"
+    ],
+    exp: "Future Value answers: 'If I invest $X today at rate r for n years, how much will I have?' It applies compounding (multiplying by (1+r) each period)."
+  },
+  {
+    q: "If you invest $1,000 at 10% for 1 year, what is the Future Value?",
+    correct: "$1,100",
+    opts: ["$1,100", "$1,010", "$900", "$1,000"],
+    exp: "FV = $1,000 × (1 + 0.10)^1 = $1,000 × 1.10 = $1,100."
+  },
+  {
+    q: "What is the Future Value of $1,000 at 10% after 2 years?",
+    correct: "$1,210",
+    opts: ["$1,210", "$1,200", "$1,100", "$1,221"],
+    exp: "FV = $1,000 × (1.10)^2 = $1,000 × 1.21 = $1,210. Notice: not $1,200 — the extra $10 is interest earned on year 1's interest (compounding)."
+  },
+  {
+    q: "Why is the Future Value of $1,000 at 10% for 2 years $1,210 (not $1,200)?",
+    correct: "Year 2 interest is also earned on Year 1's $100 of interest (compounding)",
+    opts: [
+      "Year 2 interest is also earned on Year 1's $100 of interest (compounding)",
+      "There is a 1% bonus rate in the second year",
+      "Inflation adjustment is applied",
+      "Banking rounding rules add the extra $10"
+    ],
+    exp: "Compounding means interest earns interest. Year 1 interest is $100. In year 2, you earn 10% on $1,100 (not just $1,000), giving $110 of interest — for a total of $1,210."
+  },
+  {
+    q: "What does Present Value (PV) represent?",
+    correct: "What a future cash flow is worth today",
+    opts: [
+      "What a future cash flow is worth today",
+      "The total interest earned over the investment period",
+      "The amount paid in dividends",
+      "The face value of a bond at maturity"
+    ],
+    exp: "Present Value answers: 'I am promised $Y in n years — what would I accept today as an equivalent?' It applies discounting (dividing by (1+r) each period)."
+  },
+  {
+    q: "What is the Present Value of $1,100 to be received in 1 year, discounted at 10%?",
+    correct: "$1,000",
+    opts: ["$1,000", "$1,100", "$990", "$1,210"],
+    exp: "PV = $1,100 ÷ (1 + 0.10)^1 = $1,100 ÷ 1.10 = $1,000. PV is the inverse of FV — the same amount, viewed from the opposite direction in time."
+  },
+  {
+    q: "When the discount rate increases (with everything else held constant), what happens to Present Value?",
+    correct: "Present Value decreases",
+    opts: ["Present Value decreases", "Present Value increases", "Present Value stays the same", "It depends on the time period"],
+    exp: "A higher discount rate means dividing by a larger number — so the result is smaller. A future amount is worth less today when interest rates are higher (because today's dollar can earn more)."
+  },
+  {
+    q: "Which of these accounting items relies on Present Value calculations?",
+    correct: "All of the above — bonds, leases, and pension obligations",
+    opts: [
+      "All of the above — bonds, leases, and pension obligations",
+      "Only bond pricing",
+      "Only lease accounting",
+      "Only pension obligations"
+    ],
+    exp: "Time value of money is foundational across intermediate accounting. Bond prices are the PV of future cash flows; lease liabilities are the PV of future lease payments; pension obligations are the PV of future benefit payments."
+  },
+];
+
+function buildQuiz() {
+  quizBuilt = true;
+  const wrap = document.getElementById('quizWrap');
+  document.getElementById('total').textContent = QUESTIONS.length;
+  QUESTIONS.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML =
+      '<div class="q-num">Question ' + (qi+1) + ' of ' + QUESTIONS.length + '</div>' +
+      '<div class="q-text">' + q.q + '</div>' +
+      '<div class="q-opts">' + q.opts.map(o =>
+        '<button class="q-opt" onclick="answer(' + qi + ',this)">' + o + '</button>'
+      ).join('') + '</div>' +
+      '<div class="q-explain" id="qe-' + qi + '"></div>';
+    wrap.appendChild(card);
+  });
+}
+
+function answer(qi, btn) {
+  const card = btn.closest('.q-card');
+  if (card.dataset.done) return;
+  card.dataset.done = '1';
+  const q = QUESTIONS[qi];
+  const chosen = btn.textContent.trim();
+  card.querySelectorAll('.q-opt').forEach(b => {
+    b.disabled = true;
+    if (b.textContent.trim() === q.correct) b.classList.add('correct');
+    else b.classList.add('wrong');
+  });
+  const exp = document.getElementById('qe-' + qi);
+  exp.classList.add('show');
+  if (chosen === q.correct) {
+    score++;
+    exp.classList.add('ok');
+    exp.textContent = '✅ Correct! ' + q.exp;
+  } else {
+    exp.classList.add('bad');
+    exp.textContent = '❌ The answer is: ' + q.correct + '. ' + q.exp;
+  }
+  document.getElementById('score').textContent = score;
+}
+
+// Init
+fvBuildGrid();
+pvBuildGrid();
+</script>
+</body>
+</html>

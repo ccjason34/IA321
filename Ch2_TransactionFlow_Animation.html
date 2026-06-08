@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transaction Flow | Kieso Ch. 2</title>
+<style>
+  :root {
+    --bg: #f1f5f9;
+    --dr-bg: #eff6ff; --dr-border: #bfdbfe; --dr-text: #1d4ed8;
+    --cr-bg: #f0fdf4; --cr-border: #bbf7d0; --cr-text: #15803d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); font-family: 'Segoe UI', system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
+
+  /* ── Header ── */
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.2rem; font-weight: 800; }
+  .header p  { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+
+  /* ── Progress bar of transactions ── */
+  .tx-bar { background: #1e293b; padding: 10px 16px; display: flex; gap: 6px; overflow-x: auto; }
+  .tx-pip { flex: 1; min-width: 70px; padding: 7px 6px; border-radius: 6px; border: 2px solid #334155; text-align: center; font-size: .72rem; font-weight: 700; color: #64748b; cursor: pointer; transition: all .2s; white-space: nowrap; }
+  .tx-pip.done   { border-color: #0d9488; color: #2dd4bf; background: #0f2e2b; }
+  .tx-pip.active { border-color: #3b82f6; color: #93c5fd; background: #172554; }
+
+  /* ── Main layout ── */
+  .shell { max-width: 980px; margin: 0 auto; padding: 20px 16px 100px; display: flex; flex-direction: column; gap: 20px; }
+
+  /* ── Flow row: source → journal → arrow → ledger ── */
+  .flow-row { display: grid; grid-template-columns: 1fr 40px 1.4fr; gap: 0; align-items: start; }
+  @media(max-width: 680px) { .flow-row { grid-template-columns: 1fr; } }
+
+  /* ── Source document card ── */
+  .src-card { background: white; border-radius: 12px; padding: 18px; box-shadow: 0 2px 10px rgba(0,0,0,.08); border-top: 4px solid #3b82f6; }
+  .src-tag  { font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #3b82f6; margin-bottom: 6px; }
+  .src-date { font-size: .82rem; font-weight: 700; color: #64748b; margin-bottom: 8px; }
+  .src-desc { font-size: .97rem; font-weight: 600; color: #1e293b; line-height: 1.5; margin-bottom: 12px; }
+  .src-eq   { font-size: .82rem; color: #475569; line-height: 1.6; background: #f8fafc; border-radius: 6px; padding: 8px 12px; }
+  .src-eq strong { color: #1e293b; }
+
+  /* ── Step buttons ── */
+  .step-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .step-btn { padding: 9px 18px; border-radius: 8px; border: 2px solid; font-weight: 700; font-size: .85rem; cursor: pointer; transition: all .15s; }
+  .btn-journal { background: #eff6ff; border-color: #3b82f6; color: #1d4ed8; }
+  .btn-journal:hover { background: #dbeafe; }
+  .btn-journal.done-btn { background: #dbeafe; border-color: #1d4ed8; }
+  .btn-post   { background: #f0fdf4; border-color: #16a34a; color: #15803d; }
+  .btn-post:hover { background: #dcfce7; }
+  .btn-post.done-btn { background: #dcfce7; border-color: #15803d; }
+  .btn-next   { background: #1e293b; border-color: #1e293b; color: white; }
+  .btn-next:hover { background: #334155; }
+  .step-btn:disabled { opacity: .4; cursor: default; }
+
+  /* ── Arrow ── */
+  .arrow-col { display: flex; align-items: flex-start; justify-content: center; padding-top: 56px; }
+  .arrow { font-size: 1.6rem; color: #94a3b8; transition: color .4s; }
+  .arrow.active { color: #3b82f6; }
+
+  /* ── Journal panel ── */
+  .journal-panel { background: white; border-radius: 12px; padding: 18px; box-shadow: 0 2px 10px rgba(0,0,0,.08); min-height: 80px; transition: opacity .3s; }
+  .journal-panel.hidden { opacity: .25; }
+  .j-tag { font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-bottom: 10px; }
+  .j-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  .j-table th { text-align: left; padding: 5px 8px; color: #64748b; font-weight: 700; font-size: .75rem; border-bottom: 2px solid #e2e8f0; }
+  .j-table td { padding: 6px 8px; }
+  .j-table .j-dr { color: var(--dr-text); font-weight: 700; }
+  .j-table .j-cr { color: var(--cr-text); font-weight: 700; padding-left: 28px; font-style: italic; }
+  .j-table .j-amt { text-align: right; font-family: monospace; font-size: .9rem; }
+  .j-table .j-note { font-size: .75rem; color: #94a3b8; padding-top: 2px; padding-bottom: 8px; }
+  .j-row-flash { animation: jflash .6s ease; }
+  @keyframes jflash { 0%{background:#bfdbfe} 60%{background:#e0f2fe} 100%{background:transparent} }
+
+  /* ── Posting arrow ── */
+  .post-hint { text-align: center; font-size: .75rem; color: #94a3b8; margin: 4px 0 8px; font-style: italic; }
+  .post-hint.active { color: #3b82f6; font-style: normal; font-weight: 700; }
+
+  /* ── T-Account ledger ── */
+  .ledger-section { background: white; border-radius: 12px; padding: 18px; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+  .ledger-tag { font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-bottom: 12px; }
+  .t-grid { display: flex; flex-wrap: wrap; gap: 14px; }
+
+  .t-acct { border: 2px solid #334155; border-radius: 6px; overflow: hidden; min-width: 160px; flex: 1; font-family: 'Courier New', monospace; }
+  .t-name-bar { background: #1e293b; color: white; text-align: center; font-size: .8rem; font-weight: 800; padding: 6px 8px; letter-spacing: .5px; }
+  .t-body { display: grid; grid-template-columns: 1fr 1fr; }
+  .t-side { padding: 8px 10px; min-height: 80px; }
+  .t-side.dr-s { background: var(--dr-bg); border-right: 2px solid #334155; }
+  .t-side.cr-s { background: var(--cr-bg); }
+  .t-side-lbl { font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+  .t-side.dr-s .t-side-lbl { color: var(--dr-text); }
+  .t-side.cr-s .t-side-lbl { color: var(--cr-text); }
+  .t-entry { font-size: .8rem; line-height: 1.8; }
+  .t-entry.new { font-weight: 800; animation: tentryIn 1.8s ease forwards; }
+  @keyframes tentryIn {
+    0%   { background: #fbbf24; color: #78350f; font-size: .95rem; }
+    40%  { background: #fde68a; color: #92400e; font-size: .88rem; }
+    100% { background: transparent; color: inherit; font-size: .8rem; }
+  }
+  .t-acct.receiving { animation: tacctGlow 1.8s ease; }
+  @keyframes tacctGlow {
+    0%   { box-shadow: 0 0 0 0px #fbbf24; }
+    30%  { box-shadow: 0 0 0 5px #fbbf24; }
+    100% { box-shadow: none; }
+  }
+  tr.posting td { background: #bfdbfe !important; transition: background .4s; }
+  .t-bal-row { display: grid; grid-template-columns: 1fr 1fr; font-size: .75rem; font-weight: 800; padding: 4px 10px; border-top: 2px solid #334155; background: #f8fafc; }
+  .t-bal-dr { color: var(--dr-text); }
+  .t-bal-cr { color: var(--cr-text); text-align: right; }
+
+  /* ── Step indicator ── */
+  .step-indicator { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; }
+  .si-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #334155; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; color: #64748b; flex-shrink: 0; }
+  .si-dot.done   { background: #0d9488; border-color: #0d9488; color: white; }
+  .si-dot.active { background: #3b82f6; border-color: #3b82f6; color: white; }
+  .si-line { flex: 1; height: 2px; background: #e2e8f0; }
+  .si-line.done { background: #0d9488; }
+  .si-label { font-size: .72rem; color: #64748b; white-space: nowrap; }
+
+  /* ── Nav bar ── */
+  .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; }
+  .nav-btn { padding: 9px 22px; border-radius: 8px; border: none; font-weight: 700; font-size: .85rem; cursor: pointer; }
+  .nav-btn.prev { background: #1e293b; color: #94a3b8; }
+  .nav-btn.prev:hover:not(:disabled) { background: #334155; }
+  .nav-btn.next-tx { background: #3b82f6; color: white; }
+  .nav-btn.next-tx:hover:not(:disabled) { background: #2563eb; }
+  .nav-btn:disabled { opacity: .4; cursor: default; }
+  .nav-ind { font-size: .8rem; color: #64748b; font-weight: 600; text-align: center; }
+
+  /* ── Complete banner ── */
+  .complete-banner { background: linear-gradient(135deg,#0d9488,#1d4ed8); border-radius: 12px; padding: 24px; text-align: center; color: white; display: none; }
+  .complete-banner h2 { font-size: 1.3rem; font-weight: 900; margin-bottom: 8px; }
+  .complete-banner p  { font-size: .9rem; opacity: .85; }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>📑 Transaction Flow: Source → Journal → Ledger</h1>
+  <p>Kieso, Weygandt &amp; Warfield · Intermediate Accounting 18th Ed. · Chapter 2 · Pioneer Advertising</p>
+</div>
+
+<!-- Transaction selector bar -->
+<div class="tx-bar" id="txBar"></div>
+
+<div class="shell">
+
+  <!-- Step flow indicator -->
+  <div class="step-indicator" id="stepInd">
+    <div class="si-dot active" id="si0">1</div>
+    <div class="si-label">Analyze</div>
+    <div class="si-line" id="sl0"></div>
+    <div class="si-dot" id="si1">2</div>
+    <div class="si-label">Journalize</div>
+    <div class="si-line" id="sl1"></div>
+    <div class="si-dot" id="si2">3</div>
+    <div class="si-label">Post to Ledger</div>
+    <div class="si-line" id="sl2"></div>
+    <div class="si-dot" id="si3">4</div>
+    <div class="si-label">Balances Update</div>
+  </div>
+
+  <!-- Source doc + arrow + journal -->
+  <div class="flow-row">
+    <div class="src-card" id="srcCard">
+      <div class="src-tag">① Source Document / Transaction</div>
+      <div class="src-date" id="srcDate"></div>
+      <div class="src-desc" id="srcDesc"></div>
+      <div class="src-eq" id="srcEq"></div>
+      <div class="step-btns">
+        <button class="step-btn btn-journal" id="btnJournal" onclick="doJournal()">② Journalize →</button>
+        <button class="step-btn btn-post"    id="btnPost"    onclick="doPost()" disabled>③ Post to Ledger →</button>
+      </div>
+    </div>
+
+    <div class="arrow-col">
+      <div class="arrow" id="flowArrow">→</div>
+    </div>
+
+    <div>
+      <div class="journal-panel hidden" id="journalPanel">
+        <div class="j-tag">② General Journal — Book of Original Entry</div>
+        <table class="j-table">
+          <thead><tr><th>Date</th><th>Account Titles &amp; Explanation</th><th style="text-align:right">Debit</th><th style="text-align:right">Credit</th></tr></thead>
+          <tbody id="jBody"></tbody>
+        </table>
+        <div class="post-hint" id="postHint">← Click "Post to Ledger" when ready</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ledger T-accounts -->
+  <div class="ledger-section">
+    <div class="ledger-tag">③④ General Ledger — Running T-Account Balances (all transactions so far)</div>
+    <div class="t-grid" id="tGrid"></div>
+  </div>
+
+  <!-- Complete -->
+  <div class="complete-banner" id="completeBanner">
+    <h2>✅ All Transactions Posted!</h2>
+    <p>The general ledger now holds every transaction in T-account form.<br>Next step: prepare the Trial Balance to confirm Dr. totals = Cr. totals.</p>
+  </div>
+
+</div>
+
+<div class="nav-bar">
+  <button class="nav-btn prev" id="btnPrev" onclick="goTx(currentTx - 1)" disabled>← Previous</button>
+  <span class="nav-ind" id="navInd">Transaction 1 of 4</span>
+  <button class="nav-btn next-tx" id="btnNextTx" onclick="goTx(currentTx + 1)" disabled>Next Transaction →</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA — Pioneer Advertising October Transactions
+// (Kieso 18th ed. Illustrations 2.11–2.20)
+// ═══════════════════════════════════════════════
+const TRANSACTIONS = [
+  {
+    date: 'October 1, 2022',
+    short: 'Oct 1 — Invest',
+    desc: 'C. R. Yazici invests $100,000 cash in Pioneer Advertising in exchange for common stock.',
+    eq: '<strong>Assets</strong> ↑ Cash +$100,000 = <strong>Equity</strong> ↑ Common Stock +$100,000',
+    journal: [
+      { dr: true,  account: 'Cash',         ref: '101', amt: 100000 },
+      { dr: false, account: 'Common Stock',  ref: '311', amt: 100000 },
+      { note: 'Issued common stock for cash.' }
+    ],
+    entries: [
+      { account: 'Cash',         side: 'dr', amount: 100000 },
+      { account: 'Common Stock', side: 'cr', amount: 100000 },
+    ]
+  },
+  {
+    date: 'October 1, 2022',
+    short: 'Oct 1 — Note',
+    desc: 'Pioneer purchases office equipment costing $50,000 by signing a 3-month, 12% note payable.',
+    eq: '<strong>Assets</strong> ↑ Equipment +$50,000 = <strong>Liabilities</strong> ↑ Notes Payable +$50,000',
+    journal: [
+      { dr: true,  account: 'Equipment',    ref: '157', amt: 50000 },
+      { dr: false, account: 'Notes Payable',ref: '200', amt: 50000 },
+      { note: 'Issued 3-month, 12% note for office equipment.' }
+    ],
+    entries: [
+      { account: 'Equipment',    side: 'dr', amount: 50000 },
+      { account: 'Notes Payable',side: 'cr', amount: 50000 },
+    ]
+  },
+  {
+    date: 'October 2, 2022',
+    short: 'Oct 2 — Supplies',
+    desc: 'Pioneer pays $25,000 cash for advertising supplies.',
+    eq: '<strong>Assets</strong> ↑ Supplies +$25,000 &nbsp;|&nbsp; <strong>Assets</strong> ↓ Cash −$25,000',
+    journal: [
+      { dr: true,  account: 'Supplies', ref: '126', amt: 25000 },
+      { dr: false, account: 'Cash',     ref: '101', amt: 25000 },
+      { note: 'Purchased advertising supplies for cash.' }
+    ],
+    entries: [
+      { account: 'Supplies', side: 'dr', amount: 25000 },
+      { account: 'Cash',     side: 'cr', amount: 25000 },
+    ]
+  },
+  {
+    date: 'October 15, 2022',
+    short: 'Oct 15 — Advance',
+    desc: 'Pioneer receives a $120,000 cash advance from R. Knox for advertising services to be completed by December 31.',
+    eq: '<strong>Assets</strong> ↑ Cash +$120,000 = <strong>Liabilities</strong> ↑ Unearned Service Revenue +$120,000',
+    journal: [
+      { dr: true,  account: 'Cash',                    ref: '101', amt: 120000 },
+      { dr: false, account: 'Unearned Service Revenue', ref: '209', amt: 120000 },
+      { note: 'Received advance for advertising services.' }
+    ],
+    entries: [
+      { account: 'Cash',                    side: 'dr', amount: 120000 },
+      { account: 'Unearned Service Revenue', side: 'cr', amount: 120000 },
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════
+// LEDGER STATE — running T-account balances
+// ═══════════════════════════════════════════════
+const ledger = {};          // { accountName: { dr: number, cr: number, entries: [] } }
+let currentTx = 0;
+let journalDone = false;
+let postDone    = false;
+
+function getAccount(name) {
+  if (!ledger[name]) ledger[name] = { dr: 0, cr: 0, entries: [] };
+  return ledger[name];
+}
+
+// ═══════════════════════════════════════════════
+// RENDER HELPERS
+// ═══════════════════════════════════════════════
+function fmt(n) { return n.toLocaleString(); }
+
+function renderTxBar() {
+  const bar = document.getElementById('txBar');
+  bar.innerHTML = '';
+  TRANSACTIONS.forEach((tx, i) => {
+    const pip = document.createElement('div');
+    pip.className = 'tx-pip' + (i < currentTx ? ' done' : i === currentTx ? ' active' : '');
+    pip.textContent = tx.short;
+    pip.onclick = () => { if (i <= currentTx) goTx(i); };
+    bar.appendChild(pip);
+  });
+}
+
+function renderSource() {
+  const tx = TRANSACTIONS[currentTx];
+  document.getElementById('srcDate').textContent = tx.date;
+  document.getElementById('srcDesc').textContent = tx.desc;
+  document.getElementById('srcEq').innerHTML = tx.eq;
+  document.getElementById('navInd').textContent = `Transaction ${currentTx + 1} of ${TRANSACTIONS.length}`;
+}
+
+function renderJournal(flash) {
+  const tx = TRANSACTIONS[currentTx];
+  const tbody = document.getElementById('jBody');
+  tbody.innerHTML = '';
+  tx.journal.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    if (row.note) {
+      tr.innerHTML = `<td></td><td class="j-note" colspan="3"><em>${row.note}</em></td>`;
+    } else if (row.dr) {
+      tr.innerHTML = `<td style="font-size:.8rem;color:#64748b">${i===0?tx.date.split(',')[0]:''}</td><td class="j-dr">${row.account} <span style="font-size:.65rem;color:#94a3b8">(${row.ref})</span></td><td class="j-amt" style="color:var(--dr-text)">${fmt(row.amt)}</td><td></td>`;
+    } else {
+      tr.innerHTML = `<td></td><td class="j-cr">${row.account} <span style="font-size:.65rem;color:#94a3b8">(${row.ref})</span></td><td></td><td class="j-amt" style="color:var(--cr-text)">${fmt(row.amt)}</td>`;
+    }
+    if (flash) tr.classList.add('j-row-flash');
+    tbody.appendChild(tr);
+  });
+
+  const panel = document.getElementById('journalPanel');
+  panel.classList.remove('hidden');
+  document.getElementById('flowArrow').classList.add('active');
+}
+
+function renderLedger(newEntries) {
+  const grid = document.getElementById('tGrid');
+  grid.innerHTML = '';
+
+  const ORDER = ['Cash','Supplies','Equipment','Notes Payable','Unearned Service Revenue','Common Stock'];
+  const keys = ORDER.filter(k => ledger[k]);
+
+  keys.forEach(name => {
+    const acct = ledger[name];
+    const isNew = newEntries && newEntries.some(e => e.account === name);
+
+    const el = document.createElement('div');
+    el.className = 't-acct' + (isNew ? ' receiving' : '');
+    el.innerHTML = `
+      <div class="t-name-bar">${name}</div>
+      <div class="t-body">
+        <div class="t-side dr-s">
+          <div class="t-side-lbl">Debit (Dr.)</div>
+          ${acct.entries.filter(e=>e.side==='dr').map((e,i,arr) => {
+            const isNewEntry = isNew && i === arr.length-1 && newEntries.some(n=>n.account===name&&n.side==='dr');
+            return `<div class="t-entry${isNewEntry?' new':''}">${fmt(e.amount)}</div>`;
+          }).join('')}
+        </div>
+        <div class="t-side cr-s">
+          <div class="t-side-lbl">Credit (Cr.)</div>
+          ${acct.entries.filter(e=>e.side==='cr').map((e,i,arr) => {
+            const isNewEntry = isNew && i === arr.length-1 && newEntries.some(n=>n.account===name&&n.side==='cr');
+            return `<div class="t-entry${isNewEntry?' new':''}">${fmt(e.amount)}</div>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="t-bal-row">
+        <span class="t-bal-dr">${acct.dr > 0 ? 'Dr: $'+fmt(acct.dr) : ''}</span>
+        <span class="t-bal-cr">${acct.cr > 0 ? 'Cr: $'+fmt(acct.cr) : ''}</span>
+      </div>
+    `;
+    grid.appendChild(el);
+  });
+}
+
+function updateStepIndicator(step) {
+  // step: 0=analyze, 1=journal, 2=post, 3=done
+  for (let i = 0; i <= 3; i++) {
+    const dot  = document.getElementById('si'+i);
+    const line = document.getElementById('sl'+i);
+    if (i < step)       { dot.className = 'si-dot done'; dot.textContent = '✓'; }
+    else if (i === step){ dot.className = 'si-dot active'; dot.textContent = i+1; }
+    else                { dot.className = 'si-dot'; dot.textContent = i+1; }
+    if (line) line.className = 'si-line' + (i < step ? ' done' : '');
+  }
+}
+
+// ═══════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════
+function doJournal() {
+  if (journalDone) return;
+  journalDone = true;
+  renderJournal(true);
+  document.getElementById('btnJournal').classList.add('done-btn');
+  document.getElementById('btnJournal').textContent = '✓ Journalized';
+  document.getElementById('btnPost').disabled = false;
+  document.getElementById('postHint').textContent = '← Now post this entry to the ledger';
+  document.getElementById('postHint').classList.add('active');
+  updateStepIndicator(1);
+}
+
+async function doPost() {
+  if (postDone) return;
+  postDone = true;
+
+  const tx = TRANSACTIONS[currentTx];
+  document.getElementById('btnPost').disabled = true;
+  document.getElementById('btnPost').textContent = 'Posting…';
+  document.getElementById('btnJournal').disabled = true;
+
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  for (let i = 0; i < tx.entries.length; i++) {
+    const entry = tx.entries[i];
+
+    // 1. Highlight the matching journal row
+    document.querySelectorAll('#jBody tr').forEach(row => row.classList.remove('posting'));
+    document.querySelectorAll('#jBody tr').forEach(row => {
+      if (row.textContent.includes(entry.account)) row.classList.add('posting');
+    });
+
+    document.getElementById('postHint').textContent =
+      `→ Posting ${entry.side === 'dr' ? 'Debit' : 'Credit'}: ${entry.account}  $${fmt(entry.amount)}`;
+    document.getElementById('postHint').classList.add('active');
+
+    await sleep(700);
+
+    // 2. Apply this single entry to ledger state
+    const acct = getAccount(entry.account);
+    acct.entries.push(entry);
+    if (entry.side === 'dr') acct.dr += entry.amount;
+    else                     acct.cr += entry.amount;
+
+    // 3. Re-render — only this entry gets the "new" highlight
+    renderLedger([entry]);
+
+    await sleep(1400);
+  }
+
+  // Clear journal row highlight
+  document.querySelectorAll('#jBody tr').forEach(row => row.classList.remove('posting'));
+
+  document.getElementById('btnPost').classList.add('done-btn');
+  document.getElementById('btnPost').textContent = '✓ Posted';
+  document.getElementById('postHint').textContent = '✅ Both entries posted — T-account balances updated';
+  document.getElementById('postHint').classList.add('active');
+
+  updateStepIndicator(3);
+
+  const isLast = currentTx === TRANSACTIONS.length - 1;
+  document.getElementById('btnNextTx').disabled = false;
+  document.getElementById('btnNextTx').textContent = isLast ? 'View Summary ✓' : 'Next Transaction →';
+}
+
+function goTx(idx) {
+  if (idx < 0 || idx > TRANSACTIONS.length) return;
+
+  if (idx === TRANSACTIONS.length) {
+    // Show completion
+    document.getElementById('srcCard').style.display = 'none';
+    document.querySelector('.flow-row').style.display = 'none';
+    document.getElementById('completeBanner').style.display = 'block';
+    renderLedger(null);
+    document.getElementById('btnNextTx').disabled = true;
+    document.getElementById('btnPrev').disabled = false;
+    document.getElementById('navInd').textContent = 'Complete — All 4 Transactions Posted';
+    renderTxBar();
+    return;
+  }
+
+  currentTx = idx;
+  journalDone = false;
+  postDone    = false;
+
+  // Reset UI
+  document.getElementById('srcCard').style.display = '';
+  document.querySelector('.flow-row').style.display = '';
+  document.getElementById('completeBanner').style.display = 'none';
+  document.getElementById('journalPanel').classList.add('hidden');
+  document.getElementById('flowArrow').classList.remove('active');
+  document.getElementById('postHint').textContent = '';
+  document.getElementById('postHint').classList.remove('active');
+  document.getElementById('btnJournal').classList.remove('done-btn');
+  document.getElementById('btnJournal').textContent = '② Journalize →';
+  document.getElementById('btnJournal').disabled = false;
+  document.getElementById('btnPost').classList.remove('done-btn');
+  document.getElementById('btnPost').textContent = '③ Post to Ledger →';
+  document.getElementById('btnPost').disabled = true;
+  document.getElementById('btnNextTx').disabled = true;
+  document.getElementById('btnNextTx').textContent = 'Next Transaction →';
+  document.getElementById('btnPrev').disabled = idx === 0;
+
+  // If we're revisiting a completed tx, replay its state
+  // For simplicity, just re-render the ledger as-is (already has past entries)
+  renderSource();
+  renderLedger(null);
+  updateStepIndicator(0);
+  renderTxBar();
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+goTx(0);
+</script>
+</body>
+</html>

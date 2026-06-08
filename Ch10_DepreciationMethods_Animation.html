@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Depreciation Methods | Kieso Ch. 10</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f1f5f9; font-family: "Segoe UI", system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.22rem; font-weight: 800; letter-spacing: 0; }
+  .header p { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab { padding: 11px 18px; font-size: .88rem; font-weight: 700; color: #64748b; cursor: pointer; border: 0; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; background: transparent; font-family: inherit; }
+  .tab:hover { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+  .panel { display: none; max-width: 1080px; margin: 0 auto; padding: 22px 16px 90px; }
+  .panel.active { display: block; }
+  .sec-title { font-size: 1.34rem; font-weight: 800; margin-bottom: 8px; }
+  .sec-sub { font-size: .96rem; color: #475569; margin-bottom: 18px; line-height: 1.65; max-width: 950px; }
+
+  .scenario-card { background: white; border-radius: 12px; box-shadow: 0 3px 14px rgba(0,0,0,.08); border: 1px solid #e2e8f0; overflow: hidden; margin: 12px auto 0; max-width: 1080px; }
+  .scenario-head { background: linear-gradient(135deg, #0f766e, #0891b2); color: white; padding: 10px 14px; display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .scenario-title { font-size: .88rem; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
+  .scenario-badge { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.28); border-radius: 999px; padding: 5px 10px; font-size: .76rem; font-weight: 900; }
+  .fact-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 12px; }
+  @media(max-width:900px) { .fact-grid { grid-template-columns: 1fr 1fr; } }
+  @media(max-width:560px) { .fact-grid { grid-template-columns: 1fr; } }
+  .fact { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; }
+  .fact .label { font-size: .68rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .fact .value { font-size: 1rem; font-weight: 900; font-family: ui-monospace, Menlo, Consolas, monospace; color: #0f172a; }
+  .fact .hint { font-size: .73rem; font-weight: 700; color: #64748b; margin-top: 3px; line-height: 1.35; }
+
+  .rule-box { background: linear-gradient(135deg, #dbeafe, #ecfdf5); border: 2px solid #2563eb; border-radius: 12px; padding: 14px 18px; margin-bottom: 18px; color: #1e3a8a; font-size: .94rem; line-height: 1.6; font-weight: 750; }
+  .rule-box strong { color: #1d4ed8; font-weight: 900; }
+  .rule-box .trap { color: #b45309; font-weight: 900; }
+  .takeaway { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 2px solid #16a34a; border-radius: 12px; padding: 14px 18px; margin-top: 16px; font-size: .92rem; color: #14532d; line-height: 1.6; }
+  .takeaway strong { color: #166534; }
+
+  .grid-3 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+  @media(max-width:860px) { .grid-3 { grid-template-columns: 1fr; } }
+  .method-card { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border-top: 5px solid #cbd5e1; }
+  .method-card.sl { border-top-color: #2563eb; }
+  .method-card.ddb { border-top-color: #f59e0b; }
+  .method-card.syd { border-top-color: #7c3aed; }
+  .method-card.uop { border-top-color: #0f766e; }
+  .method-card .h { padding: 12px 15px 6px; font-weight: 900; color: #0f172a; }
+  .method-card .b { padding: 0 15px 14px; color: #475569; font-size: .88rem; line-height: 1.55; font-weight: 750; }
+  .formula { margin-top: 8px; background: #1e293b; color: #fef3c7; border-radius: 7px; padding: 8px 9px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .76rem; font-weight: 900; text-align: center; }
+
+  .step-ctrl { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; margin: 0 0 14px; }
+  .sc-btn { padding: 10px 20px; border-radius: 9px; border: none; font-weight: 800; font-size: .85rem; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .sc-step { background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; font-weight: 900; padding: 13px 24px; min-width: 230px; box-shadow: 0 4px 14px rgba(245,158,11,.38); animation: stepPulse 1.6s ease-in-out infinite; }
+  .sc-step:hover:not(:disabled) { background: linear-gradient(135deg, #d97706, #dc2626); transform: translateY(-1px); }
+  .sc-step:disabled { animation: none; box-shadow: none; background: #94a3b8; }
+  .sc-reset { background: #475569; color: white; padding: 9px 18px; font-size: .82rem; }
+  .sc-reset:hover { background: #334155; }
+  .sc-small { border: 2px solid #e2e8f0; background: #f8fafc; color: #334155; padding: 9px 13px; }
+  .sc-small.active { background: #dbeafe; border-color: #3b82f6; color: #1d4ed8; }
+  .sc-btn:disabled { opacity: .58; cursor: default; }
+  @keyframes stepPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(245,158,11,.38); }
+    50% { box-shadow: 0 4px 20px rgba(239,68,68,.66), 0 0 0 4px rgba(245,158,11,.16); }
+  }
+  .status-card { background: white; border-radius: 10px; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); margin-bottom: 14px; font-size: .92rem; color: #334155; line-height: 1.6; border-left: 4px solid #3b82f6; min-height: 64px; }
+  .status-card strong { color: #1e293b; }
+  .status-card .calc { display: inline-block; background: #fef3c7; color: #92400e; padding: 2px 10px; border-radius: 6px; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; margin-top: 4px; }
+
+  .work-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(320px, 1.05fr); gap: 14px; align-items: start; }
+  @media(max-width:900px) { .work-grid { grid-template-columns: 1fr; } }
+  .card { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border: 1px solid #e2e8f0; }
+  .card-h { background: #1e293b; color: white; padding: 12px 15px; font-weight: 900; font-size: .9rem; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .card-h small { color: #cbd5e1; font-weight: 800; }
+  .card-b { padding: 14px 16px; }
+
+  .calc-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(170px, .48fr); gap: 12px; padding: 9px 0; border-bottom: 1px solid #f1f5f9; align-items: start; }
+  @media(max-width:560px) { .calc-row { grid-template-columns: 1fr; } }
+  .calc-row:last-child { border-bottom: 0; }
+  .calc-row.hidden { opacity: .22; }
+  .calc-row.active { background: #fef3c7; margin: 0 -8px; padding: 9px 8px; border-radius: 8px; border-bottom: 0; }
+  .calc-label { font-size: .86rem; color: #475569; line-height: 1.45; font-weight: 750; }
+  .calc-label strong { color: #1e293b; }
+  .calc-value { font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; color: #0f172a; text-align: right; overflow-wrap: anywhere; line-height: 1.35; }
+  @media(max-width:560px) { .calc-value { text-align: left; } }
+
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #f8fafc; color: #64748b; text-align: left; padding: 8px; font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid #e2e8f0; }
+  td { padding: 8px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: .84rem; font-weight: 750; }
+  td.money, th.money { text-align: right; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; color: #0f172a; }
+  tr.active-row td { background: #fef3c7; }
+  tr.total-row td { background: #1e293b; color: white; font-weight: 900; border-bottom: 0; }
+  tr.total-row td.money { color: #fbbf24; }
+
+  .bar-wrap { display: grid; gap: 8px; }
+  .bar-row { display: grid; grid-template-columns: 92px 1fr 82px; gap: 8px; align-items: center; font-size: .78rem; font-weight: 900; color: #475569; }
+  .bar-track { background: #e2e8f0; border-radius: 999px; height: 22px; overflow: hidden; }
+  .bar-fill { height: 100%; width: 0; background: #3b82f6; transition: width .35s ease; }
+  .bar-fill.ddb { background: #f59e0b; }
+  .bar-fill.syd { background: #7c3aed; }
+  .bar-fill.uop { background: #0f766e; }
+
+  /* Multi-year shape chart */
+  .shape-chart { display: grid; gap: 24px; }
+  .shape-row { display: grid; grid-template-columns: 130px 1fr; gap: 10px; align-items: center; }
+  .shape-label { font-size: .82rem; font-weight: 900; color: #0f172a; }
+  .shape-tag { font-size: .68rem; font-weight: 750; color: #64748b; margin-top: 2px; text-transform: uppercase; letter-spacing: .4px; }
+  .shape-bars { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; align-items: end; height: 70px; }
+  .shape-bar { background: #3b82f6; border-radius: 4px 4px 0 0; min-height: 4px; position: relative; }
+  .shape-bar.ddb { background: #f59e0b; }
+  .shape-bar.syd { background: #7c3aed; }
+  .shape-bar.uop { background: #0f766e; }
+  /* UOP: keep Y1 solid, mark Y2-Y5 as hypothetical with diagonal stripes */
+  .shape-bars.uop-hypo .shape-bar:not(:first-child) {
+    background: repeating-linear-gradient(45deg, #0f766e, #0f766e 5px, #5eead4 5px, #5eead4 10px);
+    opacity: .7;
+  }
+  .shape-bar .shape-bar-label { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); font-size: .62rem; font-weight: 900; color: #475569; white-space: nowrap; }
+  .shape-axis { display: grid; grid-template-columns: 130px 1fr; gap: 10px; margin-top: 4px; }
+  .shape-axis-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .shape-axis-row span { text-align: center; font-size: .72rem; font-weight: 900; color: #64748b; }
+  @media(max-width:560px) { .shape-row, .shape-axis { grid-template-columns: 90px 1fr; } }
+
+  /* Reconciliation panel */
+  .reconcile {
+    margin-top: 14px;
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    border: 2px solid #16a34a;
+    border-radius: 12px;
+    padding: 14px 18px;
+  }
+  .reconcile-h { font-size: 1rem; font-weight: 900; color: #166534; margin-bottom: 8px; }
+  .reconcile-body { color: #14532d; font-weight: 800; line-height: 1.55; font-size: .92rem; }
+  .reconcile-body strong { color: #166534; }
+  .reconcile-eq {
+    margin-top: 10px;
+    background: white;
+    border: 1.5px solid #86efac;
+    border-radius: 9px;
+    padding: 10px 12px;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: .82rem;
+    line-height: 1.7;
+    color: #14532d;
+    font-weight: 850;
+  }
+  .reconcile-note { margin-top: 8px; font-style: italic; }
+
+  /* DDB floor callout */
+  tr.floor-row td { background: #fef2f2 !important; border-left: 4px solid #ef4444; }
+  tr.floor-row td:first-child::after { content: " ⚠"; color: #b91c1c; }
+  .floor-explain {
+    background: #fef2f2; border: 2px solid #fca5a5; border-radius: 10px;
+    padding: 10px 13px; margin-top: 10px;
+    color: #7f1d1d; font-size: .82rem; font-weight: 850; line-height: 1.55;
+    display: none;
+  }
+  .floor-explain.show { display: block; }
+  .floor-explain strong { color: #991b1b; }
+  .floor-explain code { font-family: ui-monospace, Menlo, Consolas, monospace; background: white; padding: 1px 6px; border-radius: 4px; border: 1px solid #fecaca; }
+  .uop-note {
+    background: #f0f9ff; border: 2px solid #0ea5e9;
+    border-radius: 10px; padding: 12px 14px; margin: 8px 0;
+    color: #075985; font-size: .85rem; font-weight: 850; line-height: 1.55;
+  }
+  .uop-note strong { color: #0c4a6e; font-weight: 900; }
+  .uop-note code { font-family: ui-monospace, Menlo, Consolas, monospace; background: white; padding: 1px 6px; border-radius: 4px; border: 1px solid #bae6fd; }
+
+  .journal-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .9fr); gap: 14px; align-items: start; }
+  @media(max-width:900px) { .journal-layout { grid-template-columns: 1fr; } }
+  .journal { width: 100%; border-collapse: collapse; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .86rem; }
+  .journal th.dr, .journal th.cr, .journal td.dr, .journal td.cr { text-align: right; width: 110px; }
+  .journal tr.hidden { opacity: .2; }
+  .journal tr.active td { background: #fef3c7; }
+  .journal tr.done td { background: #f0fdf4; }
+  .journal .indent { padding-left: 28px; }
+  .journal .dr, .journal .cr { color: #0f172a; font-weight: 900; white-space: nowrap; }
+  .why-panel { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border: 1px solid #e2e8f0; }
+  .why-head { background: #0f766e; color: white; padding: 12px 15px; font-weight: 900; font-size: .9rem; }
+  .why-body { padding: 14px 16px; }
+  .why-rule-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+  @media(max-width:560px) { .why-rule-grid { grid-template-columns: 1fr; } }
+  .why-rule { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 9px; padding: 9px 10px; }
+  .why-rule .tag { font-size: .66rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .45px; margin-bottom: 4px; }
+  .why-rule .text { font-size: .8rem; color: #334155; font-weight: 800; line-height: 1.35; }
+  .why-card { display: none; border-radius: 10px; padding: 12px 14px; border: 2px solid #e2e8f0; background: #f8fafc; color: #334155; line-height: 1.55; font-size: .88rem; font-weight: 750; }
+  .why-card.active { display: block; animation: fadeWhy .25s ease both; }
+  .why-card strong { color: #0f172a; font-weight: 900; }
+  .why-card .mini { display: block; margin-top: 8px; background: #1e293b; color: #fef3c7; border-radius: 7px; padding: 8px 10px; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; font-size: .78rem; }
+  .why-card.debit { border-color: #2563eb; background: #eff6ff; }
+  .why-card.credit { border-color: #f59e0b; background: #fffbeb; }
+  @keyframes fadeWhy { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .quiz-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .score { background: white; border-radius: 10px; padding: 12px 16px; box-shadow: 0 2px 8px rgba(0,0,0,.07); font-weight: 900; color: #1e293b; margin-bottom: 14px; }
+  .q-card { background: white; border-radius: 12px; padding: 15px 17px; box-shadow: 0 2px 8px rgba(0,0,0,.07); border: 1px solid #e2e8f0; }
+  .q-num { font-size: .72rem; color: #64748b; font-weight: 900; text-transform: uppercase; letter-spacing: .55px; margin-bottom: 6px; }
+  .q-text { font-weight: 850; color: #1e293b; margin-bottom: 11px; line-height: 1.45; }
+  .q-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .q-opt { border: 2px solid #e2e8f0; background: #f8fafc; color: #334155; border-radius: 8px; padding: 9px 12px; font-size: .84rem; font-weight: 850; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .q-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .q-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+  .q-opt:disabled { cursor: default; }
+  .explain { display: none; margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #f8fafc; color: #475569; font-size: .84rem; line-height: 1.55; font-weight: 700; }
+  .explain.show { display: block; }
+  .nav { position: fixed; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,.96); padding: 10px 16px; display: flex; justify-content: center; gap: 10px; box-shadow: 0 -4px 18px rgba(15,23,42,.22); }
+  .nav button { border: 0; border-radius: 8px; padding: 9px 18px; font-weight: 900; cursor: pointer; color: white; background: #334155; font-family: inherit; }
+  .nav button:hover { background: #475569; }
+  .nav button.primary { background: #2563eb; }
+  .nav button.primary:hover { background: #1d4ed8; }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>Depreciation Methods</h1>
+  <p>Kieso, Weygandt &amp; Warfield &middot; Intermediate Accounting 18th Ed. &middot; Chapter 10 &middot; Depreciation, Impairments, and Depletion</p>
+</div>
+
+<div class="tabs" role="tablist" aria-label="Depreciation methods lesson tabs">
+  <button class="tab active" role="tab" aria-selected="true" onclick="showTab(0)">1. Big Idea</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(1)">2. Calculate Methods</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(2)">3. Compare Patterns</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(3)">4. Journal Entry</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(4)">5. Self-Check</button>
+</div>
+
+<div class="scenario-card">
+  <div class="scenario-head">
+    <div class="scenario-title">Scenario: Boc Apparel buys delivery equipment</div>
+    <div class="scenario-badge">Use the same asset for every method</div>
+  </div>
+  <div class="fact-grid">
+    <div class="fact"><div class="label">Cost</div><div class="value">$50,000</div><div class="hint">Amount capitalized at acquisition</div></div>
+    <div class="fact"><div class="label">Residual value</div><div class="value">$5,000</div><div class="hint">Expected value at disposal</div></div>
+    <div class="fact"><div class="label">Useful life</div><div class="value">5 years</div><div class="hint">Estimated service period</div></div>
+    <div class="fact"><div class="label">Total production</div><div class="value">100,000 mi.</div><div class="hint">Estimated total activity</div></div>
+    <div class="fact"><div class="label">Year 1 use</div><div class="value">24,000 mi.</div><div class="hint">Actual activity this year</div></div>
+  </div>
+</div>
+
+<section class="panel active">
+  <div class="sec-title">Depreciation Allocates Cost, Not Value</div>
+  <div class="sec-sub">Depreciation is the accounting process of allocating the cost of a long-lived asset to expense over the periods that benefit from using the asset.</div>
+
+  <div class="rule-box">
+    <strong>Core idea:</strong> depreciation is not a cash payment and not an attempt to show current market value. It allocates the asset's depreciable base over useful life. <span class="trap">Student trap:</span> residual value matters differently depending on the method.
+  </div>
+
+  <div class="grid-3">
+    <div class="method-card sl">
+      <div class="h">Straight-Line</div>
+      <div class="b">Same depreciation expense each year. Best when the asset provides benefits evenly over time.
+        <div class="formula">(Cost - Residual) / Life</div>
+      </div>
+    </div>
+    <div class="method-card ddb">
+      <div class="h">Double-Declining-Balance</div>
+      <div class="b">Higher expense early, lower expense later. Residual value is not subtracted in the annual formula, but book value cannot fall below residual value.
+        <div class="formula">Beginning BV x (2 / Life)</div>
+      </div>
+    </div>
+    <div class="method-card syd">
+      <div class="h">Sum-of-the-Years'-Digits</div>
+      <div class="b">Accelerated depreciation using a shrinking fraction. The numerator counts remaining life; the denominator is the sum of all years.
+        <div class="formula">Base x Remaining years / SYD</div>
+      </div>
+    </div>
+    <div class="method-card uop">
+      <div class="h">Units-of-Production</div>
+      <div class="b">Expense follows actual use. More miles, units, or hours means more depreciation.
+        <div class="formula">Rate per unit x Actual units</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="card-h"><span>When to use each method (real-world)</span><small>match the method to the asset</small></div>
+    <div class="card-b" style="padding:0">
+      <table>
+        <thead><tr><th>Method</th><th>Use when…</th><th>Real-world examples</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Straight-line</strong></td><td>Asset benefits the company evenly over its life</td><td>Buildings, office furniture, leasehold improvements</td></tr>
+          <tr><td><strong>Double-declining-balance</strong></td><td>Asset is most productive (or loses value fastest) in early years</td><td>Computers, vehicles, technology equipment</td></tr>
+          <tr><td><strong>Sum-of-the-years'-digits</strong></td><td>Same as DDB but with a smoother decline</td><td>Manufacturing equipment, fleet vehicles</td></tr>
+          <tr><td><strong>Units-of-production</strong></td><td>Productivity is tied to actual usage, not time</td><td>Mining trucks, oil wells, aircraft (flight hours), photocopiers</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="takeaway"><strong>Best first question:</strong> Is depreciation tied to <strong>time (even)</strong> → straight-line · <strong>time (front-loaded)</strong> → DDB or SYD · <strong>actual activity</strong> → units-of-production?</div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Calculate Each Method Step by Step</div>
+  <div class="sec-sub">Choose a method, then reveal the calculation. The same equipment can produce different expense patterns depending on the method selected.</div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-small active" onclick="selectMethod(0)">Straight-Line</button>
+    <button class="sc-btn sc-small" onclick="selectMethod(1)">Double-Declining</button>
+    <button class="sc-btn sc-small" onclick="selectMethod(2)">SYD</button>
+    <button class="sc-btn sc-small" onclick="selectMethod(3)">Units-of-Production</button>
+  </div>
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="calcBtn" onclick="nextCalc()">Show Step 1</button>
+    <button class="sc-btn sc-reset" onclick="resetCalc()">Reset</button>
+  </div>
+  <div class="status-card" id="calcStatus">Ready: choose a depreciation method and reveal the calculation.</div>
+
+  <div class="work-grid">
+    <div class="card">
+      <div class="card-h"><span id="calcTitle">Straight-Line Calculation</span><small>Year 1</small></div>
+      <div class="card-b" id="calcRows"></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><span>Book Value Schedule</span><small id="scheduleNote">same expense each year</small></div>
+      <div class="card-b">
+        <table>
+          <thead><tr><th>Year</th><th class="money">Expense</th><th class="money">Accum. Dep.</th><th class="money">End BV</th></tr></thead>
+          <tbody id="scheduleBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Compare the Expense Patterns</div>
+  <div class="sec-sub">All four methods allocate cost to expense, but they do not tell the same story year by year.</div>
+
+  <div class="card">
+    <div class="card-h"><span>Year 1 Depreciation Expense</span><small>same asset, different methods</small></div>
+    <div class="card-b">
+      <div class="bar-wrap">
+        <div class="bar-row"><span>Straight-line</span><div class="bar-track"><div class="bar-fill" id="barSL"></div></div><span>$9,000</span></div>
+        <div class="bar-row"><span>DDB</span><div class="bar-track"><div class="bar-fill ddb" id="barDDB"></div></div><span>$20,000</span></div>
+        <div class="bar-row"><span>SYD</span><div class="bar-track"><div class="bar-fill syd" id="barSYD"></div></div><span>$15,000</span></div>
+        <div class="bar-row"><span>Units-prod.</span><div class="bar-track"><div class="bar-fill uop" id="barUOP"></div></div><span>$10,800</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px;">
+    <div class="card-h"><span>Five-Year Comparison</span><small>expense and ending book value</small></div>
+    <div class="card-b">
+      <table>
+        <thead><tr><th>Method</th><th class="money">Year 1</th><th class="money">Year 2</th><th class="money">Year 3</th><th class="money">Year 4</th><th class="money">Year 5</th><th class="money">End BV</th></tr></thead>
+        <tbody>
+          <tr><td>Straight-line</td><td class="money">$9,000</td><td class="money">$9,000</td><td class="money">$9,000</td><td class="money">$9,000</td><td class="money">$9,000</td><td class="money">$5,000</td></tr>
+          <tr><td>Double-declining-balance</td><td class="money">$20,000</td><td class="money">$12,000</td><td class="money">$7,200</td><td class="money">$4,320</td><td class="money">$1,480</td><td class="money">$5,000</td></tr>
+          <tr><td>Sum-of-the-years'-digits</td><td class="money">$15,000</td><td class="money">$12,000</td><td class="money">$9,000</td><td class="money">$6,000</td><td class="money">$3,000</td><td class="money">$5,000</td></tr>
+          <tr style="background:#f0f9ff"><td>Units-of-production*</td><td class="money">$10,800</td><td class="money" style="color:#0369a1">$9,000*</td><td class="money" style="color:#0369a1">$8,100*</td><td class="money" style="color:#0369a1">$9,900*</td><td class="money" style="color:#0369a1">$7,200*</td><td class="money">$5,000</td></tr>
+        </tbody>
+      </table>
+      <div class="uop-note" style="margin-top:10px">📌 <strong>* UOP Year 2–5 values are hypothetical</strong> — based on assumed future miles (20,000 / 18,000 / 22,000 / 16,000). Real UOP depreciation can't be predetermined; it's recomputed each year using <code>$0.45 × actual miles</code>. Only Year 1 ($10,800 = 24,000 actual miles × $0.45) is a real schedule entry.</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="card-h"><span>Pattern shapes: how each method spreads expense over 5 years</span><small>same $45K, different timelines</small></div>
+    <div class="card-b">
+      <div class="shape-chart">
+        <div class="shape-row">
+          <div class="shape-label">Straight-line<div class="shape-tag">flat</div></div>
+          <div class="shape-bars" data-method="sl"></div>
+        </div>
+        <div class="shape-row">
+          <div class="shape-label">DDB<div class="shape-tag">declining steep</div></div>
+          <div class="shape-bars" data-method="ddb"></div>
+        </div>
+        <div class="shape-row">
+          <div class="shape-label">SYD<div class="shape-tag">declining linear</div></div>
+          <div class="shape-bars" data-method="syd"></div>
+        </div>
+        <div class="shape-row">
+          <div class="shape-label">UOP*<div class="shape-tag">jagged (use)</div></div>
+          <div class="shape-bars uop-hypo" data-method="uop"></div>
+        </div>
+        <div class="shape-axis">
+          <div class="shape-label"></div>
+          <div class="shape-axis-row"><span>Y1</span><span>Y2</span><span>Y3</span><span>Y4</span><span>Y5</span></div>
+        </div>
+      </div>
+      <div class="uop-note" style="margin-top:10px">📌 <strong>* UOP Years 2–5 (striped bars)</strong> are based on assumed future miles. Only Year 1 is a real schedule entry — actual UOP each year depends on miles driven that year.</div>
+    </div>
+  </div>
+
+  <div class="reconcile">
+    <div class="reconcile-h">🎯 The conceptual punchline</div>
+    <div class="reconcile-body">
+      All four methods total <strong>$45,000</strong> over 5 years (= $50,000 cost − $5,000 residual). Every method ends at <strong>$5,000 book value</strong>.
+      <div class="reconcile-eq">
+        SL:  $9K + $9K + $9K + $9K + $9K = $45,000<br>
+        DDB:  $20K + $12K + $7.2K + $4.32K + $1.48K = $45,000<br>
+        SYD:  $15K + $12K + $9K + $6K + $3K = $45,000<br>
+        UOP*:  $10.8K + $9K + $8.1K + $9.9K + $7.2K = $45,000  (* assumed future miles)
+      </div>
+      <div class="reconcile-note">The depreciable base never changes. <strong>Only the timing of expense changes.</strong></div>
+    </div>
+  </div>
+
+  <div class="takeaway"><strong>Interpretation:</strong> straight-line is even, double-declining and SYD are accelerated, and units-of-production follows actual use.</div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Record Depreciation Expense</div>
+  <div class="sec-sub">The journal entry is the same pattern for every method. The method changes the amount, not the accounts.</div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-small active" onclick="selectJE(0)">Straight-Line</button>
+    <button class="sc-btn sc-small" onclick="selectJE(1)">Double-Declining</button>
+    <button class="sc-btn sc-small" onclick="selectJE(2)">SYD</button>
+    <button class="sc-btn sc-small" onclick="selectJE(3)">Units-of-Production</button>
+  </div>
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="journalBtn" onclick="nextJournal()">Show Debit</button>
+    <button class="sc-btn sc-reset" onclick="resetJournal()">Reset</button>
+  </div>
+  <div class="status-card" id="journalStatus">Ready: depreciation records asset use. No cash is paid in this entry.</div>
+
+  <div class="journal-layout">
+    <div class="card">
+      <div class="card-h"><span id="journalTitle">Straight-Line Depreciation</span><small>Year 1</small></div>
+      <div class="card-b">
+        <table class="journal">
+          <thead><tr><th>Account</th><th class="dr">Debit</th><th class="cr">Credit</th></tr></thead>
+          <tbody id="journalBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="why-panel">
+      <div class="why-head">Why Debit or Credit?</div>
+      <div class="why-body">
+        <div class="why-rule-grid">
+          <div class="why-rule"><div class="tag">Expense rule</div><div class="text">Expenses move like assets. Expenses increase with debits.</div></div>
+          <div class="why-rule"><div class="tag">Contra-asset rule</div><div class="text">Accumulated depreciation is a contra-asset. It increases with credits.</div></div>
+          <div class="why-rule"><div class="tag">Cash check</div><div class="text">No cash is paid when depreciation is recorded.</div></div>
+          <div class="why-rule"><div class="tag">Balance check</div><div class="text">The debit amount equals the credit amount.</div></div>
+        </div>
+        <div class="why-card active" id="whyIntro">Click Show Debit. The explanation will focus on why the line is debited or credited.</div>
+        <div class="why-card debit" id="whyDebit"></div>
+        <div class="why-card credit" id="whyCredit"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Check Your Understanding</div>
+  <div class="sec-sub">Check whether students can choose the method, calculate the amount, and explain the entry.</div>
+  <div class="score">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</section>
+
+<div class="nav">
+  <button id="btnPrev" onclick="prevTab()">Previous</button>
+  <span class="nav-ind" id="navInd"></span>
+  <button class="primary" id="btnNext" onclick="nextTab()">Next</button>
+</div>
+
+<script>
+const tabs = Array.from(document.querySelectorAll('.tab'));
+const panels = Array.from(document.querySelectorAll('.panel'));
+let currentTab = 0;
+let quizBuilt = false;
+
+function money(n) { return '$' + Math.round(n).toLocaleString(); }
+function showTab(i) {
+  currentTab = Math.max(0, Math.min(i, panels.length - 1));
+  panels.forEach((p, idx) => p.classList.toggle('active', idx === currentTab));
+  tabs.forEach((t, idx) => {
+    t.classList.toggle('active', idx === currentTab);
+    t.setAttribute('aria-selected', idx === currentTab ? 'true' : 'false');
+  });
+  updateBottomNav();
+  if (currentTab === 2) animateBars();
+  if (currentTab === 4 && !quizBuilt) buildQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function updateBottomNav() {
+  const navInd = document.getElementById('navInd');
+  const label = tabs[currentTab]
+    ? tabs[currentTab].textContent.trim().replace(/^[①②③④⑤⑥⑦⑧⑨⑩]\s*/, '').replace(/^\d+\.\s*/, '')
+    : '';
+  if (navInd) navInd.textContent = 'Tab ' + (currentTab + 1) + ' of ' + panels.length + ' — ' + label;
+  const prevBtn = document.getElementById('btnPrev');
+  const nextBtn = document.getElementById('btnNext');
+  if (prevBtn) prevBtn.disabled = currentTab === 0;
+  if (nextBtn) nextBtn.disabled = currentTab === panels.length - 1;
+}
+function nextTab() { showTab(currentTab + 1); }
+function prevTab() { showTab(currentTab - 1); }
+updateBottomNav();
+
+const methods = [
+  {
+    name: 'Straight-Line',
+    title: 'Straight-Line Calculation',
+    note: 'same expense each year',
+    rows: [
+      ['Depreciable base', 'Cost - residual value', '$50,000 - $5,000 = $45,000'],
+      ['Annual depreciation', 'Depreciable base / useful life', '$45,000 / 5 = $9,000'],
+      ['End-of-year book value', 'Cost - accumulated depreciation', '$50,000 - $9,000 = $41,000']
+    ],
+    messages: [
+      'Step 1: subtract residual value to find the depreciable base: <span class="calc">$50,000 - $5,000 = $45,000</span>.',
+      'Step 2: spread the depreciable base evenly over 5 years: <span class="calc">$45,000 / 5 = $9,000</span>.',
+      'Step 3: after Year 1, book value is <span class="calc">$50,000 - $9,000 = $41,000</span>.'
+    ],
+    schedule: [[1,9000,9000,41000],[2,9000,18000,32000],[3,9000,27000,23000],[4,9000,36000,14000],[5,9000,45000,5000]],
+    amount: 9000
+  },
+  {
+    name: 'Double-Declining',
+    title: 'Double-Declining-Balance Calculation',
+    note: 'accelerated expense pattern',
+    rows: [
+      ['Straight-line rate', '1 / useful life', '1 / 5 = 20%'],
+      ['Double rate', '2 x straight-line rate', '2 x 20% = 40%'],
+      ['Year 1 depreciation', 'Beginning book value x 40%', '$50,000 x 40% = $20,000'],
+      ['End-of-year book value', 'Cost - accumulated depreciation', '$50,000 - $20,000 = $30,000']
+    ],
+    messages: [
+      'Step 1: find the straight-line rate: <span class="calc">1 / 5 years = 20%</span>.',
+      'Step 2: double the rate for DDB: <span class="calc">2 x 20% = 40%</span>.',
+      'Step 3: apply the rate to beginning book value: <span class="calc">$50,000 x 40% = $20,000</span>.',
+      'Step 4: after Year 1, book value is <span class="calc">$50,000 - $20,000 = $30,000</span>.'
+    ],
+    schedule: [[1,20000,20000,30000],[2,12000,32000,18000],[3,7200,39200,10800],[4,4320,43520,6480],[5,1480,45000,5000]],
+    amount: 20000
+  },
+  {
+    name: "Sum-of-the-Years'-Digits",
+    title: "Sum-of-the-Years'-Digits Calculation",
+    note: 'accelerated expense using fractions',
+    rows: [
+      ['Depreciable base', 'Cost - residual value', '$50,000 - $5,000 = $45,000'],
+      ['Sum of years', '5 + 4 + 3 + 2 + 1', '15'],
+      ['Year 1 depreciation', 'Base x remaining life / sum', '$45,000 x 5/15 = $15,000'],
+      ['End-of-year book value', 'Cost - accumulated depreciation', '$50,000 - $15,000 = $35,000']
+    ],
+    messages: [
+      'Step 1: subtract residual value to find the depreciable base: <span class="calc">$45,000</span>.',
+      'Step 2: add the digits in the useful life: <span class="calc">5 + 4 + 3 + 2 + 1 = 15</span>.',
+      'Step 3: Year 1 uses the largest fraction because all 5 years remain: <span class="calc">$45,000 x 5/15 = $15,000</span>.',
+      'Step 4: after Year 1, book value is <span class="calc">$50,000 - $15,000 = $35,000</span>.'
+    ],
+    schedule: [[1,15000,15000,35000],[2,12000,27000,23000],[3,9000,36000,14000],[4,6000,42000,8000],[5,3000,45000,5000]],
+    amount: 15000
+  },
+  {
+    name: 'Units-of-Production',
+    title: 'Units-of-Production Calculation',
+    note: 'expense follows actual use',
+    rows: [
+      ['Depreciable base', 'Cost - residual value', '$50,000 - $5,000 = $45,000'],
+      ['Rate per mile', 'Depreciable base / total miles', '$45,000 / 100,000 = $0.45'],
+      ['Year 1 depreciation', 'Rate x actual miles', '$0.45 x 24,000 = $10,800'],
+      ['End-of-year book value', 'Cost - accumulated depreciation', '$50,000 - $10,800 = $39,200']
+    ],
+    messages: [
+      'Step 1: subtract residual value to find the depreciable base: <span class="calc">$45,000</span>.',
+      'Step 2: divide by total estimated activity: <span class="calc">$45,000 / 100,000 miles = $0.45 per mile</span>.',
+      'Step 3: multiply by actual Year 1 use: <span class="calc">$0.45 x 24,000 = $10,800</span>.',
+      'Step 4: after Year 1, book value is <span class="calc">$50,000 - $10,800 = $39,200</span>.'
+    ],
+    schedule: [[1,10800,10800,39200],[2,9000,19800,30200],[3,8100,27900,22100],[4,9900,37800,12200],[5,7200,45000,5000]],
+    amount: 10800
+  }
+];
+
+let selectedMethod = 0;
+let calcStep = -1;
+
+function selectMethod(i) {
+  selectedMethod = i;
+  document.querySelectorAll('.panel:nth-of-type(2) .sc-small').forEach((btn, idx) => btn.classList.toggle('active', idx === i));
+  resetCalc();
+}
+
+function renderCalc() {
+  const m = methods[selectedMethod];
+  document.getElementById('calcTitle').textContent = m.title;
+  document.getElementById('scheduleNote').textContent = m.note;
+  document.getElementById('calcRows').innerHTML = m.rows.map((r, idx) =>
+    '<div class="calc-row hidden" id="cRow' + idx + '">' +
+      '<div class="calc-label"><strong>' + r[0] + '</strong><br>' + r[1] + '</div>' +
+      '<div class="calc-value">' + r[2] + '</div>' +
+    '</div>'
+  ).join('');
+  // Render schedule with "?" placeholders — values fill in as student completes steps
+  // Special case for UOP: only Year 1 has a knowable value (based on actual miles); years 2-5 depend on actual future use
+  if (selectedMethod === 3) {
+    document.getElementById('scheduleBody').innerHTML =
+      '<tr id="sRow0"><td>Year 1</td><td class="money">?</td><td class="money">?</td><td class="money">?</td></tr>' +
+      '<tr id="uopNote"><td colspan="4" style="padding:0; border-bottom:0;"><div class="uop-note">📌 <strong>Years 2–5 cannot be scheduled in advance.</strong> Under units-of-production, each year\'s expense depends on the actual miles driven that year — not on a predetermined timeline. The company recomputes <code>$0.45 × actual miles</code> at the end of each period.</div></td></tr>';
+  } else {
+    document.getElementById('scheduleBody').innerHTML = m.schedule.map((r, idx) =>
+      '<tr id="sRow' + idx + '"><td>Year ' + r[0] + '</td><td class="money">?</td><td class="money">?</td><td class="money">?</td></tr>'
+    ).join('') + (selectedMethod === 1 ? '<tr id="floorRow" style="display:none"><td colspan="4" style="padding:0; border-bottom:0;"><div class="floor-explain show">⚠ <strong>DDB residual-floor cap (Year 5):</strong> Formula would give <code>$6,480 × 40% = $2,592</code>, but that drops BV below the $5,000 residual. Year 5 is capped at <code>$6,480 − $5,000 = $1,480</code> so BV = residual exactly.</div></td></tr>' : '');
+  }
+}
+
+function resetCalc() {
+  calcStep = -1;
+  renderCalc();
+  document.getElementById('calcStatus').innerHTML = 'Ready: reveal the calculation for <strong>' + methods[selectedMethod].name + '</strong>.';
+  document.getElementById('calcBtn').disabled = false;
+  document.getElementById('calcBtn').textContent = 'Show Step 1';
+}
+
+function nextCalc() {
+  calcStep++;
+  const stepCount = methods[selectedMethod].rows.length;
+  for (let i = 0; i < stepCount; i++) {
+    const row = document.getElementById('cRow' + i);
+    row.className = i < calcStep ? 'calc-row' : i === calcStep ? 'calc-row active' : 'calc-row hidden';
+  }
+  const m = methods[selectedMethod];
+  const sched = m.schedule;
+  // Reveal Year 1 once the "annual amount" step fires (second-to-last step) and full schedule after final step
+  const revealY1At = m.rows.length - 2;
+  const revealAllAt = m.rows.length - 1;
+  function fillRow(idx) {
+    const r = sched[idx];
+    const tr = document.getElementById('sRow' + idx);
+    if (!tr) return;
+    const tds = tr.querySelectorAll('td');
+    tds[1].textContent = money(r[1]);
+    tds[2].textContent = money(r[2]);
+    tds[3].textContent = money(r[3]);
+  }
+  if (calcStep >= revealY1At) fillRow(0);
+  if (calcStep >= revealAllAt) {
+    for (let i = 1; i < sched.length; i++) fillRow(i);
+    if (selectedMethod === 1) {
+      const floorRow = document.getElementById('floorRow');
+      if (floorRow) floorRow.style.display = '';
+      const y5 = document.getElementById('sRow4');
+      if (y5) y5.classList.add('floor-row');
+    }
+  }
+  document.querySelectorAll('#scheduleBody tr').forEach((tr, idx) => tr.classList.toggle('active-row', idx === 0 && calcStep >= 1 && calcStep < revealAllAt));
+  if (calcStep < stepCount) {
+    document.getElementById('calcStatus').innerHTML = m.messages[calcStep];
+    document.getElementById('calcBtn').textContent = calcStep === stepCount - 1 ? 'Finish' : 'Show Step ' + (calcStep + 2);
+  } else {
+    document.getElementById('calcStatus').innerHTML = '<strong>Complete.</strong> Year 1 depreciation expense is <span class="calc">' + money(m.amount) + '</span>, and ending book value is <span class="calc">' + money(sched[0][3]) + '</span>.';
+    document.getElementById('calcBtn').disabled = true;
+  }
+}
+
+function animateBars() {
+  setTimeout(() => {
+    document.getElementById('barSL').style.width = '45%';
+    document.getElementById('barDDB').style.width = '100%';
+    document.getElementById('barSYD').style.width = '75%';
+    document.getElementById('barUOP').style.width = '54%';
+  }, 150);
+  // Shape chart: 5-year bars per method, scaled to the global max ($20K = DDB Y1)
+  const shapeData = {
+    sl:  [9000, 9000, 9000, 9000, 9000],
+    ddb: [20000, 12000, 7200, 4320, 1480],
+    syd: [15000, 12000, 9000, 6000, 3000],
+    uop: [10800, 9000, 8100, 9900, 7200]
+  };
+  const MAX = 20000;
+  document.querySelectorAll('.shape-bars').forEach(group => {
+    const m = group.dataset.method;
+    if (group.children.length) return; // already rendered
+    shapeData[m].forEach((v, i) => {
+      const bar = document.createElement('div');
+      bar.className = 'shape-bar ' + m;
+      bar.style.height = (v / MAX * 100) + '%';
+      bar.innerHTML = '<span class="shape-bar-label">$' + (v/1000).toFixed(v < 10000 ? 1 : 0) + 'K</span>';
+      group.appendChild(bar);
+    });
+  });
+}
+
+let selectedJE = 0;
+let journalStep = -1;
+
+function selectJE(i) {
+  selectedJE = i;
+  document.querySelectorAll('.panel:nth-of-type(4) .sc-small').forEach((btn, idx) => btn.classList.toggle('active', idx === i));
+  renderJournal();
+  resetJournal();
+}
+
+function renderJournal() {
+  const m = methods[selectedJE];
+  document.getElementById('journalTitle').textContent = m.name + ' Depreciation';
+  const amt = money(m.amount);
+  document.getElementById('journalBody').innerHTML =
+    '<tr class="hidden" id="jRow0"><td>Depreciation Expense</td><td class="dr">' + amt + '</td><td class="cr"></td></tr>' +
+    '<tr class="hidden" id="jRow1"><td class="indent">Accumulated Depreciation</td><td class="dr"></td><td class="cr">' + amt + '</td></tr>';
+  document.getElementById('whyDebit').innerHTML = '<strong>Debit Depreciation Expense.</strong> The equipment was used during the year, so expense increased. Expenses move like assets and increase with debits.<span class="mini">Expense increases -> debit Depreciation Expense</span>';
+  document.getElementById('whyCredit').innerHTML = '<strong>Credit Accumulated Depreciation.</strong> This contra-asset accumulates the portion of equipment cost already allocated to expense. Contra-assets increase with credits.<span class="mini">Contra-asset increases -> credit Accumulated Depreciation</span>';
+}
+
+function showWhyCard(id) {
+  ['whyIntro','whyDebit','whyCredit'].forEach(cardId => {
+    document.getElementById(cardId).classList.toggle('active', cardId === id);
+  });
+}
+
+function resetJournal() {
+  journalStep = -1;
+  ['jRow0','jRow1'].forEach(id => document.getElementById(id).className = 'hidden');
+  showWhyCard('whyIntro');
+  document.getElementById('journalStatus').innerHTML = '<strong>' + methods[selectedJE].name + ' amount: ' + money(methods[selectedJE].amount) + '</strong><br>Ready: depreciation records asset use. No cash is paid in this entry.';
+  document.getElementById('journalBtn').disabled = false;
+  document.getElementById('journalBtn').textContent = 'Show Debit';
+}
+
+function nextJournal() {
+  journalStep++;
+  const rows = ['jRow0','jRow1'];
+  rows.forEach((id, idx) => {
+    const row = document.getElementById(id);
+    if (idx < journalStep) row.className = 'done';
+    if (idx === journalStep) row.className = 'active';
+  });
+  if (journalStep === 0) {
+    showWhyCard('whyDebit');
+    document.getElementById('journalStatus').innerHTML = document.getElementById('whyDebit').innerHTML;
+    document.getElementById('journalBtn').textContent = 'Show Credit';
+  } else if (journalStep === 1) {
+    showWhyCard('whyCredit');
+    document.getElementById('journalStatus').innerHTML = document.getElementById('whyCredit').innerHTML;
+    document.getElementById('journalBtn').textContent = 'Finish';
+  } else {
+    rows.forEach(id => document.getElementById(id).className = 'done');
+    document.getElementById('journalStatus').innerHTML = '<strong>Complete.</strong> The method changes the amount, but every depreciation entry debits Depreciation Expense and credits Accumulated Depreciation.';
+    document.getElementById('journalBtn').disabled = true;
+  }
+}
+
+let score = 0;
+const questions = [
+  { q: 'What is the depreciable base for the equipment?', opts: ['$50,000', '$45,000', '$10,000', '$5,000'], a: 1, exp: 'Depreciable base equals cost minus residual value: $50,000 - $5,000 = $45,000.' },
+  { q: 'What is annual straight-line depreciation?', opts: ['$5,000', '$9,000', '$10,000', '$20,000'], a: 1, exp: '$45,000 depreciable base divided by 5 years equals $9,000 per year.' },
+  { q: 'Under double-declining-balance, what rate is used?', opts: ['20%', '40%', '50%', '10%'], a: 1, exp: 'Straight-line rate is 1/5 = 20%. Double-declining doubles it to 40%.' },
+  { q: 'What is Year 1 double-declining depreciation?', opts: ['$9,000', '$10,800', '$18,000', '$20,000'], a: 3, exp: 'DDB Year 1 depreciation is beginning book value x 40%: $50,000 x 40% = $20,000.' },
+  { q: "What is the sum-of-the-years'-digits denominator for a 5-year asset?", opts: ['5', '10', '15', '20'], a: 2, exp: 'Add the years in the useful life: 5 + 4 + 3 + 2 + 1 = 15.' },
+  { q: "What is Year 1 sum-of-the-years'-digits depreciation?", opts: ['$9,000', '$10,800', '$15,000', '$20,000'], a: 2, exp: 'Year 1 uses the largest fraction: $45,000 x 5/15 = $15,000.' },
+  { q: 'What is the units-of-production rate per mile?', opts: ['$0.45', '$0.50', '$0.24', '$1.80'], a: 0, exp: '$45,000 depreciable base / 100,000 miles = $0.45 per mile.' },
+  { q: 'What is Year 1 units-of-production depreciation if the truck is driven 24,000 miles?', opts: ['$9,000', '$10,800', '$12,000', '$20,000'], a: 1, exp: '$0.45 x 24,000 miles = $10,800.' },
+  { q: 'Which method produces the highest depreciation expense in Year 1 in this example?', opts: ['Straight-line', 'Double-declining-balance', 'Units-of-production', 'All methods are equal'], a: 1, exp: 'DDB is front-loaded, so Year 1 expense is $20,000.' },
+  { q: 'What account is credited when depreciation is recorded?', opts: ['Cash', 'Equipment', 'Accumulated Depreciation', 'Service Revenue'], a: 2, exp: 'Depreciation credits Accumulated Depreciation, a contra-asset. Cash is not involved.' },
+  { q: 'Why is Depreciation Expense debited?', opts: ['Expense increased', 'Cash decreased', 'Asset increased', 'Liability decreased'], a: 0, exp: 'Depreciation records use of the asset during the period. Expenses increase with debits.' },
+  { q: 'What is the key difference among depreciation methods?', opts: ['They change the cost of the asset', 'They change whether cash is paid', 'They change the timing pattern of expense', 'They remove the need for accumulated depreciation'], a: 2, exp: 'The methods allocate the same depreciable base using different expense patterns.' }
+];
+
+function buildQuiz() {
+  quizBuilt = true;
+  document.getElementById('total').textContent = questions.length;
+  const wrap = document.getElementById('quizWrap');
+  questions.forEach((item, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML =
+      '<div class="q-num">Question ' + (qi + 1) + ' of ' + questions.length + '</div>' +
+      '<div class="q-text">' + item.q + '</div>' +
+      '<div class="q-opts">' + item.opts.map((opt, oi) =>
+        '<button class="q-opt" onclick="answerQ(' + qi + ',' + oi + ', this)">' + opt + '</button>'
+      ).join('') + '</div>' +
+      '<div class="explain" id="exp' + qi + '"></div>';
+    wrap.appendChild(card);
+  });
+}
+
+function answerQ(qi, oi, btn) {
+  const item = questions[qi];
+  const buttons = btn.parentElement.querySelectorAll('button');
+  if (buttons[0].disabled) return;
+  buttons.forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === item.a) b.classList.add('correct');
+  });
+  const exp = document.getElementById('exp' + qi);
+  if (oi === item.a) {
+    score++;
+    btn.classList.add('correct');
+    exp.textContent = 'Correct. ' + item.exp;
+  } else {
+    btn.classList.add('wrong');
+    exp.textContent = 'The answer is: ' + item.opts[item.a] + '. ' + item.exp;
+  }
+  exp.classList.add('show');
+  document.getElementById('score').textContent = score;
+}
+
+resetCalc();
+renderJournal();
+resetJournal();
+</script>
+</body>
+</html>

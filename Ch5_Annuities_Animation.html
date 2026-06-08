@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Annuities: Ordinary Annuity vs Annuity Due | Kieso Ch. 5</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.2rem; font-weight: 800; }
+  .header p  { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab  { padding: 11px 18px; font-size: .88rem; font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; }
+  .tab:hover  { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+  .panel { display: none; max-width: 980px; margin: 0 auto; padding: 24px 16px 90px; }
+  .panel.active { display: block; }
+
+  .sec-title { font-size: 1.35rem; font-weight: 800; margin-bottom: 8px; }
+  .sec-sub   { font-size: .97rem; color: #475569; margin-bottom: 20px; line-height: 1.7; }
+  .quote { background: white; border-left: 4px solid #3b82f6; border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: .95rem; color: #334155; line-height: 1.7; margin-bottom: 22px; }
+  .quote strong { color: #1d4ed8; }
+
+  .concept-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+  @media(max-width:700px) { .concept-grid { grid-template-columns: 1fr; } }
+  .concept-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+  .concept-hdr { padding: 14px 18px; color: white; font-weight: 800; font-size: 1rem; }
+  .concept-body { padding: 14px 18px; font-size: .9rem; color: #475569; line-height: 1.65; }
+  .concept-body strong { color: #1e293b; }
+  .concept-body ul { padding-left: 18px; margin-top: 7px; }
+  .concept-body li { margin-bottom: 4px; }
+  .ordinary .concept-hdr { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+  .due .concept-hdr { background: linear-gradient(135deg, #0f766e, #14b8a6); }
+  .formula { background: #1e293b; color: #fef3c7; padding: 10px 14px; border-radius: 8px; font-family: monospace; font-size: .94rem; text-align: center; margin: 10px 0; font-weight: 700; overflow-x: auto; }
+
+  .rule-card { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; border-radius: 10px; padding: 15px 18px; font-size: .92rem; color: #78350f; line-height: 1.65; margin-bottom: 20px; }
+  .rule-card strong { color: #92400e; }
+
+  .inputs-row { display: flex; gap: 12px; flex-wrap: wrap; background: white; padding: 14px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 16px; }
+  .inp-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 130px; }
+  .inp-group label { font-size: .72rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .5px; }
+  .inp-group input { padding: 8px 10px; border: 1.5px solid #e2e8f0; border-radius: 6px; font-size: .95rem; font-weight: 700; color: #1e293b; font-family: monospace; }
+  .inp-group input:focus { outline: none; border-color: #3b82f6; }
+
+  .compare-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  @media(max-width:720px) { .compare-metrics { grid-template-columns: 1fr; } }
+  .metric { background: white; border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,.07); border-top: 4px solid #cbd5e1; }
+  .metric.blue { border-top-color: #3b82f6; }
+  .metric.teal { border-top-color: #14b8a6; }
+  .metric.gold { border-top-color: #f59e0b; }
+  .metric .label { font-size: .72rem; color: #64748b; text-transform: uppercase; letter-spacing: .55px; font-weight: 800; margin-bottom: 5px; }
+  .metric .value { font-family: monospace; font-size: 1.12rem; font-weight: 900; color: #1e293b; }
+  .metric .hint { margin-top: 5px; font-size: .78rem; color: #64748b; line-height: 1.45; }
+
+  .timeline-card { background: white; border-radius: 12px; box-shadow: 0 3px 14px rgba(0,0,0,.09); padding: 16px; margin-bottom: 16px; overflow-x: auto; }
+  .timeline-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; min-width: 720px; }
+  .timeline-title { font-size: .82rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .6px; }
+  .timeline-mode { font-size: .82rem; color: #475569; font-weight: 700; }
+  .timeline { min-width: 720px; }
+  .time-row { display: grid; grid-template-columns: 140px repeat(var(--cols), 1fr); gap: 8px; align-items: stretch; margin-bottom: 10px; }
+  .row-label { border-radius: 9px; padding: 10px 12px; color: white; font-weight: 900; font-size: .82rem; display: flex; flex-direction: column; justify-content: center; min-height: 86px; }
+  .row-label span { font-size: .7rem; opacity: .78; font-weight: 700; margin-top: 3px; }
+  .row-label.oa { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+  .row-label.ad { background: linear-gradient(135deg, #0f766e, #14b8a6); }
+  .period { border: 2px solid #e2e8f0; border-radius: 9px; background: #f8fafc; min-height: 86px; padding: 8px 6px; text-align: center; transition: all .25s; display: flex; flex-direction: column; justify-content: space-between; }
+  .period.locked { opacity: .45; }
+  .period.active { border-color: #f59e0b; background: #fffbeb; transform: translateY(-2px); box-shadow: 0 0 0 3px rgba(245,158,11,.18); }
+  .period.done { border-color: #16a34a; background: #f0fdf4; }
+  .period.blank { border-style: dashed; background: #f8fafc; color: #cbd5e1; }
+  .p-top { font-size: .66rem; color: #64748b; font-weight: 900; text-transform: uppercase; letter-spacing: .35px; }
+  .cash-dot { width: 34px; height: 34px; border-radius: 50%; margin: 4px auto; display: flex; align-items: center; justify-content: center; color: white; font-size: .72rem; font-weight: 900; box-shadow: 0 2px 8px rgba(0,0,0,.16); }
+  .period.oa .cash-dot { background: #2563eb; }
+  .period.ad .cash-dot { background: #0f766e; }
+  .cash-dot.empty { background: #cbd5e1; box-shadow: none; }
+  .p-value { font-family: monospace; font-size: .82rem; font-weight: 900; color: #1e293b; }
+  .p-note { font-size: .65rem; color: #64748b; font-weight: 700; min-height: 14px; }
+
+  .timeline-card.compact { padding: 12px; margin-bottom: 10px; }
+  .timeline-card.compact .timeline-head,
+  .timeline-card.compact .timeline { min-width: 640px; }
+  .timeline-card.compact .timeline-head { margin-bottom: 8px; }
+  .timeline-card.compact .time-row { grid-template-columns: 112px repeat(var(--cols), minmax(68px, 1fr)); gap: 6px; margin-bottom: 7px; }
+  .timeline-card.compact .row-label { min-height: 62px; padding: 7px 9px; font-size: .74rem; }
+  .timeline-card.compact .row-label span { font-size: .6rem; }
+  .timeline-card.compact .period { min-height: 62px; padding: 5px 4px; border-radius: 8px; }
+  .timeline-card.compact .cash-dot { width: 25px; height: 25px; margin: 2px auto; font-size: .62rem; }
+  .timeline-card.compact .p-top { font-size: .56rem; }
+  .timeline-card.compact .p-value { font-size: .68rem; }
+  .timeline-card.compact .p-note { font-size: .56rem; min-height: 11px; }
+
+  .status-card { background: white; border-radius: 10px; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); margin-bottom: 14px; font-size: .92rem; color: #334155; line-height: 1.6; border-left: 4px solid #3b82f6; min-height: 64px; }
+  .status-card strong { color: #1e293b; }
+  .status-card .calc { display: inline-block; background: #fef3c7; color: #92400e; padding: 2px 10px; border-radius: 6px; font-family: monospace; font-weight: 800; margin-top: 4px; }
+
+  .step-ctrl { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; margin-top: 6px; }
+  .pv-controls { margin: -2px 0 14px; }
+  .fv-controls { margin: -2px 0 14px; }
+  .sc-btn { padding: 11px 22px; border-radius: 9px; border: none; font-weight: 700; font-size: .88rem; cursor: pointer; transition: all .15s; }
+  .sc-step {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white; font-weight: 900;
+    padding: 13px 24px; font-size: .92rem; min-width: 220px;
+    box-shadow: 0 4px 14px rgba(245,158,11,.45);
+    animation: stepPulse 1.6s ease-in-out infinite;
+  }
+  .sc-step:hover:not(:disabled) { background: linear-gradient(135deg, #d97706, #dc2626); transform: translateY(-1px); }
+  .sc-step:disabled { animation: none; box-shadow: none; background: #94a3b8; }
+  .sc-reset { background: #475569; color: white; padding: 9px 18px; font-size: .82rem; }
+  .sc-reset:hover { background: #334155; }
+  .sc-btn:disabled { opacity: .55; cursor: default; }
+  @keyframes stepPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(245,158,11,.45); }
+    50%      { box-shadow: 0 4px 20px rgba(239,68,68,.7), 0 0 0 4px rgba(245,158,11,.18); }
+  }
+
+  .summary-box { background: linear-gradient(135deg, #ecfeff, #cffafe); border: 2px solid #06b6d4; border-radius: 10px; padding: 16px 20px; margin-top: 14px; font-size: .92rem; color: #155e75; line-height: 1.6; display: none; }
+  .summary-box.show { display: block; animation: rowIn .5s ease both; }
+  .summary-box .total { font-size: 1.1rem; font-weight: 900; color: #0e7490; }
+  .summary-box .sum-line { margin-top: 6px; font-family: monospace; font-size: .82rem; color: #0f766e; overflow-wrap: anywhere; }
+  @keyframes rowIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+
+  .shift-demo { background: white; border-radius: 12px; padding: 18px; box-shadow: 0 3px 14px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .shift-line { display: grid; grid-template-columns: 90px 1fr; gap: 10px; align-items: center; margin-bottom: 10px; }
+  .shift-label { font-size: .8rem; font-weight: 900; color: #64748b; text-transform: uppercase; }
+  .shift-track { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .shift-cell { border: 2px solid #e2e8f0; background: #f8fafc; border-radius: 8px; min-height: 58px; display: flex; align-items: center; justify-content: center; font-size: .76rem; font-weight: 800; color: #64748b; position: relative; }
+  .shift-cell.pay-oa { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
+  .shift-cell.pay-ad { background: #ccfbf1; border-color: #5eead4; color: #0f766e; transform: translateX(-8px); }
+
+  .discount-lines { background: white; border-radius: 12px; padding: 14px; box-shadow: 0 3px 14px rgba(0,0,0,.08); margin: 0 0 16px; overflow-x: auto; }
+  .discount-lines-inner { min-width: 640px; }
+  .seg-title { font-size: .82rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px; }
+  .seg-row { display: grid; grid-template-columns: 112px repeat(var(--seg-cols), minmax(68px, 1fr)); gap: 6px; align-items: center; margin-bottom: 12px; }
+  .seg-label { border-radius: 9px; padding: 9px 10px; color: white; font-weight: 900; font-size: .76rem; line-height: 1.25; min-height: 54px; display: flex; flex-direction: column; justify-content: center; }
+  .seg-label span { display: block; font-size: .62rem; opacity: .8; margin-top: 3px; }
+  .seg-label.oa { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+  .seg-label.ad { background: linear-gradient(135deg, #0f766e, #14b8a6); }
+  .seg-track-grid { grid-column: 2 / -1; display: grid; grid-template-columns: repeat(var(--seg-cols), minmax(68px, 1fr)); gap: 6px; height: 54px; }
+  .seg-node { position: relative; height: 54px; }
+  .seg-node-line { position: absolute; top: 20px; height: 6px; background: #e2e8f0; z-index: 0; }
+  .seg-node-line.left { left: -3px; right: 50%; }
+  .seg-node-line.right { left: 50%; right: -3px; }
+  .seg-node-line.active.oa { background: #3b82f6; }
+  .seg-node-line.active.ad { background: #14b8a6; }
+  .seg-point { position: absolute; left: 50%; top: 23px; width: 13px; height: 13px; border-radius: 50%; background: #cbd5e1; border: 3px solid white; box-shadow: 0 1px 4px rgba(0,0,0,.18); transform: translate(-50%, -50%); z-index: 1; }
+  .seg-point.on.oa { background: #3b82f6; }
+  .seg-point.on.ad { background: #14b8a6; }
+  .seg-point.today, .seg-point.today.on.oa, .seg-point.today.on.ad,
+  .seg-point.future, .seg-point.future.on.oa, .seg-point.future.on.ad { background: #0f172a; }
+  .seg-tick { position: absolute; left: 50%; top: 36px; transform: translateX(-50%); color: #64748b; font-size: .66rem; font-weight: 900; white-space: nowrap; }
+
+  .quiz-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .q-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .q-num  { font-size: .72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+  .q-text { font-size: 1rem; font-weight: 700; margin-bottom: 14px; }
+  .q-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media(max-width:560px) { .q-opts { grid-template-columns: 1fr; } }
+  .q-opt  { padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f8fafc; font-size: .88rem; font-weight: 600; cursor: pointer; transition: all .15s; text-align: left; color: #334155; }
+  .q-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .q-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-opt.wrong   { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
+  .q-opt:disabled { cursor: default; }
+  .q-explain { margin-top: 10px; font-size: .85rem; padding: 9px 13px; border-radius: 7px; display: none; }
+  .q-explain.show { display: block; }
+  .q-explain.ok  { background: #dcfce7; color: #15803d; }
+  .q-explain.bad { background: #fee2e2; color: #991b1b; }
+  .score-line { text-align: center; font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
+
+  .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; z-index: 100; }
+  .nav-btn { padding: 9px 22px; border-radius: 8px; border: none; font-weight: 700; font-size: .85rem; cursor: pointer; }
+  .nav-btn.prev { background: #1e293b; color: #94a3b8; }
+  .nav-btn.prev:hover:not(:disabled) { background: #334155; }
+  .nav-btn.nxt  { background: #3b82f6; color: white; }
+  .nav-btn.nxt:hover:not(:disabled)  { background: #2563eb; }
+  .nav-btn:disabled { opacity: .4; cursor: default; }
+  .nav-ind { font-size: .8rem; color: #64748b; font-weight: 600; text-align: center; padding: 0 10px; }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>Annuities: Ordinary vs Due</h1>
+  <p>Kieso, Weygandt &amp; Warfield · Intermediate Accounting 18th Ed. · Chapter 5 · Time Value of Money</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab(0)">1. Timing Difference</div>
+  <div class="tab" onclick="showTab(1)">2. Present Value</div>
+  <div class="tab" onclick="showTab(2)">3. Future Value</div>
+  <div class="tab" onclick="showTab(3)">4. Self-Check</div>
+</div>
+
+<div class="panel active" id="tab-0">
+  <div class="sec-title">One Payment Shift Changes the Value</div>
+  <div class="sec-sub">
+    An annuity is a series of equal payments or receipts, called rents, at equal time intervals.
+    The key distinction is timing: ordinary annuity payments happen at the end of each period;
+    annuity due payments happen at the beginning of each period.
+  </div>
+
+  <div class="quote">
+    <strong>Core idea:</strong> An annuity due is the same stream of payments shifted one period earlier.
+    Because each payment happens sooner, it earns one extra period of interest for future value
+    and is discounted one fewer period for present value.
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept-card ordinary">
+      <div class="concept-hdr">Ordinary Annuity</div>
+      <div class="concept-body">
+        <strong>Payment timing:</strong> End of each period.
+        <div class="formula">Payment at period end</div>
+        Common wording:
+        <ul>
+          <li>Paid at the end of each year</li>
+          <li>Received at the end of each month</li>
+          <li>Financial calculator type = 0</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="concept-card due">
+      <div class="concept-hdr">Annuity Due</div>
+      <div class="concept-body">
+        <strong>Payment timing:</strong> Beginning of each period.
+        <div class="formula">Payment at period beginning</div>
+        Common wording:
+        <ul>
+          <li>Rent due at the beginning of each year</li>
+          <li>Lease payment made in advance</li>
+          <li>Financial calculator type = 1 or BGN mode</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="shift-demo">
+    <div class="shift-line">
+      <div class="shift-label">Ordinary</div>
+      <div class="shift-track">
+        <div class="shift-cell">Start</div>
+        <div class="shift-cell pay-oa">Pay 1</div>
+        <div class="shift-cell pay-oa">Pay 2</div>
+        <div class="shift-cell pay-oa">Pay 3</div>
+        <div class="shift-cell pay-oa">Pay 4</div>
+        <div class="shift-cell pay-oa">Pay 5</div>
+      </div>
+    </div>
+    <div class="shift-line">
+      <div class="shift-label">Due</div>
+      <div class="shift-track">
+        <div class="shift-cell pay-ad">Pay 1</div>
+        <div class="shift-cell pay-ad">Pay 2</div>
+        <div class="shift-cell pay-ad">Pay 3</div>
+        <div class="shift-cell pay-ad">Pay 4</div>
+        <div class="shift-cell pay-ad">Pay 5</div>
+        <div class="shift-cell">End</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rule-card">
+    <strong>Shortcut:</strong> For the same payment, rate, and number of periods, the annuity due value equals the ordinary annuity value multiplied by <strong>(1 + interest rate)</strong>.
+  </div>
+</div>
+
+<div class="panel" id="tab-1">
+  <div class="sec-title">Future Value: Which Annuity Grows More?</div>
+  <div class="sec-sub">
+    Step through each payment. The annuity due payment occurs one period earlier, so each payment has one extra compounding period by the ending date.
+  </div>
+
+  <div class="inputs-row">
+    <div class="inp-group">
+      <label>Payment each period ($)</label>
+      <input type="number" id="fvPay" value="1000" min="0" step="100" oninput="resetFV()">
+    </div>
+    <div class="inp-group">
+      <label>Interest rate (%)</label>
+      <input type="number" id="fvRate" value="8" min="0" step="0.5" oninput="resetFV()">
+    </div>
+    <div class="inp-group">
+      <label>Number of payments</label>
+      <input type="number" id="fvN" value="5" min="1" max="8" step="1" oninput="resetFV()">
+    </div>
+  </div>
+
+  <div class="compare-metrics">
+    <div class="metric blue">
+      <div class="label">Ordinary Annuity FV</div>
+      <div class="value" id="fvOAVal">$0.00</div>
+      <div class="hint">Payments occur at the end of each period.</div>
+    </div>
+    <div class="metric teal">
+      <div class="label">Annuity Due FV</div>
+      <div class="value" id="fvADVal">$0.00</div>
+      <div class="hint">Payments occur at the beginning of each period.</div>
+    </div>
+    <div class="metric gold">
+      <div class="label">Extra Value from Due Timing</div>
+      <div class="value" id="fvExtra">$0.00</div>
+      <div class="hint">The same cash flows moved one period earlier.</div>
+    </div>
+  </div>
+
+  <div class="step-ctrl fv-controls">
+    <button class="sc-btn sc-step" id="fvStepBtn" onclick="fvStep()">Add Next Payment</button>
+    <button class="sc-btn sc-reset" onclick="resetFV()">Reset</button>
+  </div>
+
+  <div class="timeline-card compact">
+    <div class="timeline-head">
+      <div class="timeline-title">Visual comparison at the future date</div>
+      <div class="timeline-mode" id="fvModeText">Click one payment at a time.</div>
+    </div>
+    <div class="timeline" id="fvTimeline"></div>
+  </div>
+
+  <div class="discount-lines" id="fvSegmentCard"></div>
+
+  <div class="status-card" id="fvStatus"></div>
+
+  <div class="summary-box" id="fvSummary"></div>
+</div>
+
+<div class="panel" id="tab-2">
+  <div class="sec-title">Present Value: Which Annuity Is Worth More Today?</div>
+  <div class="sec-sub">
+    For present value, earlier payments are discounted for fewer periods. That is why an annuity due has a larger present value than an ordinary annuity with the same payment, rate, and number of payments.
+  </div>
+
+  <div class="inputs-row">
+    <div class="inp-group">
+      <label>Payment each period ($)</label>
+      <input type="number" id="pvPay" value="1000" min="0" step="100" oninput="resetPV()">
+    </div>
+    <div class="inp-group">
+      <label>Discount rate (%)</label>
+      <input type="number" id="pvRate" value="8" min="0" step="0.5" oninput="resetPV()">
+    </div>
+    <div class="inp-group">
+      <label>Number of payments</label>
+      <input type="number" id="pvN" value="5" min="1" max="8" step="1" oninput="resetPV()">
+    </div>
+  </div>
+
+  <div class="compare-metrics">
+    <div class="metric blue">
+      <div class="label">Ordinary Annuity PV</div>
+      <div class="value" id="pvOAVal">$0.00</div>
+      <div class="hint">First payment occurs one period from today.</div>
+    </div>
+    <div class="metric teal">
+      <div class="label">Annuity Due PV</div>
+      <div class="value" id="pvADVal">$0.00</div>
+      <div class="hint">First payment occurs today.</div>
+    </div>
+    <div class="metric gold">
+      <div class="label">Extra Value from Due Timing</div>
+      <div class="value" id="pvExtra">$0.00</div>
+      <div class="hint">Less discounting means a larger present value.</div>
+    </div>
+  </div>
+
+  <div class="step-ctrl pv-controls">
+    <button class="sc-btn sc-step" id="pvStepBtn" onclick="pvStep()">Discount Next Payment</button>
+    <button class="sc-btn sc-reset" onclick="resetPV()">Reset</button>
+  </div>
+
+  <div class="timeline-card compact">
+    <div class="timeline-head">
+      <div class="timeline-title">Visual comparison at today</div>
+      <div class="timeline-mode" id="pvModeText">Click one payment at a time.</div>
+    </div>
+    <div class="timeline" id="pvTimeline"></div>
+  </div>
+
+  <div class="discount-lines" id="pvSegmentCard"></div>
+
+  <div class="status-card" id="pvStatus"></div>
+
+  <div class="summary-box" id="pvSummary"></div>
+</div>
+
+<div class="panel" id="tab-3">
+  <div class="sec-title">Practice: Ordinary Annuity vs Annuity Due</div>
+  <div class="sec-sub">Check whether you can identify timing, value direction, and the shortcut factor.</div>
+  <div class="score-line">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</div>
+
+<div class="nav-bar">
+  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>Previous</button>
+  <div class="nav-ind" id="navInd">Tab 1 of 4 - Timing Difference</div>
+  <button class="nav-btn nxt" id="btnNext" onclick="navigate(1)">Next</button>
+</div>
+
+<script>
+const TABS = ['Timing Difference', 'Present Value', 'Future Value', 'Self-Check'];
+const PANEL_ORDER = ['tab-0', 'tab-2', 'tab-1', 'tab-3'];
+let cur = 0;
+function showTab(i) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === PANEL_ORDER[i]));
+  document.querySelectorAll('.tab').forEach((t,j) => t.classList.toggle('active', j===i));
+  cur = i;
+  document.getElementById('btnPrev').disabled = i===0;
+  document.getElementById('btnNext').disabled = i===TABS.length-1;
+  document.getElementById('navInd').textContent = 'Tab ' + (i+1) + ' of ' + TABS.length + ' - ' + TABS[i];
+  if (i===3 && !quizBuilt) buildQuiz();
+}
+function navigate(d) { showTab(cur+d); }
+
+function money(n) {
+  return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function pct(r) { return (r * 100).toFixed(1) + '%'; }
+function clampN(n) {
+  if (n < 1) return 1;
+  if (n > 8) return 8;
+  return n;
+}
+function annuityFactorFV(rate, n) {
+  if (rate === 0) return n;
+  return (Math.pow(1 + rate, n) - 1) / rate;
+}
+function annuityFactorPV(rate, n) {
+  if (rate === 0) return n;
+  return (1 - Math.pow(1 + rate, -n)) / rate;
+}
+function paymentSumText(n, valueFn) {
+  const parts = [];
+  for (let i = 1; i <= n; i++) parts.push(money(valueFn(i)));
+  return parts.join(' + ');
+}
+
+let fvStepIdx = 0;
+let fvPay = 1000, fvRate = .08, fvN = 5;
+function readFVInputs() {
+  fvPay = Math.max(0, parseFloat(document.getElementById('fvPay').value) || 0);
+  fvRate = Math.max(0, (parseFloat(document.getElementById('fvRate').value) || 0) / 100);
+  fvN = clampN(parseInt(document.getElementById('fvN').value, 10) || 1);
+  document.getElementById('fvN').value = fvN;
+}
+function fvPaymentValue(paymentIndex, due) {
+  const periods = due ? (fvN - paymentIndex + 1) : (fvN - paymentIndex);
+  return fvPay * Math.pow(1 + fvRate, periods);
+}
+function fvTotals(count) {
+  let oa = 0, ad = 0;
+  for (let i = 1; i <= count; i++) {
+    oa += fvPaymentValue(i, false);
+    ad += fvPaymentValue(i, true);
+  }
+  return { oa, ad };
+}
+function futureSegmentTrack(start, end, kind) {
+  let html = '';
+  for (let i = 0; i <= fvN; i++) {
+    const on = i >= start && i <= end;
+    const leftActive = i > start && i <= end;
+    const rightActive = i >= start && i < end;
+    html += '<div class="seg-node">' +
+      (i > 0 ? '<div class="seg-node-line left ' + (leftActive ? 'active ' + kind : '') + '"></div>' : '') +
+      (i < fvN ? '<div class="seg-node-line right ' + (rightActive ? 'active ' + kind : '') + '"></div>' : '') +
+      '<div class="seg-point ' + (i === fvN ? 'future ' : '') + (on ? 'on ' + kind : '') + '"></div>' +
+      '<div class="seg-tick">t=' + i + '</div>' +
+    '</div>';
+  }
+  return html;
+}
+function renderFVSegments() {
+  const shown = fvStepIdx > 0;
+  const oaStart = shown ? fvStepIdx : fvN;
+  const adStart = shown ? fvStepIdx - 1 : fvN;
+  const oaPeriods = shown ? fvN - fvStepIdx : 0;
+  const adPeriods = shown ? fvN - fvStepIdx + 1 : 0;
+  const paymentText = shown ? 'Payment ' + fvStepIdx : 'No payment selected yet';
+
+  document.getElementById('fvSegmentCard').innerHTML =
+    '<div class="discount-lines-inner">' +
+      '<div class="seg-title">Compounding line segment to future date</div>' +
+      '<div class="seg-row" style="--seg-cols:' + (fvN + 1) + '">' +
+        '<div class="seg-label oa">Ordinary<span>' + paymentText + ' | ' + oaPeriods + ' periods</span></div>' +
+        '<div class="seg-track-grid" style="--seg-cols:' + (fvN + 1) + '">' + futureSegmentTrack(oaStart, fvN, 'oa') + '</div>' +
+      '</div>' +
+      '<div class="seg-row" style="--seg-cols:' + (fvN + 1) + '">' +
+        '<div class="seg-label ad">Annuity Due<span>' + paymentText + ' | ' + adPeriods + ' periods</span></div>' +
+        '<div class="seg-track-grid" style="--seg-cols:' + (fvN + 1) + '">' + futureSegmentTrack(adStart, fvN, 'ad') + '</div>' +
+      '</div>' +
+    '</div>';
+}
+function buildFVTimeline() {
+  const cols = fvN + 1;
+  const oaParts = [];
+  const adParts = [];
+  for (let i = 0; i <= fvN; i++) {
+    const oaPayIndex = i;
+    const adPayIndex = i + 1;
+    const oaHasPayment = oaPayIndex >= 1 && oaPayIndex <= fvN;
+    const adHasPayment = adPayIndex >= 1 && adPayIndex <= fvN;
+    const oaVisible = oaHasPayment && oaPayIndex <= fvStepIdx;
+    const adVisible = adHasPayment && adPayIndex <= fvStepIdx;
+    oaParts.push(periodHTML('oa', i, oaPayIndex, oaVisible, oaHasPayment, fvPaymentValue(oaPayIndex || 1, false), 'FV'));
+    adParts.push(periodHTML('ad', i, adPayIndex, adVisible, adHasPayment, fvPaymentValue(adPayIndex, true), 'FV'));
+  }
+  document.getElementById('fvTimeline').style.setProperty('--cols', cols);
+  document.getElementById('fvTimeline').innerHTML =
+    '<div class="time-row" style="--cols:' + cols + '">' +
+      '<div class="row-label oa">Ordinary<span>end of period</span></div>' + oaParts.join('') +
+    '</div>' +
+    '<div class="time-row" style="--cols:' + cols + '">' +
+      '<div class="row-label ad">Annuity Due<span>beginning of period</span></div>' + adParts.join('') +
+    '</div>';
+}
+function periodHTML(kind, time, payIndex, visible, hasPayment, value, mode) {
+  let cls = 'period ' + kind;
+  if (!hasPayment) cls += ' blank';
+  else if (!visible) cls += ' locked';
+  else if (payIndex === fvStepIdx) cls += ' active';
+  else cls += ' done';
+  const label = hasPayment ? 'Pay ' + payIndex : (time === 0 ? 'Start' : 'End');
+  const dot = hasPayment ? '<div class="cash-dot">' + payIndex + '</div>' : '<div class="cash-dot empty">-</div>';
+  const valueText = visible ? money(value) : (hasPayment ? '?' : '');
+  return '<div class="' + cls + '">' +
+    '<div class="p-top">t=' + time + '</div>' +
+    dot +
+    '<div class="p-value">' + valueText + '</div>' +
+    '<div class="p-note">' + label + '</div>' +
+  '</div>';
+}
+function renderFV() {
+  readFVInputs();
+  buildFVTimeline();
+  renderFVSegments();
+  const totals = fvTotals(fvStepIdx);
+  const finalOA = fvPay * annuityFactorFV(fvRate, fvN);
+  const finalAD = finalOA * (1 + fvRate);
+  document.getElementById('fvOAVal').textContent = money(totals.oa);
+  document.getElementById('fvADVal').textContent = money(totals.ad);
+  document.getElementById('fvExtra').textContent = money(totals.ad - totals.oa);
+  document.getElementById('fvModeText').textContent = fvStepIdx + ' of ' + fvN + ' payments shown';
+
+  if (fvStepIdx === 0) {
+    document.getElementById('fvStatus').innerHTML = '<strong>Start:</strong> Both annuities have the same payment, rate, and number of payments. Click to add Payment 1 and compare the timing.';
+  } else {
+    const oaVal = fvPaymentValue(fvStepIdx, false);
+    const adVal = fvPaymentValue(fvStepIdx, true);
+    document.getElementById('fvStatus').innerHTML =
+      '<strong>Payment ' + fvStepIdx + ':</strong> Ordinary annuity payment value at the future date is <strong style="color:#1d4ed8">' + money(oaVal) + '</strong>. ' +
+      'Annuity due payment value is <strong style="color:#0f766e">' + money(adVal) + '</strong> because it earns one extra period of interest. ' +
+      '<span class="calc">' + money(oaVal) + ' x (1 + ' + pct(fvRate) + ') = ' + money(adVal) + '</span>';
+  }
+
+  if (fvStepIdx >= fvN) {
+    const oaSum = paymentSumText(fvN, i => fvPaymentValue(i, false));
+    const adSum = paymentSumText(fvN, i => fvPaymentValue(i, true));
+    document.getElementById('fvStepBtn').disabled = true;
+    document.getElementById('fvStepBtn').textContent = 'Comparison Complete';
+    document.getElementById('fvSummary').innerHTML =
+      '<strong>Final total is the sum of all payment values at the future date:</strong><br>' +
+      '<div class="sum-line">Ordinary annuity: ' + oaSum + ' = <span class="total">' + money(finalOA) + '</span></div>' +
+      '<div class="sum-line">Annuity due: ' + adSum + ' = <span class="total">' + money(finalAD) + '</span></div><br>' +
+      '<strong>Future value shortcut:</strong><br>' +
+      'Ordinary annuity FV = <span class="total">' + money(finalOA) + '</span><br>' +
+      'Annuity due FV = Ordinary annuity FV x (1 + rate) = ' + money(finalOA) + ' x ' + (1 + fvRate).toFixed(3) + ' = <span class="total">' + money(finalAD) + '</span>';
+    document.getElementById('fvSummary').classList.add('show');
+  } else {
+    document.getElementById('fvStepBtn').disabled = false;
+    document.getElementById('fvStepBtn').textContent = 'Add Payment ' + (fvStepIdx + 1);
+    document.getElementById('fvSummary').classList.remove('show');
+  }
+}
+function fvStep() {
+  if (fvStepIdx < fvN) fvStepIdx++;
+  renderFV();
+}
+function resetFV() {
+  fvStepIdx = 0;
+  renderFV();
+}
+
+let pvStepIdx = 0;
+let pvPay = 1000, pvRate = .08, pvN = 5;
+function readPVInputs() {
+  pvPay = Math.max(0, parseFloat(document.getElementById('pvPay').value) || 0);
+  pvRate = Math.max(0, (parseFloat(document.getElementById('pvRate').value) || 0) / 100);
+  pvN = clampN(parseInt(document.getElementById('pvN').value, 10) || 1);
+  document.getElementById('pvN').value = pvN;
+}
+function pvPaymentValue(paymentIndex, due) {
+  const periods = due ? (paymentIndex - 1) : paymentIndex;
+  return pvPay / Math.pow(1 + pvRate, periods);
+}
+function pvTotals(count) {
+  let oa = 0, ad = 0;
+  for (let i = 1; i <= count; i++) {
+    oa += pvPaymentValue(i, false);
+    ad += pvPaymentValue(i, true);
+  }
+  return { oa, ad };
+}
+function segmentTrack(periods, kind) {
+  let html = '';
+  for (let i = 0; i <= pvN; i++) {
+    const on = i <= periods;
+    const leftActive = i > 0 && i <= periods;
+    const rightActive = i < periods;
+    html += '<div class="seg-node">' +
+      (i > 0 ? '<div class="seg-node-line left ' + (leftActive ? 'active ' + kind : '') + '"></div>' : '') +
+      (i < pvN ? '<div class="seg-node-line right ' + (rightActive ? 'active ' + kind : '') + '"></div>' : '') +
+      '<div class="seg-point ' + (i === 0 ? 'today ' : '') + (on ? 'on ' + kind : '') + '"></div>' +
+      '<div class="seg-tick">t=' + i + '</div>' +
+    '</div>';
+  }
+  return html;
+}
+function renderPVSegments() {
+  const shown = pvStepIdx > 0;
+  const oaPeriods = shown ? pvStepIdx : 0;
+  const adPeriods = shown ? Math.max(pvStepIdx - 1, 0) : 0;
+  const paymentText = shown ? 'Payment ' + pvStepIdx : 'No payment selected yet';
+
+  document.getElementById('pvSegmentCard').innerHTML =
+    '<div class="discount-lines-inner">' +
+      '<div class="seg-title">Discount line segment back to today</div>' +
+      '<div class="seg-row" style="--seg-cols:' + (pvN + 1) + '">' +
+        '<div class="seg-label oa">Ordinary<span>' + paymentText + ' | ' + oaPeriods + ' periods</span></div>' +
+        '<div class="seg-track-grid" style="--seg-cols:' + (pvN + 1) + '">' + segmentTrack(oaPeriods, 'oa') + '</div>' +
+      '</div>' +
+      '<div class="seg-row" style="--seg-cols:' + (pvN + 1) + '">' +
+        '<div class="seg-label ad">Annuity Due<span>' + paymentText + ' | ' + adPeriods + ' periods</span></div>' +
+        '<div class="seg-track-grid" style="--seg-cols:' + (pvN + 1) + '">' + segmentTrack(adPeriods, 'ad') + '</div>' +
+      '</div>' +
+    '</div>';
+}
+function buildPVTimeline() {
+  const cols = pvN + 1;
+  const oaParts = [];
+  const adParts = [];
+  for (let i = 0; i <= pvN; i++) {
+    const oaPayIndex = i;
+    const adPayIndex = i + 1;
+    const oaHasPayment = oaPayIndex >= 1 && oaPayIndex <= pvN;
+    const adHasPayment = adPayIndex >= 1 && adPayIndex <= pvN;
+    const oaVisible = oaHasPayment && oaPayIndex <= pvStepIdx;
+    const adVisible = adHasPayment && adPayIndex <= pvStepIdx;
+    oaParts.push(periodHTMLPV('oa', i, oaPayIndex, oaVisible, oaHasPayment, pvPaymentValue(oaPayIndex || 1, false)));
+    adParts.push(periodHTMLPV('ad', i, adPayIndex, adVisible, adHasPayment, pvPaymentValue(adPayIndex, true)));
+  }
+  document.getElementById('pvTimeline').innerHTML =
+    '<div class="time-row" style="--cols:' + cols + '">' +
+      '<div class="row-label oa">Ordinary<span>end of period</span></div>' + oaParts.join('') +
+    '</div>' +
+    '<div class="time-row" style="--cols:' + cols + '">' +
+      '<div class="row-label ad">Annuity Due<span>beginning of period</span></div>' + adParts.join('') +
+    '</div>';
+}
+function periodHTMLPV(kind, time, payIndex, visible, hasPayment, value) {
+  let cls = 'period ' + kind;
+  if (!hasPayment) cls += ' blank';
+  else if (!visible) cls += ' locked';
+  else if (payIndex === pvStepIdx) cls += ' active';
+  else cls += ' done';
+  const label = hasPayment ? 'Pay ' + payIndex : (time === 0 ? 'Today' : 'End');
+  const dot = hasPayment ? '<div class="cash-dot">' + payIndex + '</div>' : '<div class="cash-dot empty">-</div>';
+  const valueText = visible ? money(value) : (hasPayment ? '?' : '');
+  return '<div class="' + cls + '">' +
+    '<div class="p-top">t=' + time + '</div>' +
+    dot +
+    '<div class="p-value">' + valueText + '</div>' +
+    '<div class="p-note">' + label + '</div>' +
+  '</div>';
+}
+function renderPV() {
+  readPVInputs();
+  buildPVTimeline();
+  renderPVSegments();
+  const totals = pvTotals(pvStepIdx);
+  const finalOA = pvPay * annuityFactorPV(pvRate, pvN);
+  const finalAD = finalOA * (1 + pvRate);
+  document.getElementById('pvOAVal').textContent = money(totals.oa);
+  document.getElementById('pvADVal').textContent = money(totals.ad);
+  document.getElementById('pvExtra').textContent = money(totals.ad - totals.oa);
+  document.getElementById('pvModeText').textContent = pvStepIdx + ' of ' + pvN + ' payments discounted';
+
+  if (pvStepIdx === 0) {
+    document.getElementById('pvStatus').innerHTML = '<strong>Start:</strong> Present value asks what the stream is worth today. Click to discount Payment 1 under both timing assumptions.';
+  } else {
+    const oaVal = pvPaymentValue(pvStepIdx, false);
+    const adVal = pvPaymentValue(pvStepIdx, true);
+    document.getElementById('pvStatus').innerHTML =
+      '<strong>Payment ' + pvStepIdx + ':</strong> Ordinary annuity payment is discounted ' + pvStepIdx + ' period(s), giving <strong style="color:#1d4ed8">' + money(oaVal) + '</strong>. ' +
+      'Annuity due is discounted one fewer period, giving <strong style="color:#0f766e">' + money(adVal) + '</strong>. ' +
+      '<span class="calc">' + money(oaVal) + ' x (1 + ' + pct(pvRate) + ') = ' + money(adVal) + '</span>';
+  }
+
+  if (pvStepIdx >= pvN) {
+    const oaSum = paymentSumText(pvN, i => pvPaymentValue(i, false));
+    const adSum = paymentSumText(pvN, i => pvPaymentValue(i, true));
+    document.getElementById('pvStepBtn').disabled = true;
+    document.getElementById('pvStepBtn').textContent = 'Comparison Complete';
+    document.getElementById('pvSummary').innerHTML =
+      '<strong>Final total is the sum of all payment values today:</strong><br>' +
+      '<div class="sum-line">Ordinary annuity: ' + oaSum + ' = <span class="total">' + money(finalOA) + '</span></div>' +
+      '<div class="sum-line">Annuity due: ' + adSum + ' = <span class="total">' + money(finalAD) + '</span></div><br>' +
+      '<strong>Present value shortcut:</strong><br>' +
+      'Ordinary annuity PV = <span class="total">' + money(finalOA) + '</span><br>' +
+      'Annuity due PV = Ordinary annuity PV x (1 + rate) = ' + money(finalOA) + ' x ' + (1 + pvRate).toFixed(3) + ' = <span class="total">' + money(finalAD) + '</span>';
+    document.getElementById('pvSummary').classList.add('show');
+  } else {
+    document.getElementById('pvStepBtn').disabled = false;
+    document.getElementById('pvStepBtn').textContent = 'Discount Payment ' + (pvStepIdx + 1);
+    document.getElementById('pvSummary').classList.remove('show');
+  }
+}
+function pvStep() {
+  if (pvStepIdx < pvN) pvStepIdx++;
+  renderPV();
+}
+function resetPV() {
+  pvStepIdx = 0;
+  renderPV();
+}
+
+let quizBuilt = false, score = 0;
+const QUESTIONS = [
+  {
+    q: 'What makes an ordinary annuity ordinary?',
+    correct: 'Payments occur at the end of each period',
+    opts: [
+      'Payments occur at the end of each period',
+      'Payments occur at the beginning of each period',
+      'Payments are unequal',
+      'The interest rate is zero'
+    ],
+    exp: 'An ordinary annuity has equal payments at the end of each period.'
+  },
+  {
+    q: 'What makes an annuity due different?',
+    correct: 'Each payment occurs one period earlier than an ordinary annuity payment',
+    opts: [
+      'Each payment occurs one period earlier than an ordinary annuity payment',
+      'Each payment is smaller than the ordinary annuity payment',
+      'It has no interest component',
+      'It only applies to future value, not present value'
+    ],
+    exp: 'The only timing difference is beginning-of-period versus end-of-period payment.'
+  },
+  {
+    q: 'For the same payment, rate, and number of periods, which has the larger future value?',
+    correct: 'Annuity due',
+    opts: ['Annuity due', 'Ordinary annuity', 'They are equal', 'It depends on the payment amount'],
+    exp: 'The annuity due is larger because each payment compounds for one extra period.'
+  },
+  {
+    q: 'For the same payment, rate, and number of periods, which has the larger present value?',
+    correct: 'Annuity due',
+    opts: ['Annuity due', 'Ordinary annuity', 'They are equal', 'It depends on whether cash is paid or received'],
+    exp: 'The annuity due is larger because each payment is discounted for one fewer period.'
+  },
+  {
+    q: 'How can an ordinary annuity factor be converted to an annuity due factor?',
+    correct: 'Multiply by (1 + interest rate)',
+    opts: [
+      'Multiply by (1 + interest rate)',
+      'Divide by (1 + interest rate)',
+      'Subtract one payment',
+      'Add the number of periods to the factor'
+    ],
+    exp: 'The annuity due stream is exactly one period earlier, so the factor is the ordinary annuity factor times (1 + i).'
+  },
+  {
+    q: 'A lease payment made at the beginning of each year is usually modeled as what?',
+    correct: 'An annuity due',
+    opts: ['An annuity due', 'An ordinary annuity', 'A single sum', 'A deferred ordinary annuity only'],
+    exp: 'Beginning-of-period lease payments are annuity due payments.'
+  },
+  {
+    q: 'In a financial calculator or spreadsheet annuity function, ordinary annuity timing is often represented by what type value?',
+    correct: '0',
+    opts: ['0', '1', 'The interest rate', 'The number of payments'],
+    exp: 'Type 0 means end-of-period payments. Type 1 means beginning-of-period payments.'
+  },
+  {
+    q: 'Why is the annuity due present value higher?',
+    correct: 'The payments are discounted one fewer period',
+    opts: [
+      'The payments are discounted one fewer period',
+      'The payments are discounted one extra period',
+      'The payment amount is automatically larger',
+      'The rate is ignored'
+    ],
+    exp: 'Earlier cash flows are worth more today because less discounting is applied.'
+  }
+];
+
+function buildQuiz() {
+  quizBuilt = true;
+  const wrap = document.getElementById('quizWrap');
+  document.getElementById('total').textContent = QUESTIONS.length;
+  QUESTIONS.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML =
+      '<div class="q-num">Question ' + (qi+1) + ' of ' + QUESTIONS.length + '</div>' +
+      '<div class="q-text">' + q.q + '</div>' +
+      '<div class="q-opts">' + q.opts.map(o =>
+        '<button class="q-opt" onclick="answer(' + qi + ',this)">' + o + '</button>'
+      ).join('') + '</div>' +
+      '<div class="q-explain" id="qe-' + qi + '"></div>';
+    wrap.appendChild(card);
+  });
+}
+
+function answer(qi, btn) {
+  const card = btn.closest('.q-card');
+  if (card.dataset.done) return;
+  card.dataset.done = '1';
+  const q = QUESTIONS[qi];
+  const chosen = btn.textContent.trim();
+  card.querySelectorAll('.q-opt').forEach(b => {
+    b.disabled = true;
+    if (b.textContent.trim() === q.correct) b.classList.add('correct');
+    else b.classList.add('wrong');
+  });
+  const exp = document.getElementById('qe-' + qi);
+  exp.classList.add('show');
+  if (chosen === q.correct) {
+    score++;
+    exp.classList.add('ok');
+    exp.textContent = 'Correct. ' + q.exp;
+  } else {
+    exp.classList.add('bad');
+    exp.textContent = 'The answer is: ' + q.correct + '. ' + q.exp;
+  }
+  document.getElementById('score').textContent = score;
+}
+
+resetFV();
+resetPV();
+</script>
+</body>
+</html>

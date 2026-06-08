@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Partial-Year Depreciation | Kieso Ch. 10</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f1f5f9; font-family: "Segoe UI", system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.22rem; font-weight: 800; letter-spacing: 0; }
+  .header p { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab { padding: 11px 18px; font-size: .88rem; font-weight: 700; color: #64748b; cursor: pointer; border: 0; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; background: transparent; font-family: inherit; }
+  .tab:hover { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+  .panel { display: none; max-width: 1080px; margin: 0 auto; padding: 22px 16px 90px; }
+  .panel.active { display: block; }
+  .sec-title { font-size: 1.34rem; font-weight: 800; margin-bottom: 8px; }
+  .sec-sub { font-size: .96rem; color: #475569; margin-bottom: 18px; line-height: 1.65; max-width: 950px; }
+
+  .scenario-card { background: white; border-radius: 12px; box-shadow: 0 3px 14px rgba(0,0,0,.08); border: 1px solid #e2e8f0; overflow: hidden; margin: 12px auto 0; max-width: 1080px; }
+  .scenario-head { background: linear-gradient(135deg, #0f766e, #0891b2); color: white; padding: 10px 14px; display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .scenario-title { font-size: .88rem; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
+  .scenario-badge { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.28); border-radius: 999px; padding: 5px 10px; font-size: .76rem; font-weight: 900; }
+  .fact-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 12px; }
+  @media(max-width:900px) { .fact-grid { grid-template-columns: 1fr 1fr; } }
+  @media(max-width:560px) { .fact-grid { grid-template-columns: 1fr; } }
+  .fact { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; }
+  .fact .label { font-size: .68rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .fact .value { font-size: 1rem; font-weight: 900; font-family: ui-monospace, Menlo, Consolas, monospace; color: #0f172a; }
+  .fact .hint { font-size: .73rem; font-weight: 700; color: #64748b; margin-top: 3px; line-height: 1.35; }
+
+  .rule-box { background: linear-gradient(135deg, #dbeafe, #ecfdf5); border: 2px solid #2563eb; border-radius: 12px; padding: 14px 18px; margin-bottom: 18px; color: #1e3a8a; font-size: .94rem; line-height: 1.6; font-weight: 750; }
+  .rule-box strong { color: #1d4ed8; font-weight: 900; }
+  .rule-box .trap { color: #b45309; font-weight: 900; }
+
+  /* Pending placeholder + solved styling */
+  .fact .value.pending { color: #94a3b8; }
+  .fact.solved { background: #ecfdf5; border-color: #16a34a; }
+  .fact.solved .value { color: #166534; }
+  .fact.solved .label { color: #166534; }
+  tr.solved-row td { background: #ecfdf5 !important; }
+  tr.solved-row td.money { color: #166534; }
+
+  /* Memory cue chip */
+  .memcue {
+    display: inline-block;
+    background: #fef3c7; border: 2px solid #f59e0b;
+    border-left: 6px solid #b45309; border-radius: 10px;
+    padding: 10px 14px; margin-bottom: 14px;
+    font-weight: 850; color: #7c2d12; font-size: .95rem;
+    line-height: 1.5;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, .15);
+  }
+  .memcue strong { color: #b45309; }
+
+  /* Time-based vs UOP rule split */
+  .rule-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  @media(max-width:760px) { .rule-split { grid-template-columns: 1fr; } }
+  .rule-split-card { border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; background: white; }
+  .rule-split-card.time { border-color: #2563eb; background: #eff6ff; }
+  .rule-split-card.use { border-color: #0f766e; background: #ecfdf5; }
+  .rule-split-tag { font-size: .76rem; font-weight: 900; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 6px; }
+  .rule-split-card.time .rule-split-tag { color: #1d4ed8; }
+  .rule-split-card.use .rule-split-tag { color: #0f766e; }
+  .rule-split-formula {
+    background: #1e293b; color: #fef3c7; border-radius: 7px;
+    padding: 8px 10px; margin: 6px 0;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: .82rem; font-weight: 900; text-align: center;
+  }
+  .rule-split-note { font-size: .82rem; color: #475569; font-weight: 800; line-height: 1.45; }
+
+  /* Highlighted student-trap callout */
+  .trap-callout {
+    display: flex; gap: 10px; align-items: flex-start;
+    margin-top: 12px; padding: 12px 14px;
+    background: #fff7ed; border: 2px solid #f59e0b;
+    border-left: 6px solid #b45309; border-radius: 10px;
+    color: #7c2d12; font-weight: 850; line-height: 1.55;
+  }
+  .trap-callout .trap-icon { font-size: 1.5rem; line-height: 1; flex-shrink: 0; color: #b45309; }
+  .trap-callout strong { color: #7c2d12; font-weight: 900; }
+
+  /* SYD Year 2+ warning */
+  .syd-warning {
+    display: flex; gap: 12px; align-items: flex-start;
+    margin: 0 0 14px; padding: 13px 16px;
+    background: #fef2f2; border: 2px solid #ef4444;
+    border-left: 6px solid #b91c1c; border-radius: 12px;
+    color: #7f1d1d; font-weight: 800; line-height: 1.55; font-size: .88rem;
+  }
+  .syd-warning-icon { font-size: 1.6rem; line-height: 1; flex-shrink: 0; color: #b91c1c; }
+  .syd-warning strong { color: #991b1b; font-weight: 900; }
+  .syd-eq {
+    background: white; border: 1.5px solid #fca5a5;
+    border-radius: 8px; padding: 10px 12px; margin: 8px 0;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: .82rem; line-height: 1.7; color: #0f172a; font-weight: 850;
+  }
+  .syd-eq strong { color: #b91c1c; }
+  .takeaway { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 2px solid #16a34a; border-radius: 12px; padding: 14px 18px; margin-top: 16px; font-size: .92rem; color: #14532d; line-height: 1.6; }
+  .takeaway strong { color: #166534; }
+
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
+  @media(max-width:860px) { .grid-3 { grid-template-columns: 1fr; } }
+  .concept-card { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border-top: 5px solid #cbd5e1; }
+  .concept-card.blue { border-top-color: #2563eb; }
+  .concept-card.gold { border-top-color: #f59e0b; }
+  .concept-card.teal { border-top-color: #0f766e; }
+  .concept-card .h { padding: 12px 15px 6px; font-weight: 900; color: #0f172a; }
+  .concept-card .b { padding: 0 15px 14px; color: #475569; font-size: .88rem; line-height: 1.55; font-weight: 750; }
+  .formula { margin-top: 8px; background: #1e293b; color: #fef3c7; border-radius: 7px; padding: 8px 9px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .76rem; font-weight: 900; text-align: center; }
+
+  .timeline { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); border: 1px solid #e2e8f0; padding: 16px; margin-bottom: 16px; overflow-x: auto; }
+  .months { min-width: 820px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; }
+  .month { border: 2px solid #e2e8f0; border-radius: 8px; background: #f8fafc; min-height: 70px; padding: 8px 5px; text-align: center; transition: .2s; }
+  .month.used { background: #dbeafe; border-color: #3b82f6; color: #1d4ed8; }
+  .month.start { background: #fef3c7; border-color: #f59e0b; color: #92400e; box-shadow: 0 0 0 3px rgba(245,158,11,.14); }
+  .month .m { font-size: .68rem; font-weight: 900; text-transform: uppercase; letter-spacing: .35px; }
+  .month .s { margin-top: 6px; font-size: .72rem; font-weight: 800; line-height: 1.25; }
+
+  .step-ctrl { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; margin: 0 0 14px; }
+  .sc-btn { padding: 10px 20px; border-radius: 9px; border: none; font-weight: 800; font-size: .85rem; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .sc-step { background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; font-weight: 900; padding: 13px 24px; min-width: 235px; box-shadow: 0 4px 14px rgba(245,158,11,.38); animation: stepPulse 1.6s ease-in-out infinite; }
+  .sc-step:hover:not(:disabled) { background: linear-gradient(135deg, #d97706, #dc2626); transform: translateY(-1px); }
+  .sc-step:disabled { animation: none; box-shadow: none; background: #94a3b8; }
+  .sc-reset { background: #475569; color: white; padding: 9px 18px; font-size: .82rem; }
+  .sc-reset:hover { background: #334155; }
+  .sc-small { border: 2px solid #e2e8f0; background: #f8fafc; color: #334155; padding: 9px 13px; }
+  .sc-small.active { background: #dbeafe; border-color: #3b82f6; color: #1d4ed8; }
+  .sc-btn:disabled { opacity: .58; cursor: default; }
+  @keyframes stepPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(245,158,11,.38); }
+    50% { box-shadow: 0 4px 20px rgba(239,68,68,.66), 0 0 0 4px rgba(245,158,11,.16); }
+  }
+  .status-card { background: white; border-radius: 10px; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); margin-bottom: 14px; font-size: .92rem; color: #334155; line-height: 1.6; border-left: 4px solid #3b82f6; min-height: 64px; }
+  .status-card strong { color: #1e293b; }
+  .status-card .calc { display: inline-block; background: #fef3c7; color: #92400e; padding: 2px 10px; border-radius: 6px; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; margin-top: 4px; }
+
+  .work-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(320px, 1.05fr); gap: 14px; align-items: start; }
+  @media(max-width:900px) { .work-grid { grid-template-columns: 1fr; } }
+  .card { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border: 1px solid #e2e8f0; }
+  .card-h { background: #1e293b; color: white; padding: 12px 15px; font-weight: 900; font-size: .9rem; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .card-h small { color: #cbd5e1; font-weight: 800; }
+  .card-b { padding: 14px 16px; }
+  .calc-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(170px, .48fr); gap: 12px; padding: 9px 0; border-bottom: 1px solid #f1f5f9; align-items: start; }
+  @media(max-width:560px) { .calc-row { grid-template-columns: 1fr; } }
+  .calc-row:last-child { border-bottom: 0; }
+  .calc-row.hidden { opacity: .22; }
+  .calc-row.active { background: #fef3c7; margin: 0 -8px; padding: 9px 8px; border-radius: 8px; border-bottom: 0; }
+  .calc-label { font-size: .86rem; color: #475569; line-height: 1.45; font-weight: 750; }
+  .calc-label strong { color: #1e293b; }
+  .calc-value { font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; color: #0f172a; text-align: right; overflow-wrap: anywhere; line-height: 1.35; }
+  @media(max-width:560px) { .calc-value { text-align: left; } }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #f8fafc; color: #64748b; text-align: left; padding: 8px; font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid #e2e8f0; }
+  td { padding: 8px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: .84rem; font-weight: 750; }
+  td.money, th.money { text-align: right; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; color: #0f172a; }
+
+  .journal-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .9fr); gap: 14px; align-items: start; }
+  @media(max-width:900px) { .journal-layout { grid-template-columns: 1fr; } }
+  .journal { width: 100%; border-collapse: collapse; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .86rem; }
+  .journal th.dr, .journal th.cr, .journal td.dr, .journal td.cr { text-align: right; width: 110px; }
+  .journal tr.hidden { opacity: .2; }
+  .journal tr.active td { background: #fef3c7; }
+  .journal tr.done td { background: #f0fdf4; }
+  .journal .indent { padding-left: 28px; }
+  .journal .dr, .journal .cr { color: #0f172a; font-weight: 900; white-space: nowrap; }
+  .why-panel { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border: 1px solid #e2e8f0; }
+  .why-head { background: #0f766e; color: white; padding: 12px 15px; font-weight: 900; font-size: .9rem; }
+  .why-body { padding: 14px 16px; }
+  .why-rule-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+  @media(max-width:560px) { .why-rule-grid { grid-template-columns: 1fr; } }
+  .why-rule { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 9px; padding: 9px 10px; }
+  .why-rule .tag { font-size: .66rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .45px; margin-bottom: 4px; }
+  .why-rule .text { font-size: .8rem; color: #334155; font-weight: 800; line-height: 1.35; }
+  .why-card { display: none; border-radius: 10px; padding: 12px 14px; border: 2px solid #e2e8f0; background: #f8fafc; color: #334155; line-height: 1.55; font-size: .88rem; font-weight: 750; }
+  .why-card.active { display: block; animation: fadeWhy .25s ease both; }
+  .why-card strong { color: #0f172a; font-weight: 900; }
+  .why-card .mini { display: block; margin-top: 8px; background: #1e293b; color: #fef3c7; border-radius: 7px; padding: 8px 10px; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; font-size: .78rem; }
+  .why-card.debit { border-color: #2563eb; background: #eff6ff; }
+  .why-card.credit { border-color: #f59e0b; background: #fffbeb; }
+  @keyframes fadeWhy { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .quiz-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .score { background: white; border-radius: 10px; padding: 12px 16px; box-shadow: 0 2px 8px rgba(0,0,0,.07); font-weight: 900; color: #1e293b; margin-bottom: 14px; }
+  .q-card { background: white; border-radius: 12px; padding: 15px 17px; box-shadow: 0 2px 8px rgba(0,0,0,.07); border: 1px solid #e2e8f0; }
+  .q-num { font-size: .72rem; color: #64748b; font-weight: 900; text-transform: uppercase; letter-spacing: .55px; margin-bottom: 6px; }
+  .q-text { font-weight: 850; color: #1e293b; margin-bottom: 11px; line-height: 1.45; }
+  .q-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .q-opt { border: 2px solid #e2e8f0; background: #f8fafc; color: #334155; border-radius: 8px; padding: 9px 12px; font-size: .84rem; font-weight: 850; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .q-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .q-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+  .q-opt:disabled { cursor: default; }
+  .explain { display: none; margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #f8fafc; color: #475569; font-size: .84rem; line-height: 1.55; font-weight: 700; }
+  .explain.show { display: block; }
+  .nav { position: fixed; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,.96); padding: 10px 16px; display: flex; justify-content: center; gap: 10px; box-shadow: 0 -4px 18px rgba(15,23,42,.22); }
+  .nav button { border: 0; border-radius: 8px; padding: 9px 18px; font-weight: 900; cursor: pointer; color: white; background: #334155; font-family: inherit; }
+  .nav button:hover { background: #475569; }
+  .nav button.primary { background: #2563eb; }
+  .nav button.primary:hover { background: #1d4ed8; }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>Partial-Year Depreciation</h1>
+  <p>Kieso, Weygandt &amp; Warfield &middot; Intermediate Accounting 18th Ed. &middot; Chapter 10 &middot; Depreciation Methods</p>
+</div>
+
+<div class="tabs" role="tablist" aria-label="Partial-year depreciation lesson tabs">
+  <button class="tab active" role="tab" aria-selected="true" onclick="showTab(0)">1. Big Idea</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(1)">2. Time Fraction</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(2)">3. Method Examples</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(3)">4. Journal Entry</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(4)">5. Self-Check</button>
+</div>
+
+<div class="scenario-card">
+  <div class="scenario-head">
+    <div class="scenario-title">Scenario: Boc Apparel buys equipment during the year</div>
+    <div class="scenario-badge">Placed in service on October 1</div>
+  </div>
+  <div class="fact-grid">
+    <div class="fact"><div class="label">Cost</div><div class="value">$60,000</div><div class="hint">Equipment purchase price</div></div>
+    <div class="fact"><div class="label">Residual value</div><div class="value">$6,000</div><div class="hint">Estimated value at disposal</div></div>
+    <div class="fact"><div class="label">Useful life</div><div class="value">6 years</div><div class="hint">Expected service life</div></div>
+    <div class="fact"><div class="label">Service date</div><div class="value">Oct. 1</div><div class="hint">Depreciation starts when ready for use</div></div>
+    <div class="fact" id="factFraction"><div class="label">Q · Year 1 fraction</div><div class="value pending" id="factFractionVal">?</div><div class="hint">to be computed in Tab 2</div></div>
+  </div>
+</div>
+
+<section class="panel active">
+  <div class="sec-title">Partial-Year Depreciation Uses Only the Time in Service</div>
+  <div class="sec-sub">When an asset is purchased during the year, the company does not record a full year of depreciation. It records depreciation only for the portion of the year the asset was available for use.</div>
+
+  <div class="memcue">📌 Memory cue: <strong>full method first, time slice second</strong> — but only for time-based methods.</div>
+
+  <div class="rule-box">
+    <strong>Core rule:</strong> partial-year depreciation depends on which method you're using.
+    <div class="rule-split">
+      <div class="rule-split-card time">
+        <div class="rule-split-tag">⏱ TIME-BASED methods (SL, DDB, SYD)</div>
+        <div class="rule-split-formula">Full-year amount × time fraction</div>
+        <div class="rule-split-note">Compute the normal annual amount, then prorate (e.g. × 3/12).</div>
+      </div>
+      <div class="rule-split-card use">
+        <div class="rule-split-tag">📏 UNITS-OF-PRODUCTION</div>
+        <div class="rule-split-formula">Rate × actual partial-year units</div>
+        <div class="rule-split-note">No separate fraction — actual units already reflect the partial year.</div>
+      </div>
+    </div>
+    <div class="trap-callout">
+      <span class="trap-icon">⚠</span>
+      <div><strong>Student trap:</strong> the fraction starts when the asset is <strong>placed in service</strong>, not necessarily when cash is paid. And don't multiply UOP by 3/12 — that double-counts the partial year.</div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="concept-card blue">
+      <div class="h">1. Find the Annual Amount</div>
+      <div class="b">Use the normal method first: straight-line, declining-balance, SYD, or units-of-production.
+        <div class="formula">Annual amount before proration</div>
+      </div>
+    </div>
+    <div class="concept-card gold">
+      <div class="h">2. Find the Time Fraction</div>
+      <div class="b">Count only the months the asset was in service during the year.
+        <div class="formula">Months in service / 12</div>
+      </div>
+    </div>
+    <div class="concept-card teal">
+      <div class="h">3. Prorate Depreciation</div>
+      <div class="b">Multiply the annual amount by the partial-year fraction.
+        <div class="formula">Annual depreciation x fraction</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway"><strong>Memory cue:</strong> full method first, time slice second.</div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Build the Time Fraction</div>
+  <div class="sec-sub">The equipment was placed in service on October 1, so Year 1 includes October, November, and December.</div>
+
+  <div class="timeline">
+    <div class="months" id="months"></div>
+  </div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="timeBtn" onclick="nextTime()">Show Step 1</button>
+    <button class="sc-btn sc-reset" onclick="resetTime()">Reset</button>
+  </div>
+  <div class="status-card" id="timeStatus">Ready: first mark the date the asset is placed in service.</div>
+
+  <div class="card">
+    <div class="card-h"><span>Time Fraction Workpaper</span><small>Year ended Dec. 31</small></div>
+    <div class="card-b" id="timeRows"></div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Apply the Fraction to Different Methods</div>
+  <div class="sec-sub">Time-based methods use the 3/12 fraction. Units-of-production does not need a separate time fraction because actual activity already reflects the partial year.</div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-small active" onclick="selectMethod(0)">Straight-Line</button>
+    <button class="sc-btn sc-small" onclick="selectMethod(1)">Double-Declining</button>
+    <button class="sc-btn sc-small" onclick="selectMethod(2)">SYD</button>
+    <button class="sc-btn sc-small" onclick="selectMethod(3)">Units-of-Production</button>
+  </div>
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="calcBtn" onclick="nextCalc()">Show Step 1</button>
+    <button class="sc-btn sc-reset" onclick="resetCalc()">Reset</button>
+  </div>
+  <div class="status-card" id="calcStatus">Ready: choose a method and reveal the partial-year calculation.</div>
+
+  <div class="syd-warning" id="sydWarning" style="display:none">
+    <div class="syd-warning-icon">⚠</div>
+    <div>
+      <strong>SYD Year 2+ requires special handling.</strong> Subsequent years split between two SYD fractions because the SYD year boundary doesn't line up with the calendar year:
+      <div class="syd-eq">
+        Year 2 = (Base × 6/21 × <strong>9/12</strong>) + (Base × 5/21 × <strong>3/12</strong>)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;= ($54,000 × 6/21 × 9/12) + ($54,000 × 5/21 × 3/12)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;= $11,571 + $3,214 = <strong>$14,786</strong>
+      </div>
+      The first 9 months still use the Year-1 SYD fraction (6/21); the last 3 months use the Year-2 fraction (5/21). This is a CPA-exam favorite.
+    </div>
+  </div>
+
+  <div class="work-grid">
+    <div class="card">
+      <div class="card-h"><span id="calcTitle">Straight-Line Partial Year</span><small>Year 1</small></div>
+      <div class="card-b" id="calcRows"></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><span>Comparison</span><small>full year vs partial year</small></div>
+      <div class="card-b">
+        <table>
+          <thead><tr><th>Method</th><th class="money">Full-year amount</th><th class="money">Time fraction</th><th class="money">Year 1 dep.</th><th class="money">End BV</th></tr></thead>
+          <tbody>
+            <tr id="compRow0"><td>Straight-line</td><td class="money">?</td><td class="money">3/12</td><td class="money">?</td><td class="money">?</td></tr>
+            <tr id="compRow1"><td>Double-declining</td><td class="money">?</td><td class="money">3/12</td><td class="money">?</td><td class="money">?</td></tr>
+            <tr id="compRow2"><td>SYD</td><td class="money">?</td><td class="money">3/12</td><td class="money">?</td><td class="money">?</td></tr>
+            <tr id="compRow3"><td>Units-of-production</td><td class="money">?</td><td class="money">No time fraction</td><td class="money">?</td><td class="money">?</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Record the Partial-Year Depreciation Entry</div>
+  <div class="sec-sub">The journal entry uses the same accounts as a full-year depreciation entry. Only the amount changes.</div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-small active" onclick="selectJE(0)">Straight-Line</button>
+    <button class="sc-btn sc-small" onclick="selectJE(1)">Double-Declining</button>
+    <button class="sc-btn sc-small" onclick="selectJE(2)">SYD</button>
+    <button class="sc-btn sc-small" onclick="selectJE(3)">Units-of-Production</button>
+  </div>
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="journalBtn" onclick="nextJournal()">Show Debit</button>
+    <button class="sc-btn sc-reset" onclick="resetJournal()">Reset</button>
+  </div>
+  <div class="status-card" id="journalStatus">Ready: record depreciation only for the time the equipment was in service.</div>
+
+  <div class="journal-layout">
+    <div class="card">
+      <div class="card-h"><span id="journalTitle">Straight-Line Partial-Year Entry</span><small>Dec. 31</small></div>
+      <div class="card-b">
+        <table class="journal">
+          <thead><tr><th>Account</th><th class="dr">Debit</th><th class="cr">Credit</th></tr></thead>
+          <tbody id="journalBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="why-panel">
+      <div class="why-head">Why Debit or Credit?</div>
+      <div class="why-body">
+        <div class="why-rule-grid">
+          <div class="why-rule"><div class="tag">Expense rule</div><div class="text">Expenses move like assets. Expenses increase with debits.</div></div>
+          <div class="why-rule"><div class="tag">Contra-asset rule</div><div class="text">Accumulated depreciation is a contra-asset. It increases with credits.</div></div>
+          <div class="why-rule"><div class="tag">Partial-year rule</div><div class="text">Time-based methods use 3/12; units-of-production uses actual miles.</div></div>
+          <div class="why-rule"><div class="tag">Cash check</div><div class="text">No cash is paid when depreciation is recorded.</div></div>
+        </div>
+        <div class="why-card active" id="whyIntro">Click Show Debit. The explanation will focus on the current journal-entry line.</div>
+        <div class="why-card debit" id="whyDebit"></div>
+        <div class="why-card credit" id="whyCredit"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Check Your Understanding</div>
+  <div class="sec-sub">Check whether students can find the service months, prorate annual depreciation, and explain the entry.</div>
+  <div class="score">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</section>
+
+<div class="nav">
+  <button id="btnPrev" onclick="prevTab()">Previous</button>
+  <span class="nav-ind" id="navInd"></span>
+  <button class="primary" id="btnNext" onclick="nextTab()">Next</button>
+</div>
+
+<script>
+const tabs = Array.from(document.querySelectorAll('.tab'));
+const panels = Array.from(document.querySelectorAll('.panel'));
+let currentTab = 0;
+let quizBuilt = false;
+function money(n) { return '$' + Math.round(n).toLocaleString(); }
+function showTab(i) {
+  currentTab = Math.max(0, Math.min(i, panels.length - 1));
+  panels.forEach((p, idx) => p.classList.toggle('active', idx === currentTab));
+  tabs.forEach((t, idx) => {
+    t.classList.toggle('active', idx === currentTab);
+    t.setAttribute('aria-selected', idx === currentTab ? 'true' : 'false');
+  });
+  updateBottomNav();
+  if (currentTab === 4 && !quizBuilt) buildQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function updateBottomNav() {
+  const navInd = document.getElementById('navInd');
+  const label = tabs[currentTab]
+    ? tabs[currentTab].textContent.trim().replace(/^[①②③④⑤⑥⑦⑧⑨⑩]\s*/, '').replace(/^\d+\.\s*/, '')
+    : '';
+  if (navInd) navInd.textContent = 'Tab ' + (currentTab + 1) + ' of ' + panels.length + ' — ' + label;
+  const prevBtn = document.getElementById('btnPrev');
+  const nextBtn = document.getElementById('btnNext');
+  if (prevBtn) prevBtn.disabled = currentTab === 0;
+  if (nextBtn) nextBtn.disabled = currentTab === panels.length - 1;
+}
+function nextTab() { showTab(currentTab + 1); }
+function prevTab() { showTab(currentTab - 1); }
+updateBottomNav();
+
+const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let timeStep = -1;
+function renderMonths() {
+  document.getElementById('months').innerHTML = monthNames.map((m, idx) =>
+    '<div class="month" id="month' + idx + '"><div class="m">' + m + '</div><div class="s">' + (idx < 9 ? 'not in service' : 'in service') + '</div></div>'
+  ).join('');
+}
+function renderTimeRows() {
+  const rows = [
+    ['Placed in service', 'Depreciation starts when asset is ready for use', 'Oct. 1'],
+    ['Months in service', 'Count Oct., Nov., and Dec.', '3 months'],
+    ['Time fraction', 'Months in service / 12 months', '3/12 = 25%']
+  ];
+  document.getElementById('timeRows').innerHTML = rows.map((r, idx) =>
+    '<div class="calc-row hidden" id="tRow' + idx + '"><div class="calc-label"><strong>' + r[0] + '</strong><br>' + r[1] + '</div><div class="calc-value">' + r[2] + '</div></div>'
+  ).join('');
+}
+function resetTime() {
+  timeStep = -1;
+  renderMonths();
+  renderTimeRows();
+  document.getElementById('timeStatus').innerHTML = 'Ready: first mark the date the asset is placed in service.';
+  document.getElementById('timeBtn').disabled = false;
+  document.getElementById('timeBtn').textContent = 'Show Step 1';
+  // Reset persistent fact-strip Year 1 fraction
+  const fv = document.getElementById('factFractionVal');
+  if (fv) { fv.textContent = '?'; fv.classList.add('pending'); document.getElementById('factFraction').classList.remove('solved'); }
+}
+function nextTime() {
+  timeStep++;
+  if (timeStep === 0) document.getElementById('month9').classList.add('start');
+  if (timeStep === 1) [9,10,11].forEach(i => document.getElementById('month' + i).classList.add('used'));
+  for (let i = 0; i < 3; i++) {
+    const row = document.getElementById('tRow' + i);
+    row.className = i < timeStep ? 'calc-row' : i === timeStep ? 'calc-row active' : 'calc-row hidden';
+  }
+  const messages = [
+    'Step 1: the equipment was placed in service on <span class="calc">October 1</span>.',
+    'Step 2: count the service months: <span class="calc">October, November, December = 3 months</span>.',
+    'Step 3: convert months to a fraction of the year: <span class="calc">3 / 12 = 25%</span>.'
+  ];
+  if (timeStep < 3) {
+    document.getElementById('timeStatus').innerHTML = messages[timeStep];
+    document.getElementById('timeBtn').textContent = timeStep === 2 ? 'Finish' : 'Show Step ' + (timeStep + 2);
+  } else {
+    document.getElementById('timeStatus').innerHTML = '<strong>Complete.</strong> Year 1 depreciation uses <span class="calc">3/12</span> of the annual amount.';
+    document.getElementById('timeBtn').disabled = true;
+  }
+  // Reveal persistent fact-strip Year 1 fraction once the fraction is computed (step 2)
+  if (timeStep >= 2) {
+    const fv = document.getElementById('factFractionVal');
+    if (fv) { fv.textContent = '3/12'; fv.classList.remove('pending'); document.getElementById('factFraction').classList.add('solved'); }
+  }
+}
+
+const methods = [
+  {
+    name: 'Straight-Line',
+    title: 'Straight-Line Partial Year',
+    rows: [
+      ['Depreciable base', 'Cost - residual value', '$60,000 - $6,000 = $54,000'],
+      ['Full-year depreciation', 'Depreciable base / useful life', '$54,000 / 6 = $9,000'],
+      ['Partial-year depreciation', 'Full-year depreciation x time fraction', '$9,000 x 3/12 = $2,250'],
+      ['End-of-year book value', 'Cost - accumulated depreciation', '$60,000 - $2,250 = $57,750']
+    ],
+    messages: [
+      'Step 1: find the depreciable base: <span class="calc">$60,000 - $6,000 = $54,000</span>.',
+      'Step 2: compute full-year straight-line depreciation: <span class="calc">$54,000 / 6 = $9,000</span>.',
+      'Step 3: multiply by the time fraction: <span class="calc">$9,000 x 3/12 = $2,250</span>.',
+      'Step 4: ending book value is <span class="calc">$60,000 - $2,250 = $57,750</span>.'
+    ],
+    amount: 2250,
+    endBV: 57750
+  },
+  {
+    name: 'Double-Declining',
+    title: 'Double-Declining Partial Year',
+    rows: [
+      ['Double-declining rate', '2 x (1 / useful life)', '2 x 1/6 = 33.33%'],
+      ['Full-year depreciation', 'Beginning book value x DDB rate', '$60,000 x 33.33% = $20,000'],
+      ['Partial-year depreciation', 'Full-year depreciation x time fraction', '$20,000 x 3/12 = $5,000'],
+      ['End-of-year book value', 'Cost - accumulated depreciation', '$60,000 - $5,000 = $55,000']
+    ],
+    messages: [
+      'Step 1: compute the double-declining rate: <span class="calc">2 x 1/6 = 33.33%</span>.',
+      'Step 2: apply the rate to beginning book value: <span class="calc">$60,000 x 33.33% = $20,000</span>.',
+      'Step 3: multiply by the time fraction: <span class="calc">$20,000 x 3/12 = $5,000</span>.',
+      'Step 4: ending book value is <span class="calc">$60,000 - $5,000 = $55,000</span>.'
+    ],
+    amount: 5000,
+    endBV: 55000
+  },
+  {
+    name: 'Sum-of-the-Years-Digits',
+    title: 'SYD Partial Year',
+    rows: [
+      ['Depreciable base', 'Cost - residual value', '$60,000 - $6,000 = $54,000'],
+      ['SYD fraction for Year 1', 'Remaining years / sum of years', '6 / 21'],
+      ['Full-year depreciation', 'Depreciable base x SYD fraction', '$54,000 x 6/21 = $15,429'],
+      ['Partial-year depreciation', 'Full-year depreciation x time fraction', '$15,429 x 3/12 = $3,857'],
+      ['End-of-year book value', 'Cost - accumulated depreciation', '$60,000 - $3,857 = $56,143']
+    ],
+    messages: [
+      'Step 1: find the depreciable base: <span class="calc">$60,000 - $6,000 = $54,000</span>.',
+      'Step 2: for a 6-year asset, the SYD denominator is <span class="calc">6 + 5 + 4 + 3 + 2 + 1 = 21</span>, so Year 1 uses <span class="calc">6/21</span>.',
+      'Step 3: compute full-year SYD depreciation: <span class="calc">$54,000 x 6/21 = $15,429</span>.',
+      'Step 4: multiply by the time fraction: <span class="calc">$15,429 x 3/12 = $3,857</span>.',
+      'Step 5: ending book value is <span class="calc">$60,000 - $3,857 = $56,143</span>.'
+    ],
+    amount: 3857,
+    endBV: 56143
+  },
+  {
+    name: 'Units-of-Production',
+    title: 'Units-of-Production Partial Year',
+    rows: [
+      ['Depreciable base', 'Cost - residual value', '$60,000 - $6,000 = $54,000'],
+      ['Rate per mile', 'Depreciable base / total estimated miles', '$54,000 / 120,000 = $0.45'],
+      ['Actual partial-year use', 'Miles driven from Oct. 1 to Dec. 31', '8,000 miles'],
+      ['Depreciation expense', 'Rate per mile x actual miles', '$0.45 x 8,000 = $3,600'],
+      ['End-of-year book value', 'Cost - accumulated depreciation', '$60,000 - $3,600 = $56,400']
+    ],
+    messages: [
+      'Step 1: find the depreciable base: <span class="calc">$60,000 - $6,000 = $54,000</span>.',
+      'Step 2: compute the rate per mile: <span class="calc">$54,000 / 120,000 miles = $0.45 per mile</span>.',
+      'Step 3: use the actual miles driven during the partial year: <span class="calc">8,000 miles</span>.',
+      'Step 4: multiply rate by actual use. There is <strong>no separate 3/12 adjustment</strong>: <span class="calc">$0.45 x 8,000 = $3,600</span>.',
+      'Step 5: ending book value is <span class="calc">$60,000 - $3,600 = $56,400</span>.'
+    ],
+    amount: 3600,
+    endBV: 56400
+  }
+];
+let selectedMethod = 0;
+let calcStep = -1;
+function selectMethod(i) {
+  selectedMethod = i;
+  document.querySelectorAll('.panel:nth-of-type(3) .sc-small').forEach((btn, idx) => btn.classList.toggle('active', idx === i));
+  // Show SYD-specific Year 2+ warning only when SYD is selected
+  document.getElementById('sydWarning').style.display = (i === 2) ? 'flex' : 'none';
+  resetCalc();
+}
+
+// Comparison-table reveal data: [full-year amount, year-1 dep, end BV] per method
+const compData = [
+  ['$9,000', '$2,250', '$57,750'],   // SL
+  ['$20,000', '$5,000', '$55,000'],  // DDB
+  ['$15,429', '$3,857', '$56,143'],  // SYD
+  ['$0.45 / mile', '$3,600', '$56,400'] // UOP
+];
+function revealCompRow(i) {
+  const tr = document.getElementById('compRow' + i);
+  if (!tr) return;
+  const tds = tr.querySelectorAll('td.money');
+  // td index: 0 = full-year, 1 = time fraction (already filled), 2 = year-1 dep, 3 = end BV
+  tds[0].textContent = compData[i][0];
+  tds[2].textContent = compData[i][1];
+  tds[3].textContent = compData[i][2];
+  tr.classList.add('solved-row');
+}
+function renderCalc() {
+  const m = methods[selectedMethod];
+  document.getElementById('calcTitle').textContent = m.title;
+  document.getElementById('calcRows').innerHTML = m.rows.map((r, idx) =>
+    '<div class="calc-row hidden" id="cRow' + idx + '"><div class="calc-label"><strong>' + r[0] + '</strong><br>' + r[1] + '</div><div class="calc-value">' + r[2] + '</div></div>'
+  ).join('');
+}
+function resetCalc() {
+  calcStep = -1;
+  renderCalc();
+  document.getElementById('calcStatus').innerHTML = 'Ready: reveal the calculation for <strong>' + methods[selectedMethod].name + '</strong>.';
+  document.getElementById('calcBtn').disabled = false;
+  document.getElementById('calcBtn').textContent = 'Show Step 1';
+}
+function nextCalc() {
+  calcStep++;
+  const stepCount = methods[selectedMethod].rows.length;
+  for (let i = 0; i < stepCount; i++) {
+    const row = document.getElementById('cRow' + i);
+    row.className = i < calcStep ? 'calc-row' : i === calcStep ? 'calc-row active' : 'calc-row hidden';
+  }
+  if (calcStep < stepCount) {
+    document.getElementById('calcStatus').innerHTML = methods[selectedMethod].messages[calcStep];
+    document.getElementById('calcBtn').textContent = calcStep === stepCount - 1 ? 'Finish' : 'Show Step ' + (calcStep + 2);
+  } else {
+    document.getElementById('calcStatus').innerHTML = '<strong>Complete.</strong> Partial-year depreciation is <span class="calc">' + money(methods[selectedMethod].amount) + '</span>, and ending book value is <span class="calc">' + money(methods[selectedMethod].endBV) + '</span>.';
+    document.getElementById('calcBtn').disabled = true;
+  }
+  // When the student reaches the LAST step of this method, reveal that method's row in the comparison table
+  if (calcStep >= stepCount - 1) {
+    revealCompRow(selectedMethod);
+  }
+}
+
+let selectedJE = 0;
+let journalStep = -1;
+function selectJE(i) {
+  selectedJE = i;
+  document.querySelectorAll('.panel:nth-of-type(4) .sc-small').forEach((btn, idx) => btn.classList.toggle('active', idx === i));
+  renderJournal();
+  resetJournal();
+}
+function renderJournal() {
+  const m = methods[selectedJE];
+  const amt = money(m.amount);
+  document.getElementById('journalTitle').textContent = m.name + ' Entry';
+  document.getElementById('journalBody').innerHTML =
+    '<tr class="hidden" id="jRow0"><td>Depreciation Expense</td><td class="dr">' + amt + '</td><td class="cr"></td></tr>' +
+    '<tr class="hidden" id="jRow1"><td class="indent">Accumulated Depreciation</td><td class="dr"></td><td class="cr">' + amt + '</td></tr>';
+  const useBasis = m.name === 'Units-of-Production'
+    ? 'The equipment was driven 8,000 miles during the partial year, so expense is based on actual use instead of a 3/12 time fraction.'
+    : 'The equipment was used for 3 months, so expense increased for that partial period.';
+  document.getElementById('whyDebit').innerHTML = '<strong>Debit Depreciation Expense.</strong> ' + useBasis + ' Expenses increase with debits.<span class="mini">Expense increases -> debit Depreciation Expense</span>';
+  document.getElementById('whyCredit').innerHTML = '<strong>Credit Accumulated Depreciation.</strong> This contra-asset accumulates the cost already allocated to expense. Contra-assets increase with credits.<span class="mini">Contra-asset increases -> credit Accumulated Depreciation</span>';
+}
+function showWhyCard(id) {
+  ['whyIntro','whyDebit','whyCredit'].forEach(cardId => {
+    document.getElementById(cardId).classList.toggle('active', cardId === id);
+  });
+}
+function resetJournal() {
+  journalStep = -1;
+  ['jRow0','jRow1'].forEach(id => document.getElementById(id).className = 'hidden');
+  showWhyCard('whyIntro');
+  const statusDetail = methods[selectedJE].name === 'Units-of-Production'
+    ? 'Ready: record depreciation for the actual 8,000 miles used. No separate 3/12 adjustment is needed.'
+    : 'Ready: record only the 3-month depreciation amount.';
+  document.getElementById('journalStatus').innerHTML = '<strong>' + methods[selectedJE].name + ': ' + money(methods[selectedJE].amount) + '</strong><br>' + statusDetail;
+  document.getElementById('journalBtn').disabled = false;
+  document.getElementById('journalBtn').textContent = 'Show Debit';
+}
+function nextJournal() {
+  journalStep++;
+  const rows = ['jRow0','jRow1'];
+  rows.forEach((id, idx) => {
+    const row = document.getElementById(id);
+    if (idx < journalStep) row.className = 'done';
+    if (idx === journalStep) row.className = 'active';
+  });
+  if (journalStep === 0) {
+    showWhyCard('whyDebit');
+    document.getElementById('journalStatus').innerHTML = document.getElementById('whyDebit').innerHTML;
+    document.getElementById('journalBtn').textContent = 'Show Credit';
+  } else if (journalStep === 1) {
+    showWhyCard('whyCredit');
+    document.getElementById('journalStatus').innerHTML = document.getElementById('whyCredit').innerHTML;
+    document.getElementById('journalBtn').textContent = 'Finish';
+  } else {
+    rows.forEach(id => document.getElementById(id).className = 'done');
+    document.getElementById('journalStatus').innerHTML = '<strong>Complete.</strong> The accounts are the same as annual depreciation; the amount is prorated.';
+    document.getElementById('journalBtn').disabled = true;
+  }
+}
+
+let score = 0;
+const questions = [
+  { q: 'The equipment was placed in service on October 1. How many months of depreciation are recorded in Year 1?', opts: ['2 months', '3 months', '9 months', '12 months'], a: 1, exp: 'October, November, and December are 3 months.' },
+  { q: 'What time fraction is used for Year 1?', opts: ['3/12', '9/12', '10/12', '12/12'], a: 0, exp: 'The asset was in service for 3 of 12 months.' },
+  { q: 'Straight-line full-year depreciation is $9,000. What is partial-year depreciation for 3 months?', opts: ['$750', '$2,250', '$6,750', '$9,000'], a: 1, exp: '$9,000 x 3/12 = $2,250.' },
+  { q: 'Under double-declining, full-year depreciation is $20,000. What is the Year 1 partial amount?', opts: ['$5,000', '$10,000', '$15,000', '$20,000'], a: 0, exp: '$20,000 x 3/12 = $5,000.' },
+  { q: 'For units-of-production, why is there no separate 3/12 adjustment?', opts: ['Actual units already measure partial-year use', 'Residual value is ignored', 'The method always records a full year', 'Accumulated depreciation is not used'], a: 0, exp: 'Units-of-production uses actual activity. If the asset was used for only part of the year, the actual units already reflect that partial-year use.' },
+  { q: 'The units-of-production rate is $0.45 per mile and the equipment was driven 8,000 miles. What is depreciation?', opts: ['$900', '$2,700', '$3,600', '$10,800'], a: 2, exp: '$0.45 x 8,000 miles = $3,600. Do not multiply by 3/12 again.' },
+  { q: 'For partial-year depreciation, what should students usually compute first?', opts: ['Annual depreciation before proration', 'Ending cash balance', 'Total liabilities', 'Sales revenue'], a: 0, exp: 'Compute the method-based annual amount first, then multiply by the time fraction.' },
+  { q: 'When does depreciation begin?', opts: ['When the asset is placed in service', 'When the asset is ordered', 'Only at the next full year', 'When the invoice is paid'], a: 0, exp: 'Depreciation starts when the asset is ready and available for use.' },
+  { q: 'What account is credited in a partial-year depreciation entry?', opts: ['Cash', 'Equipment', 'Accumulated Depreciation', 'Accounts Payable'], a: 2, exp: 'The credit is Accumulated Depreciation, a contra-asset.' },
+  { q: 'What changes between a full-year and partial-year depreciation entry?', opts: ['Only the amount', 'The debit account', 'The credit account', 'Whether cash is paid'], a: 0, exp: 'The accounts stay Depreciation Expense and Accumulated Depreciation; the amount is prorated.' }
+];
+function buildQuiz() {
+  quizBuilt = true;
+  document.getElementById('total').textContent = questions.length;
+  const wrap = document.getElementById('quizWrap');
+  questions.forEach((item, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML =
+      '<div class="q-num">Question ' + (qi + 1) + ' of ' + questions.length + '</div>' +
+      '<div class="q-text">' + item.q + '</div>' +
+      '<div class="q-opts">' + item.opts.map((opt, oi) =>
+        '<button class="q-opt" onclick="answerQ(' + qi + ',' + oi + ', this)">' + opt + '</button>'
+      ).join('') + '</div>' +
+      '<div class="explain" id="exp' + qi + '"></div>';
+    wrap.appendChild(card);
+  });
+}
+function answerQ(qi, oi, btn) {
+  const item = questions[qi];
+  const buttons = btn.parentElement.querySelectorAll('button');
+  if (buttons[0].disabled) return;
+  buttons.forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === item.a) b.classList.add('correct');
+  });
+  const exp = document.getElementById('exp' + qi);
+  if (oi === item.a) {
+    score++;
+    btn.classList.add('correct');
+    exp.textContent = 'Correct. ' + item.exp;
+  } else {
+    btn.classList.add('wrong');
+    exp.textContent = 'The answer is: ' + item.opts[item.a] + '. ' + item.exp;
+  }
+  exp.classList.add('show');
+  document.getElementById('score').textContent = score;
+}
+
+resetTime();
+resetCalc();
+renderJournal();
+resetJournal();
+</script>
+</body>
+</html>

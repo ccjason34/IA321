@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trial Balance | Kieso Ch. 2</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.2rem; font-weight: 800; }
+  .header p  { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab  { padding: 11px 18px; font-size: .88rem; font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; }
+  .tab:hover  { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+  .panel { display: none; max-width: 960px; margin: 0 auto; padding: 24px 16px 90px; }
+  .panel.active { display: block; }
+
+  .sec-title { font-size: 1.35rem; font-weight: 800; color: #1e293b; margin-bottom: 8px; }
+  .sec-sub   { font-size: .97rem; color: #475569; margin-bottom: 20px; line-height: 1.7; }
+  .quote { background: white; border-left: 4px solid #3b82f6; border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: .95rem; color: #334155; line-height: 1.7; margin-bottom: 20px; }
+  .quote strong { color: #1d4ed8; }
+
+  /* ── Info cards ── */
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  @media(max-width:560px) { .info-grid { grid-template-columns: 1fr; } }
+  .info-card { background: white; border-radius: 10px; padding: 16px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .info-card h3 { font-size: .92rem; font-weight: 800; margin-bottom: 8px; }
+  .info-card p  { font-size: .87rem; color: #475569; line-height: 1.65; }
+
+  /* ── Sample TB preview ── */
+  .tb-preview { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); margin-bottom: 20px; }
+  .tb-preview-title { font-weight: 800; font-size: .95rem; margin-bottom: 14px; text-align: center; }
+  .tb-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .tb-table th { background: #1e293b; color: white; padding: 8px 14px; font-weight: 700; font-size: .78rem; text-transform: uppercase; }
+  .tb-table th.right { text-align: right; }
+  .tb-table td { padding: 8px 14px; border-bottom: 1px solid #f1f5f9; }
+  .tb-table td.r { text-align: right; font-family: monospace; font-weight: 700; }
+  .tb-table .total-row td { border-top: 2px solid #1e293b; border-bottom: 3px double #1e293b; font-weight: 800; }
+  .acct-no { font-family: monospace; color: #94a3b8; min-width: 36px; display: inline-block; font-size: .82rem; }
+
+  /* ── Limitation callout ── */
+  .limit-card { background: #fef9c3; border: 1.5px solid #fde68a; border-radius: 9px; padding: 14px 18px; font-size: .9rem; color: #78350f; line-height: 1.7; }
+  .limit-card strong { color: #92400e; }
+
+  /* ── Build tab layout ── */
+  .build-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  @media(max-width:680px) { .build-wrap { grid-template-columns: 1fr; } }
+
+  /* ── T-Account grid ── */
+  .section-label { font-size: .78rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 10px; }
+  .tacct-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+  .tacct { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 5px rgba(0,0,0,.08); border: 2px solid transparent; transition: border-color .2s, opacity .3s; }
+  .tacct.active-now { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.22); }
+  .tacct.done { opacity: .38; }
+
+  .ta-name { font-size: .65rem; font-weight: 800; padding: 5px 7px 4px; text-align: center; line-height: 1.25; }
+  .ta-tbar { display: flex; border-top: 1px solid #e2e8f0; }
+  .ta-dr, .ta-cr { flex: 1; padding: 4px 6px 3px; font-size: .62rem; min-height: 22px; color: #94a3b8; }
+  .ta-dr { border-right: 2px solid #334155; }
+  .ta-cr { text-align: right; }
+  .ta-bal { font-size: .68rem; font-weight: 900; text-align: center; padding: 3px; border-top: 1px dashed #e2e8f0; }
+
+  .ta-asset  .ta-name { background: #dbeafe; color: #1e40af; }
+  .ta-liab   .ta-name { background: #fce7f3; color: #9d174d; }
+  .ta-equity .ta-name { background: #f3e8ff; color: #6b21a8; }
+  .ta-rev    .ta-name { background: #dcfce7; color: #15803d; }
+  .ta-exp    .ta-name { background: #fef9c3; color: #92400e; }
+
+  /* ── Growing Trial Balance ── */
+  .build-tb { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.09); }
+  .build-tb-hdr    { background: #1e293b; color: white; padding: 10px 14px; font-weight: 800; font-size: .88rem; }
+  .build-tb-sub    { display: grid; grid-template-columns: 1fr 76px 76px; background: #334155; color: #94a3b8; padding: 5px 14px; font-size: .72rem; font-weight: 700; text-transform: uppercase; }
+  .build-tb-sub span:nth-child(2), .build-tb-sub span:nth-child(3) { text-align: right; }
+  .build-tb-rows   { min-height: 140px; }
+  .build-row { display: grid; grid-template-columns: 1fr 76px 76px; padding: 7px 14px; border-bottom: 1px solid #f1f5f9; font-size: .85rem; animation: rowIn .35s ease; }
+  .build-row span:nth-child(2), .build-row span:nth-child(3) { text-align: right; font-family: monospace; font-weight: 700; }
+  .build-row.dr-row { background: #f0f9ff; }
+  .build-row.cr-row { background: #f0fdf4; }
+  .build-totals { display: grid; grid-template-columns: 1fr 76px 76px; padding: 9px 14px; font-weight: 800; font-size: .88rem; border-top: 2px solid #334155; background: #f8fafc; }
+  .build-totals span:nth-child(2), .build-totals span:nth-child(3) { text-align: right; font-family: monospace; }
+  .balanced-badge { background: #dcfce7; color: #15803d; text-align: center; padding: 11px; font-weight: 800; font-size: .95rem; display: none; border-top: 1px solid #bbf7d0; }
+  .balanced-badge.show { display: block; animation: balPop .4s ease; }
+
+  .ctrl-area { margin-top: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .step-btn  { background: #3b82f6; color: white; border: none; border-radius: 9px; padding: 11px 26px; font-size: .95rem; font-weight: 700; cursor: pointer; transition: background .15s; }
+  .step-btn:hover:not(:disabled) { background: #2563eb; }
+  .step-btn:disabled { opacity: .4; cursor: default; }
+  .reset-btn { background: #475569; color: white; border: none; border-radius: 7px; padding: 7px 18px; font-size: .8rem; font-weight: 700; cursor: pointer; }
+  .reset-btn:hover { background: #334155; }
+  .step-info { font-size: .82rem; color: #64748b; text-align: center; }
+
+  /* ── Formal Trial Balance (Tab 2) ── */
+  .formal-tb { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 3px 14px rgba(0,0,0,.09); }
+  .formal-hdr { padding: 20px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+  .formal-hdr .co   { font-size: 1rem; font-weight: 900; }
+  .formal-hdr .doc  { font-size: .88rem; font-weight: 700; color: #334155; margin-top: 2px; }
+  .formal-hdr .date { font-size: .8rem; color: #64748b; margin-top: 2px; }
+  .formal-cols { display: grid; grid-template-columns: 40px 1fr 110px 110px; background: #1e293b; color: white; padding: 8px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }
+  .formal-cols span:nth-child(3), .formal-cols span:nth-child(4) { text-align: right; }
+
+  .formal-section { border-bottom: 1px solid #f1f5f9; }
+  .formal-sec-hdr { padding: 5px 16px 3px; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; }
+  .formal-row { display: grid; grid-template-columns: 40px 1fr 110px 110px; padding: 8px 16px; border-bottom: 1px solid #f8fafc; font-size: .9rem; transition: background .1s; }
+  .formal-row:hover { background: #f8fafc; }
+  .formal-row span:nth-child(3), .formal-row span:nth-child(4) { text-align: right; font-family: monospace; font-weight: 700; }
+  .formal-row .fno { font-family: monospace; color: #94a3b8; font-size: .8rem; }
+
+  .formal-total { display: grid; grid-template-columns: 40px 1fr 110px 110px; padding: 11px 16px; font-weight: 900; font-size: .95rem; background: #f8fafc; border-top: 2.5px solid #1e293b; }
+  .formal-total span:nth-child(3), .formal-total span:nth-child(4) { text-align: right; font-family: monospace; border-bottom: 3px double #1e293b; padding-bottom: 3px; }
+
+  .s-asset  .formal-sec-hdr { background: #eff6ff; color: #1d4ed8; }
+  .s-liab   .formal-sec-hdr { background: #fdf2f8; color: #9d174d; }
+  .s-equity .formal-sec-hdr { background: #faf5ff; color: #6b21a8; }
+  .s-rev    .formal-sec-hdr { background: #f0fdf4; color: #15803d; }
+  .s-exp    .formal-sec-hdr { background: #fefce8; color: #92400e; }
+
+  /* ── Quiz ── */
+  .quiz-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .q-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .q-num  { font-size: .72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+  .q-text { font-size: 1rem; font-weight: 700; color: #1e293b; margin-bottom: 14px; }
+  .q-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .q-opt  { padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f8fafc; font-size: .88rem; font-weight: 600; cursor: pointer; transition: all .15s; color: #334155; text-align: left; }
+  .q-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .q-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-opt.wrong   { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
+  .q-opt:disabled { cursor: default; }
+  .q-explain { margin-top: 10px; font-size: .85rem; padding: 9px 13px; border-radius: 7px; display: none; }
+  .q-explain.show { display: block; }
+  .q-explain.ok  { background: #dcfce7; color: #15803d; }
+  .q-explain.bad { background: #fee2e2; color: #991b1b; }
+  .score-line { text-align: center; font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
+
+  /* ── Nav ── */
+  .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; }
+  .nav-btn { padding: 9px 22px; border-radius: 8px; border: none; font-weight: 700; font-size: .85rem; cursor: pointer; }
+  .nav-btn.prev { background: #1e293b; color: #94a3b8; }
+  .nav-btn.prev:hover:not(:disabled) { background: #334155; }
+  .nav-btn.nxt  { background: #3b82f6; color: white; }
+  .nav-btn.nxt:hover:not(:disabled)  { background: #2563eb; }
+  .nav-btn:disabled { opacity: .4; cursor: default; }
+  .nav-ind { font-size: .8rem; color: #64748b; font-weight: 600; }
+
+  @keyframes rowIn  { from{opacity:0;transform:translateX(10px)} to{opacity:1;transform:translateX(0)} }
+  @keyframes balPop { 0%{transform:scale(.95);opacity:.5} 100%{transform:scale(1);opacity:1} }
+</style>
+<style>
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+   (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<style>
+  /* Standard full-width bottom navigation */
+  body { padding-bottom: 76px; }
+  .nav, .nav-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { justify-self: start; }
+  .nav > button:last-child, .nav-bar > button:last-child { justify-self: end; }
+  .nav > button, .nav-bar > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child, .nav-bar > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child, .nav-bar > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled), .nav-bar > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled), .nav-bar > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled, .nav-bar > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+  @media (max-width: 640px) {
+    .nav, .nav-bar {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button, .nav-bar > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>⚖️ Trial Balance</h1>
+  <p>Kieso, Weygandt &amp; Warfield · Intermediate Accounting 18th Ed. · Chapter 2 · Pioneer Advertising</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab(0)">① What Is It?</div>
+  <div class="tab"        onclick="showTab(1)">② Build It Step by Step</div>
+  <div class="tab"        onclick="showTab(2)">③ Pioneer's Trial Balance</div>
+  <div class="tab"        onclick="showTab(3)">④ Self-Check</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 0 — What Is a Trial Balance?
+═══════════════════════════════════════ -->
+<div class="panel active" id="tab-0">
+  <div class="sec-title">The Trial Balance</div>
+  <div class="sec-sub">
+    After every journal entry is posted to the ledger, every account has a balance — either a net debit or a net credit.
+    The trial balance collects all those balances into a single two-column list. If the accounting equation holds,
+    total debits will equal total credits.
+  </div>
+
+  <div class="quote">
+    <strong>From the textbook:</strong> "A trial balance is a list of accounts and their balances at a given time.
+    The primary purpose of a trial balance is to prove the mathematical equality of debits and credits after posting."
+  </div>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <h3 style="color:#1d4ed8">What it contains</h3>
+      <p>Every ledger account, listed in chart-of-accounts order (Assets → Liabilities → Equity → Revenues → Expenses),
+         with its ending balance placed in the Debit or Credit column.</p>
+    </div>
+    <div class="info-card">
+      <h3 style="color:#15803d">When it's prepared</h3>
+      <p>End of the period — <em>before</em> adjusting entries (<strong>unadjusted</strong>), <em>after</em> adjustments
+         (<strong>adjusted</strong>), and <em>after</em> closing (<strong>post-closing</strong>).</p>
+    </div>
+    <div class="info-card">
+      <h3 style="color:#6b21a8">Which column?</h3>
+      <p>Normal balance side = the column used.<br>
+         <strong>Debit column:</strong> Assets · Expenses · Dividends<br>
+         <strong>Credit column:</strong> Liabilities · Equity · Revenues<br>
+         Contra accounts go in the opposite column.</p>
+    </div>
+    <div class="info-card">
+      <h3 style="color:#92400e">The equality rule</h3>
+      <p>Total Debits <strong>must equal</strong> Total Credits — because every journal entry records equal debit
+         and credit amounts. An imbalance signals a posting error.</p>
+    </div>
+  </div>
+
+  <!-- Format preview -->
+  <div class="tb-preview">
+    <div class="tb-preview-title">Trial Balance Format</div>
+    <table class="tb-table">
+      <thead>
+        <tr><th>Account</th><th class="right">Debit</th><th class="right">Credit</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="acct-no">101</span> Cash</td><td class="r" style="color:#1d4ed8">15,200</td><td class="r"></td></tr>
+        <tr><td><span class="acct-no">126</span> Supplies</td><td class="r" style="color:#1d4ed8">2,500</td><td class="r"></td></tr>
+        <tr><td><span class="acct-no">200</span> Notes Payable</td><td class="r"></td><td class="r" style="color:#15803d">5,000</td></tr>
+        <tr><td><span class="acct-no">311</span> Common Stock</td><td class="r"></td><td class="r" style="color:#15803d">10,000</td></tr>
+        <tr><td><span class="acct-no">726</span> Salaries Expense</td><td class="r" style="color:#1d4ed8">4,000</td><td class="r"></td></tr>
+        <tr><td colspan="3" style="text-align:center;font-size:.8rem;color:#94a3b8;padding:6px">… all accounts …</td></tr>
+        <tr class="total-row">
+          <td style="font-weight:800">Totals</td>
+          <td class="r" style="color:#1d4ed8">$28,700</td>
+          <td class="r" style="color:#15803d">$28,700</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="limit-card">
+    <strong>Important limitation:</strong> A balanced trial balance does <em>not</em> mean the records are error-free.
+    It only confirms mathematical equality. Errors that still hide include: posting to the wrong account,
+    recording a transaction twice, or omitting a transaction entirely — as long as debits and credits stay equal, the trial balance still balances.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 1 — Build It Step by Step
+═══════════════════════════════════════ -->
+<div class="panel" id="tab-1">
+  <div class="sec-title">From T-Accounts → Trial Balance</div>
+  <div class="sec-sub">
+    Each T-account's ending balance is either a net debit or a net credit.
+    Click <strong>Extract Next Account</strong> to transfer each balance into the trial balance, one account at a time.
+  </div>
+
+  <div class="build-wrap">
+
+    <!-- Left: T-account grid -->
+    <div>
+      <div class="section-label">General Ledger — T-Accounts</div>
+      <div class="tacct-grid" id="tacctGrid"></div>
+      <div class="ctrl-area">
+        <button class="step-btn" id="stepBtn" onclick="extractNext()">Extract Next Account →</button>
+        <div class="step-info" id="stepInfo">0 of 12 accounts transferred</div>
+        <button class="reset-btn" onclick="resetBuild()">↺ Reset</button>
+      </div>
+    </div>
+
+    <!-- Right: growing trial balance -->
+    <div>
+      <div class="section-label">Trial Balance (in progress)</div>
+      <div class="build-tb">
+        <div class="build-tb-hdr">Pioneer Advertising · October 31</div>
+        <div class="build-tb-sub">
+          <span>Account</span><span>Debit</span><span>Credit</span>
+        </div>
+        <div class="build-tb-rows" id="buildRows">
+          <div style="padding:24px;text-align:center;font-size:.85rem;color:#94a3b8">
+            — accounts will appear here —
+          </div>
+        </div>
+        <div class="build-totals">
+          <span>Totals</span>
+          <span id="drTotal">—</span>
+          <span id="crTotal">—</span>
+        </div>
+        <div class="balanced-badge" id="balancedBadge">
+          ✓ Balanced! Total Debits = Total Credits = $28,700
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 2 — Full Trial Balance
+═══════════════════════════════════════ -->
+<div class="panel" id="tab-2">
+  <div class="sec-title">Pioneer Advertising — Unadjusted Trial Balance</div>
+  <div class="sec-sub">
+    October 31 · Prepared after posting all journal entries, but <em>before</em> adjusting entries.
+    This is Step 4 of the accounting cycle — the starting point for adjustments.
+  </div>
+
+  <div class="formal-tb">
+    <div class="formal-hdr">
+      <div class="co">Pioneer Advertising</div>
+      <div class="doc">Trial Balance (Unadjusted)</div>
+      <div class="date">October 31</div>
+    </div>
+    <div class="formal-cols">
+      <span>No.</span><span>Account Title</span><span>Debit</span><span>Credit</span>
+    </div>
+
+    <div class="formal-section s-asset">
+      <div class="formal-sec-hdr">Assets · Debit Normal Balance</div>
+      <div class="formal-row"><span class="fno">101</span><span>Cash</span><span>$15,200</span><span></span></div>
+      <div class="formal-row"><span class="fno">126</span><span>Supplies</span><span>$2,500</span><span></span></div>
+      <div class="formal-row"><span class="fno">130</span><span>Prepaid Insurance</span><span>$600</span><span></span></div>
+      <div class="formal-row"><span class="fno">157</span><span>Equipment</span><span>$5,000</span><span></span></div>
+    </div>
+
+    <div class="formal-section s-liab">
+      <div class="formal-sec-hdr">Liabilities · Credit Normal Balance</div>
+      <div class="formal-row"><span class="fno">200</span><span>Notes Payable</span><span></span><span>$5,000</span></div>
+      <div class="formal-row"><span class="fno">201</span><span>Accounts Payable</span><span></span><span>$2,500</span></div>
+      <div class="formal-row"><span class="fno">209</span><span>Unearned Service Revenue</span><span></span><span>$1,200</span></div>
+    </div>
+
+    <div class="formal-section s-equity">
+      <div class="formal-sec-hdr">Stockholders' Equity · Credit Normal Balance</div>
+      <div class="formal-row"><span class="fno">311</span><span>Common Stock</span><span></span><span>$10,000</span></div>
+      <div class="formal-row"><span class="fno">332</span><span>Dividends</span><span>$500</span><span></span></div>
+    </div>
+
+    <div class="formal-section s-rev">
+      <div class="formal-sec-hdr">Revenues · Credit Normal Balance</div>
+      <div class="formal-row"><span class="fno">400</span><span>Service Revenue</span><span></span><span>$10,000</span></div>
+    </div>
+
+    <div class="formal-section s-exp">
+      <div class="formal-sec-hdr">Expenses · Debit Normal Balance</div>
+      <div class="formal-row"><span class="fno">726</span><span>Salaries and Wages Expense</span><span>$4,000</span><span></span></div>
+      <div class="formal-row"><span class="fno">729</span><span>Rent Expense</span><span>$900</span><span></span></div>
+    </div>
+
+    <div class="formal-total">
+      <span></span>
+      <span>Totals</span>
+      <span>$28,700</span>
+      <span>$28,700</span>
+    </div>
+  </div>
+
+  <div style="margin-top:14px;background:white;border-radius:9px;padding:14px 18px;box-shadow:0 2px 8px rgba(0,0,0,.07);font-size:.88rem;color:#475569;line-height:1.7">
+    <strong style="color:#1e293b">Zero-balance accounts are omitted.</strong>
+    Accounts that had no activity yet — such as Supplies Expense (631), Depreciation Expense (711),
+    Insurance Expense (722), and Interest Expense (905) — are not listed. They will appear
+    on the <em>adjusted</em> trial balance after adjusting entries are made.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 3 — Quiz
+═══════════════════════════════════════ -->
+<div class="panel" id="tab-3">
+  <div class="sec-title">Practice — Trial Balance Concepts</div>
+  <div class="sec-sub">Test your understanding of the trial balance.</div>
+  <div class="score-line">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <br>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</div>
+
+<!-- Nav bar -->
+<div class="nav-bar">
+  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>← Previous</button>
+  <span class="nav-ind" id="navInd">Tab 1 of 4</span>
+  <button class="nav-btn nxt"  id="btnNext" onclick="navigate(1)">Next →</button>
+</div>
+
+<script>
+// ── Tabs ──
+const TABS = ['What Is It?', 'Build It Step by Step', "Pioneer's Trial Balance", 'Self-Check'];
+let cur = 0;
+function showTab(i) {
+  document.querySelectorAll('.panel').forEach((p,j) => p.classList.toggle('active', j===i));
+  document.querySelectorAll('.tab').forEach((t,j)   => t.classList.toggle('active', j===i));
+  cur = i;
+  document.getElementById('btnPrev').disabled = i===0;
+  document.getElementById('btnNext').disabled = i===TABS.length-1;
+  document.getElementById('navInd').textContent = `Tab ${i+1} of ${TABS.length} — ${TABS[i]}`;
+  if (i===1 && !gridBuilt) buildGrid();
+  if (i===3 && !quizBuilt) buildQuiz();
+}
+function navigate(d) { showTab(cur + d); }
+
+// ── Account data ──
+// Pioneer Advertising October — all transactions lead to these balances.
+// Dr total = Cr total = $28,700
+const ACCOUNTS = [
+  { num:'101', name:'Cash',                type:'asset',  side:'dr', bal:15200,
+    drEx:'10,000 · 10,000 · 1,200', crEx:'600 · 900 · 4,000 · 500' },
+  { num:'126', name:'Supplies',            type:'asset',  side:'dr', bal:2500,
+    drEx:'2,500', crEx:'' },
+  { num:'130', name:'Prepaid Ins.',        type:'asset',  side:'dr', bal:600,
+    drEx:'600', crEx:'' },
+  { num:'157', name:'Equipment',           type:'asset',  side:'dr', bal:5000,
+    drEx:'5,000', crEx:'' },
+  { num:'200', name:'Notes Payable',       type:'liab',   side:'cr', bal:5000,
+    drEx:'', crEx:'5,000' },
+  { num:'201', name:'Accounts Payable',    type:'liab',   side:'cr', bal:2500,
+    drEx:'', crEx:'2,500' },
+  { num:'209', name:'Unearned Revenue',    type:'liab',   side:'cr', bal:1200,
+    drEx:'', crEx:'1,200' },
+  { num:'311', name:'Common Stock',        type:'equity', side:'cr', bal:10000,
+    drEx:'', crEx:'10,000' },
+  { num:'332', name:'Dividends',           type:'equity', side:'dr', bal:500,
+    drEx:'500', crEx:'' },
+  { num:'400', name:'Service Revenue',     type:'rev',    side:'cr', bal:10000,
+    drEx:'', crEx:'4,000 · 6,000' },
+  { num:'726', name:'Salaries Exp.',       type:'exp',    side:'dr', bal:4000,
+    drEx:'4,000', crEx:'' },
+  { num:'729', name:'Rent Expense',        type:'exp',    side:'dr', bal:900,
+    drEx:'900', crEx:'' },
+];
+
+// ── Build T-account grid ──
+let gridBuilt = false, stepIdx = 0, drSum = 0, crSum = 0;
+
+function buildGrid() {
+  gridBuilt = true;
+  const grid = document.getElementById('tacctGrid');
+  ACCOUNTS.forEach((a, i) => {
+    const div = document.createElement('div');
+    div.className = `tacct ta-${a.type}`;
+    div.id = `ta-${i}`;
+    div.innerHTML =
+      `<div class="ta-name">${a.num}<br>${a.name}</div>` +
+      `<div class="ta-tbar">` +
+        `<div class="ta-dr">${a.drEx}</div>` +
+        `<div class="ta-cr">${a.crEx}</div>` +
+      `</div>` +
+      `<div class="ta-bal" style="color:${a.side==='dr'?'#1d4ed8':'#15803d'}">` +
+        `Bal: ${a.bal.toLocaleString()} ${a.side.toUpperCase()}` +
+      `</div>`;
+    grid.appendChild(div);
+  });
+}
+
+// ── Interactive extraction ──
+function extractNext() {
+  if (stepIdx >= ACCOUNTS.length) return;
+
+  // mark previous as done
+  if (stepIdx > 0) {
+    const prev = document.getElementById(`ta-${stepIdx-1}`);
+    prev.classList.remove('active-now');
+    prev.classList.add('done');
+  }
+
+  // highlight current T-account
+  const el = document.getElementById(`ta-${stepIdx}`);
+  el.classList.add('active-now');
+
+  // clear placeholder on first add
+  if (stepIdx === 0) {
+    document.getElementById('buildRows').innerHTML = '';
+  }
+
+  const a = ACCOUNTS[stepIdx];
+
+  // add row to TB
+  const row = document.createElement('div');
+  row.className = `build-row ${a.side}-row`;
+  const fmt = '$' + a.bal.toLocaleString();
+  row.innerHTML =
+    `<span>${a.name}</span>` +
+    `<span style="color:#1d4ed8">${a.side==='dr' ? fmt : ''}</span>` +
+    `<span style="color:#15803d">${a.side==='cr' ? fmt : ''}</span>`;
+  document.getElementById('buildRows').appendChild(row);
+
+  // update running totals
+  if (a.side === 'dr') drSum += a.bal;
+  else                 crSum += a.bal;
+
+  const fmtDr = '$' + drSum.toLocaleString();
+  const fmtCr = '$' + crSum.toLocaleString();
+  document.getElementById('drTotal').textContent = drSum > 0 ? fmtDr : '—';
+  document.getElementById('crTotal').textContent = crSum > 0 ? fmtCr : '—';
+
+  stepIdx++;
+  const remaining = ACCOUNTS.length - stepIdx;
+  document.getElementById('stepInfo').textContent =
+    remaining > 0
+      ? `${stepIdx} of ${ACCOUNTS.length} accounts added · ${remaining} remaining`
+      : 'All accounts transferred!';
+
+  if (stepIdx >= ACCOUNTS.length) {
+    el.classList.remove('active-now');
+    el.classList.add('done');
+    document.getElementById('stepBtn').disabled = true;
+    document.getElementById('balancedBadge').classList.add('show');
+  }
+}
+
+function resetBuild() {
+  stepIdx = 0; drSum = 0; crSum = 0;
+  document.getElementById('buildRows').innerHTML =
+    '<div style="padding:24px;text-align:center;font-size:.85rem;color:#94a3b8">— accounts will appear here —</div>';
+  document.getElementById('drTotal').textContent = '—';
+  document.getElementById('crTotal').textContent = '—';
+  document.getElementById('balancedBadge').classList.remove('show');
+  document.getElementById('stepBtn').disabled = false;
+  document.getElementById('stepInfo').textContent = '0 of 12 accounts transferred';
+  document.querySelectorAll('.tacct').forEach(el => {
+    el.classList.remove('active-now', 'done');
+  });
+}
+
+// ── Quiz ──
+let quizBuilt = false, score = 0;
+
+const QUESTIONS = [
+  {
+    q: 'What is the primary purpose of a trial balance?',
+    correct: 'Verify that total debits equal total credits',
+    opts: ['Verify that total debits equal total credits', 'Prepare the financial statements directly',
+           'Calculate net income for the period', 'List only balance sheet accounts'],
+    exp: 'The trial balance proves the mathematical equality of debits and credits after all journal entries have been posted.'
+  },
+  {
+    q: 'An account with a debit normal balance appears in which column of the trial balance?',
+    correct: 'Debit column',
+    opts: ['Debit column', 'Credit column', 'Either column depending on the balance', 'It is not listed'],
+    exp: 'Accounts with a debit normal balance (Assets, Expenses, Dividends) always appear in the Debit column.'
+  },
+  {
+    q: "Pioneer's Cash account has total debits of $21,200 and total credits of $6,000. What appears on the trial balance?",
+    correct: '$15,200 in the Debit column',
+    opts: ['$15,200 in the Debit column', '$6,000 in the Credit column',
+           '$21,200 in the Debit column', '$15,200 in the Credit column'],
+    exp: 'Cash balance = $21,200 Dr − $6,000 Cr = $15,200 net debit. The net balance ($15,200) goes in the Debit column.'
+  },
+  {
+    q: 'The trial balance shows $28,700 on both sides. What can you conclude?',
+    correct: 'Mathematical equality of debits and credits is confirmed',
+    opts: ['Mathematical equality of debits and credits is confirmed',
+           'There are no errors anywhere in the records',
+           'Financial statements are ready to publish',
+           'All accounts have been adjusted'],
+    exp: 'A balanced trial balance only confirms math — it cannot detect errors like posting to the wrong account, duplicate entries, or omitted transactions.'
+  },
+  {
+    q: 'Which error WOULD cause a trial balance to be out of balance?',
+    correct: 'Debiting Cash $900 but crediting Rent Expense $9,000',
+    opts: ['Debiting Cash $900 but crediting Rent Expense $9,000',
+           'Debiting Supplies instead of Equipment for $2,500',
+           'Recording the same correct entry twice',
+           'Omitting an entire transaction'],
+    exp: 'A transposition ($900 vs $9,000) makes the debit and credit amounts unequal, so totals will not match. The other three errors keep debits = credits and escape detection.'
+  },
+  {
+    q: 'Service Revenue has a $10,000 credit balance. Where does it appear?',
+    correct: 'Credit column — $10,000',
+    opts: ['Credit column — $10,000', 'Debit column — $10,000',
+           'It only appears on the income statement, not the trial balance', 'Credit column — ($10,000)'],
+    exp: 'Revenue has a credit normal balance, so its $10,000 balance goes in the Credit column of the trial balance.'
+  },
+  {
+    q: 'What is an "unadjusted" trial balance?',
+    correct: 'A trial balance prepared before adjusting entries',
+    opts: ['A trial balance prepared before adjusting entries',
+           'A trial balance where debits do not equal credits',
+           'A trial balance prepared after closing entries',
+           'A trial balance that includes only balance sheet accounts'],
+    exp: 'The unadjusted trial balance is prepared after all regular journal entries are posted, but before the end-of-period adjusting entries for accruals and deferrals.'
+  },
+  {
+    q: 'Dividends (#332) is in the equity section but has a debit normal balance. Where does it appear on the trial balance?',
+    correct: 'Debit column',
+    opts: ['Debit column', 'Credit column, because all equity accounts are credit-normal',
+           'It does not appear on the unadjusted trial balance', 'Credit column as a negative number'],
+    exp: 'Dividends reduces equity, so its normal balance is a debit — it goes in the Debit column, even though it sits in the 300s (equity) range.'
+  },
+];
+
+function buildQuiz() {
+  quizBuilt = true;
+  const wrap = document.getElementById('quizWrap');
+  document.getElementById('total').textContent = QUESTIONS.length;
+  QUESTIONS.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML =
+      `<div class="q-num">Question ${qi+1} of ${QUESTIONS.length}</div>` +
+      `<div class="q-text">${q.q}</div>` +
+      `<div class="q-opts">${q.opts.map(o =>
+        `<button class="q-opt" onclick="answer(${qi}, this)">${o}</button>`
+      ).join('')}</div>` +
+      `<div class="q-explain" id="qe-${qi}"></div>`;
+    wrap.appendChild(card);
+  });
+}
+
+function answer(qi, btn) {
+  const card = btn.closest('.q-card');
+  if (card.dataset.done) return;
+  card.dataset.done = '1';
+  const q = QUESTIONS[qi];
+  const chosen = btn.textContent.trim();
+  card.querySelectorAll('.q-opt').forEach(b => {
+    b.disabled = true;
+    if (b.textContent.trim() === q.correct) b.classList.add('correct');
+    else b.classList.add('wrong');
+  });
+  const exp = document.getElementById('qe-' + qi);
+  exp.classList.add('show');
+  if (chosen === q.correct) {
+    score++;
+    exp.classList.add('ok');
+    exp.textContent = '✅ Correct! ' + q.exp;
+  } else {
+    exp.classList.add('bad');
+    exp.textContent = '❌ The answer is: ' + q.correct + '. ' + q.exp;
+  }
+  document.getElementById('score').textContent = score;
+}
+</script>
+</body>
+</html>
