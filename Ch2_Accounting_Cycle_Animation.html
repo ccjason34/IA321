@@ -262,7 +262,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; colo
     box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
   }
   .back-index-link:hover { background: #1d4ed8; }
-   (max-width: 640px) {
+  @media (max-width: 640px) {
     .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
   }
 </style>
@@ -950,9 +950,9 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; colo
 
   <!-- nav -->
   <div class="nav">
-    <button class="nbtn nbtn-prev" id="btnPrev" onclick="navigate(-1)">← Previous</button>
+    <button class="nbtn nbtn-prev" id="btnPrev" onclick="navigate(-1)">Previous</button>
     <div class="nav-ind" id="navInd">Introduction</div>
-    <button class="nbtn nbtn-next" id="btnNext" onclick="navigate(1)">Next →</button>
+    <button class="nbtn nbtn-next" id="btnNext" onclick="navigate(1)">Next</button>
   </div>
 </div><!-- end shell -->
 

@@ -196,7 +196,7 @@
     box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
   }
   .back-index-link:hover { background: #1d4ed8; }
-   (max-width: 640px) {
+  @media (max-width: 640px) {
     .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
   }
 </style>
@@ -270,7 +270,7 @@
   <div class="tab active" onclick="showTab(0)">1. Timing Difference</div>
   <div class="tab" onclick="showTab(1)">2. Present Value</div>
   <div class="tab" onclick="showTab(2)">3. Future Value</div>
-  <div class="tab" onclick="showTab(3)">4. Self-Check</div>
+  <div class="tab" onclick="showTab(3)">4. Self-Check (Ungraded)</div>
 </div>
 
 <div class="panel active" id="tab-0">
@@ -466,7 +466,7 @@
 </div>
 
 <div class="panel" id="tab-3">
-  <div class="sec-title">Practice: Ordinary Annuity vs Annuity Due</div>
+  <div class="sec-title">Practice (Ungraded): Ordinary Annuity vs Annuity Due</div>
   <div class="sec-sub">Check whether you can identify timing, value direction, and the shortcut factor.</div>
   <div class="score-line">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
   <div class="quiz-wrap" id="quizWrap"></div>
@@ -479,7 +479,7 @@
 </div>
 
 <script>
-const TABS = ['Timing Difference', 'Present Value', 'Future Value', 'Self-Check'];
+const TABS = ['Timing Difference', 'Present Value', 'Future Value', 'Self-Check (Ungraded)'];
 const PANEL_ORDER = ['tab-0', 'tab-2', 'tab-1', 'tab-3'];
 let cur = 0;
 function showTab(i) {

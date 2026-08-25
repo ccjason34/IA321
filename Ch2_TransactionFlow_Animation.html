@@ -148,7 +148,7 @@
     box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
   }
   .back-index-link:hover { background: #1d4ed8; }
-   (max-width: 640px) {
+  @media (max-width: 640px) {
     .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
   }
 </style>
@@ -282,7 +282,7 @@
 </div>
 
 <div class="nav-bar">
-  <button class="nav-btn prev" id="btnPrev" onclick="goTx(currentTx - 1)" disabled>← Previous</button>
+  <button class="nav-btn prev" id="btnPrev" onclick="goTx(currentTx - 1)" disabled>Previous</button>
   <span class="nav-ind" id="navInd">Transaction 1 of 4</span>
   <button class="nav-btn next-tx" id="btnNextTx" onclick="goTx(currentTx + 1)" disabled>Next Transaction →</button>
 </div>

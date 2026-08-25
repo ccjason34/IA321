@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Classified Balance Sheet | Kieso Ch. 3</title>
+<title>Classified Balance Sheet | Kieso Ch. 4</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; color: #1e293b; font-size: 16px; min-height: 100vh; }
@@ -184,7 +184,7 @@
     box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
   }
   .back-index-link:hover { background: #1d4ed8; }
-   (max-width: 640px) {
+  @media (max-width: 640px) {
     .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
   }
 </style>
@@ -251,14 +251,14 @@
 
 <div class="header">
   <h1>📑 Classified Balance Sheet</h1>
-  <p>Kieso, Weygandt &amp; Warfield · Intermediate Accounting 18th Ed. · Chapter 3 · Boc Apparel, Inc.</p>
+  <p>Kieso, Weygandt &amp; Warfield · Intermediate Accounting 18th Ed. · Chapter 4 · Boc Apparel, Inc.</p>
 </div>
 
 <div class="tabs">
   <div class="tab active" onclick="showTab(0)">① Why Classify?</div>
   <div class="tab"        onclick="showTab(1)">② Build the Classified BS</div>
   <div class="tab"        onclick="showTab(2)">③ Why It Matters</div>
-  <div class="tab"        onclick="showTab(3)">④ Self-Check</div>
+  <div class="tab"        onclick="showTab(3)">④ Self-Check (Ungraded)</div>
 </div>
 
 <!-- ═══════════════════════════
@@ -563,7 +563,7 @@
      TAB 3 — Quiz
 ═══════════════════════════ -->
 <div class="panel" id="tab-3">
-  <div class="sec-title">Practice — Classification &amp; Analysis</div>
+  <div class="sec-title">Practice (Ungraded) — Classification &amp; Analysis</div>
   <div class="sec-sub">Test your understanding of how items are classified and what the ratios reveal.</div>
   <div class="score-line">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
   <br>
@@ -572,13 +572,13 @@
 
 <!-- Nav -->
 <div class="nav-bar">
-  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>← Previous</button>
+  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>Previous</button>
   <span class="nav-ind" id="navInd">Tab 1 of 4</span>
-  <button class="nav-btn nxt"  id="btnNext" onclick="navigate(1)">Next →</button>
+  <button class="nav-btn nxt"  id="btnNext" onclick="navigate(1)">Next</button>
 </div>
 
 <script>
-const TABS = ['Why Classify?', 'Build the Classified BS', 'Why It Matters', 'Self-Check'];
+const TABS = ['Why Classify?', 'Build the Classified BS', 'Why It Matters', 'Self-Check (Ungraded)'];
 let cur = 0;
 function showTab(i) {
   document.querySelectorAll('.panel').forEach((p,j) => p.classList.toggle('active', j===i));

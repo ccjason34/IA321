@@ -220,7 +220,7 @@
     box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
   }
   .back-index-link:hover { background: #1d4ed8; }
-   (max-width: 640px) {
+  @media (max-width: 640px) {
     .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
   }
 </style>
@@ -295,7 +295,7 @@
   <button class="tab" role="tab" aria-selected="false" onclick="showTab(1)">2. Time Fraction</button>
   <button class="tab" role="tab" aria-selected="false" onclick="showTab(2)">3. Method Examples</button>
   <button class="tab" role="tab" aria-selected="false" onclick="showTab(3)">4. Journal Entry</button>
-  <button class="tab" role="tab" aria-selected="false" onclick="showTab(4)">5. Self-Check</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(4)">5. Self-Check (Ungraded)</button>
 </div>
 
 <div class="scenario-card">
@@ -308,7 +308,7 @@
     <div class="fact"><div class="label">Residual value</div><div class="value">$6,000</div><div class="hint">Estimated value at disposal</div></div>
     <div class="fact"><div class="label">Useful life</div><div class="value">6 years</div><div class="hint">Expected service life</div></div>
     <div class="fact"><div class="label">Service date</div><div class="value">Oct. 1</div><div class="hint">Depreciation starts when ready for use</div></div>
-    <div class="fact" id="factFraction"><div class="label">Q · Year 1 fraction</div><div class="value pending" id="factFractionVal">?</div><div class="hint">to be computed in Tab 2</div></div>
+    <div class="fact" id="factFraction"><div class="label">Q · Year 1 fraction</div><div class="value pending" id="factFractionVal">?</div><div class="hint">to be computed in Time Fraction</div></div>
   </div>
 </div>
 

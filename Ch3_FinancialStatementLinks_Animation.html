@@ -208,7 +208,7 @@
     box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
   }
   .back-index-link:hover { background: #1d4ed8; }
-   (max-width: 640px) {
+  @media (max-width: 640px) {
     .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
   }
 </style>
@@ -282,7 +282,7 @@
   <div class="tab active" onclick="showTab(0)">① The Big Picture</div>
   <div class="tab"        onclick="showTab(1)">② Follow the Numbers</div>
   <div class="tab"        onclick="showTab(2)">③ All Together</div>
-  <div class="tab"        onclick="showTab(3)">④ Self-Check</div>
+  <div class="tab"        onclick="showTab(3)">④ Self-Check (Ungraded)</div>
 </div>
 
 <!-- ═══════════════════════════
@@ -386,7 +386,7 @@
         Subtracting total expenses from total revenues gives us <strong>Net Income: $4,050</strong>.
       </div>
       <div class="step-side-ctrl">
-        <button class="sc-btn sc-next" id="scNext" onclick="goStep(currentStep+1)">Next →</button>
+        <button class="sc-btn sc-next" id="scNext" onclick="goStep(currentStep+1)">Next</button>
         <button class="sc-btn sc-prev" id="scPrev" onclick="goStep(currentStep-1)" disabled>← Back</button>
       </div>
     </div>
@@ -564,7 +564,7 @@
      TAB 3 — Quiz
 ═══════════════════════════ -->
 <div class="panel" id="tab-3">
-  <div class="sec-title">Practice — Statement Linkages</div>
+  <div class="sec-title">Practice (Ungraded) — Statement Linkages</div>
   <div class="sec-sub">Test your understanding of how the financial statements connect.</div>
   <div class="score-line">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
   <br>
@@ -573,14 +573,14 @@
 
 <!-- Nav -->
 <div class="nav-bar">
-  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>← Previous</button>
+  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>Previous</button>
   <span class="nav-ind" id="navInd">Tab 1 of 4</span>
-  <button class="nav-btn nxt"  id="btnNext" onclick="navigate(1)">Next →</button>
+  <button class="nav-btn nxt"  id="btnNext" onclick="navigate(1)">Next</button>
 </div>
 
 <script>
 // ── Tabs ──
-const TABS = ['The Big Picture', 'Follow the Numbers', 'All Together', 'Self-Check'];
+const TABS = ['The Big Picture', 'Follow the Numbers', 'All Together', 'Self-Check (Ungraded)'];
 let cur = 0;
 function showTab(i) {
   document.querySelectorAll('.panel').forEach((p,j) => p.classList.toggle('active', j===i));

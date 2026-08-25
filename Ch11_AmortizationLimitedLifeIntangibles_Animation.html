@@ -172,7 +172,7 @@
     box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
   }
   .back-index-link:hover { background: #1d4ed8; }
-   (max-width: 640px) {
+  @media (max-width: 640px) {
     .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
   }
 </style>
@@ -246,7 +246,7 @@
   <button class="tab active" role="tab" aria-selected="true" onclick="showTab(0)">1. Life Test</button>
   <button class="tab" role="tab" aria-selected="false" onclick="showTab(1)">2. Limited-Life Amortization</button>
   <button class="tab" role="tab" aria-selected="false" onclick="showTab(2)">3. Indefinite-Life: No Amortization</button>
-  <button class="tab" role="tab" aria-selected="false" onclick="showTab(3)">4. Self-Check</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(3)">4. Self-Check (Ungraded)</button>
 </div>
 
 <div class="scenario-card">
@@ -258,8 +258,8 @@
     <div class="fact"><div class="label">Patent cost</div><div class="value">$120,000</div><div class="hint">Capitalized at acquisition</div></div>
     <div class="fact"><div class="label">Residual value</div><div class="value">$0</div><div class="hint">Typical for intangibles</div></div>
     <div class="fact"><div class="label">Useful life</div><div class="value">6 years</div><div class="hint">Lesser of useful or legal life</div></div>
-    <div class="fact" id="factAnnual"><div class="label">Q1 · Annual amort.</div><div class="value pending" id="factAnnualVal">?</div><div class="hint">to be computed in Tab 2</div></div>
-    <div class="fact" id="factEndBV"><div class="label">Q2 · Year 1 end BV</div><div class="value pending" id="factEndBVVal">?</div><div class="hint">to be computed in Tab 2</div></div>
+    <div class="fact" id="factAnnual"><div class="label">Q1 · Annual amort.</div><div class="value pending" id="factAnnualVal">?</div><div class="hint">to be computed in Limited-Life Amortization</div></div>
+    <div class="fact" id="factEndBV"><div class="label">Q2 · Year 1 end BV</div><div class="value pending" id="factEndBVVal">?</div><div class="hint">to be computed in Limited-Life Amortization</div></div>
   </div>
 </div>
 

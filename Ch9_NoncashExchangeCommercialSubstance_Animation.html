@@ -215,7 +215,7 @@
     box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
   }
   .back-index-link:hover { background: #1d4ed8; }
-   (max-width: 640px) {
+  @media (max-width: 640px) {
     .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
   }
 </style>
@@ -289,7 +289,7 @@
   <button class="tab active" role="tab" aria-selected="true" onclick="showTab(0)">1. The Rule</button>
   <button class="tab" role="tab" aria-selected="false" onclick="showTab(1)">2. Measure Gain</button>
   <button class="tab" role="tab" aria-selected="false" onclick="showTab(2)">3. Journal Entry</button>
-  <button class="tab" role="tab" aria-selected="false" onclick="showTab(3)">4. Self-Check</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(3)">4. Self-Check (Ungraded)</button>
 </div>
 
 <div class="scenario-card">
@@ -321,7 +321,7 @@
     <div class="fact" id="factNewFv">
       <div class="label">Q · Recorded cost of new eq.</div>
       <div class="value pending" id="factNewFvVal">?</div>
-      <div class="hint">to be computed in Tab 2</div>
+      <div class="hint">to be computed in Measure Gain</div>
     </div>
   </div>
 </div>
@@ -377,7 +377,7 @@
       <div class="asset-line"><span>Cash paid</span><strong>$25,000</strong></div>
       <div class="asset-line"><span>Recorded cost</span><strong>?</strong></div>
       <div class="asset-line"><span>Gain recognized</span><strong>?</strong></div>
-      <div class="asset-line" style="margin-top:6px; color:#0f766e; font-weight:900">→ Compute in Tab 2</div>
+      <div class="asset-line" style="margin-top:6px; color:#0f766e; font-weight:900">→ Compute in Measure Gain</div>
     </div>
   </div>
 

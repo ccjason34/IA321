@@ -376,7 +376,7 @@
     box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
   }
   .back-index-link:hover { background: #1d4ed8; }
-   (max-width: 640px) {
+  @media (max-width: 640px) {
     .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
   }
 </style>
@@ -606,7 +606,7 @@
     <div class="ki-label">🔑 Key Insight</div>
     <div class="ki-main">
       <strong>Notice what just happened:</strong> The sale did not move any layers. Under periodic, the dates of sales do not matter,
-      only the totals at month-end. Boc could have sold all 18 on May 1, all 18 on May 31, or in five separate sales.
+      only the totals at month-end. Boc could have sold all 18 after the May 15 purchase, all 18 on May 31, or in five separate sales.
       The COGS answer would be exactly the same.
     </div>
   </div>
@@ -740,7 +740,7 @@
     Same 18 units. Same $360 pool. Three different answers — entirely because of <em>which</em> units we say went out the door.
     <br><br>
     <strong>Periodic insight:</strong> Under periodic, sale dates are irrelevant — periodic does not care if a sale was on May 10 or May 28.
-    It just totals the units sold and applies the cost flow rule once. Compare to Tab 3: under perpetual, dates matter for LIFO.
+    It just totals the units sold and applies the cost flow rule once. Compare with FIFO vs LIFO (perpetual): under perpetual, dates matter for LIFO.
   </div>
 
   <div class="what-if-panel" id="saleDateWhatIf">
@@ -764,7 +764,7 @@
         <div class="same-badge">Same periodic results</div>
       </div>
       <div class="what-if-card">
-        <div class="schedule">All 18 sold on May 1<br><span style="opacity:.82">Weird but legal</span></div>
+        <div class="schedule">All 18 sold on May 20<br><span style="opacity:.82">After enough units exist</span></div>
         <table>
           <thead><tr><th>FIFO</th><th>LIFO</th><th>Avg</th></tr></thead>
           <tbody><tr><td>$196</td><td>$236</td><td>$216</td></tr></tbody>
@@ -794,7 +794,7 @@
   </div>
 
   <div style="font-size:.84rem;color:#475569;font-weight:700;line-height:1.6;margin:6px 0 14px">
-    Same total: <strong>30 units bought, 18 sold, 12 left</strong>. The only difference from Tab 2 is that we now have
+    Same total: <strong>30 units bought, 18 sold, 12 left</strong>. The only difference from the periodic tab is that we now have
     <strong>two sale events</strong> (6 + 12 = 18) instead of one big one at month-end. Watch why FIFO matches periodic but LIFO does not.
   </div>
 
@@ -1063,9 +1063,9 @@
 </div>
 
 <div class="nav-bar">
-  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>← Previous</button>
+  <button class="nav-btn prev" id="btnPrev" onclick="navigate(-1)" disabled>Previous</button>
   <span class="nav-ind" id="navInd">Tab 1 of 4 — The Setup</span>
-  <button class="nav-btn nxt" id="btnNext" onclick="navigate(1)">Next →</button>
+  <button class="nav-btn nxt" id="btnNext" onclick="navigate(1)">Next</button>
 </div>
 
 <script>
