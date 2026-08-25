@@ -78,26 +78,53 @@
     box-shadow: 0 4px 16px rgba(15, 23, 42, .06);
   }
   .card {
-    display: block; text-decoration: none; color: inherit;
-    background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px;
-    padding: 14px 15px; transition: all .18s;
+    display: flex; flex-direction: column; text-decoration: none; color: inherit;
+    min-height: 156px;
+    background: #ffffff; border: 2px solid #bfdbfe; border-radius: 12px;
+    padding: 15px 15px 14px; transition: all .18s;
     position: relative; overflow: hidden;
   }
   .card::before {
     content: ""; position: absolute; left: 0; top: 0; bottom: 0;
-    width: 4px; background: #3b82f6; opacity: .3; transition: opacity .18s;
+    width: 5px; background: linear-gradient(180deg, #2563eb, #0f766e); opacity: .75; transition: opacity .18s;
+  }
+  .card::after {
+    content: "▶ Start Animation";
+    display: inline-flex; align-items: center; justify-content: center;
+    align-self: flex-start;
+    margin-top: auto;
+    padding: 8px 13px;
+    background: linear-gradient(135deg, #2563eb, #0f766e);
+    color: white;
+    border-radius: 999px;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, .24);
+    font-size: .72rem;
+    font-weight: 950;
+    letter-spacing: .45px;
+    text-transform: uppercase;
+    transition: transform .18s, box-shadow .18s, background .18s;
   }
   .card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 22px rgba(15, 23, 42, .12);
-    border-color: #3b82f6;
-    background: white;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, .15);
+    border-color: #2563eb;
+    background: #f8fbff;
   }
   .card:hover::before { opacity: 1; }
-  .card-title { font-weight: 900; color: #0f172a; font-size: .98rem; line-height: 1.35; margin-bottom: 6px; }
-  .card-desc { color: #475569; font-size: .82rem; font-weight: 700; line-height: 1.45; }
+  .card:hover::after {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px rgba(37, 99, 235, .32);
+    background: linear-gradient(135deg, #1d4ed8, #047857);
+  }
+  .card:focus-visible {
+    outline: 4px solid rgba(37, 99, 235, .26);
+    outline-offset: 3px;
+    border-color: #2563eb;
+  }
+  .card-title { font-weight: 900; color: #0f172a; font-size: .98rem; line-height: 1.35; margin-bottom: 6px; padding-left: 2px; }
+  .card-desc { color: #475569; font-size: .82rem; font-weight: 700; line-height: 1.45; margin-bottom: 10px; }
   .card-tag {
-    display: inline-block; margin-top: 8px;
+    display: inline-block; align-self: flex-start; margin-bottom: 12px;
     font-size: .68rem; font-weight: 900; color: #64748b;
     text-transform: uppercase; letter-spacing: .55px;
     padding: 2px 8px; background: #e2e8f0; border-radius: 999px;
