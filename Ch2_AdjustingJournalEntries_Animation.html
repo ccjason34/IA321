@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adjusting Journal Entries | Kieso Ch. 2</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f1f5f9;
+    color: #1e293b;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-size: 16px;
+    min-height: 100vh;
+    padding-bottom: 76px;
+  }
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.22rem; font-weight: 800; letter-spacing: 0; }
+  .header p { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab {
+    padding: 11px 18px;
+    font-size: .88rem;
+    font-weight: 700;
+    color: #64748b;
+    cursor: pointer;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: all .2s;
+    background: transparent;
+    font-family: inherit;
+  }
+  .tab:hover { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+  .panel { display: none; max-width: 1080px; margin: 0 auto; padding: 22px 16px 92px; }
+  .panel.active { display: block; }
+  .sec-title { font-size: 1.34rem; font-weight: 800; margin-bottom: 8px; }
+  .sec-sub { font-size: .96rem; color: #475569; margin-bottom: 18px; line-height: 1.65; max-width: 940px; }
+
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+
+  .rule-box {
+    background: linear-gradient(135deg, #dbeafe, #ecfdf5);
+    border: 2px solid #2563eb;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    color: #1e3a8a;
+    font-size: .94rem;
+    line-height: 1.6;
+    font-weight: 760;
+  }
+  .rule-box strong { color: #1d4ed8; font-weight: 900; }
+  .cash-warning {
+    background: #fffbeb;
+    border: 3px solid #f59e0b;
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin: 0 0 18px;
+    color: #78350f;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, .15);
+    text-align: center;
+    font-weight: 900;
+  }
+  .cash-warning span {
+    display: block;
+    margin-top: 4px;
+    font-size: .86rem;
+    font-weight: 760;
+    color: #92400e;
+  }
+
+  .flow { display: grid; grid-template-columns: 1fr 36px 1fr 36px 1fr; gap: 8px; margin-bottom: 18px; align-items: stretch; }
+  .flow-card { background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 14px; box-shadow: 0 3px 12px rgba(0,0,0,.06); text-align: center; }
+  .flow-card.highlight { background: #fef3c7; border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.14), 0 3px 12px rgba(0,0,0,.06); }
+  .flow-label { color: #64748b; font-size: .72rem; text-transform: uppercase; letter-spacing: .55px; font-weight: 900; margin-bottom: 5px; }
+  .flow-main { color: #0f172a; font-size: 1.02rem; font-weight: 900; }
+  .flow-sub { color: #64748b; font-size: .8rem; font-weight: 730; line-height: 1.35; margin-top: 5px; }
+  .flow-op { display: flex; align-items: center; justify-content: center; color: #64748b; font-weight: 900; }
+
+  .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
+  .card { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border: 1px solid #e2e8f0; }
+  .card-h { background: #1e293b; color: white; padding: 12px 15px; font-weight: 900; font-size: .9rem; }
+  .card-b { padding: 14px 16px; color: #475569; font-size: .88rem; line-height: 1.55; font-weight: 730; }
+  .type-card { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border-top: 5px solid #cbd5e1; }
+  .type-card.prepaid { border-top-color: #2563eb; }
+  .type-card.unearned { border-top-color: #f59e0b; }
+  .type-card.accrued-rev { border-top-color: #16a34a; }
+  .type-card.accrued-exp { border-top-color: #ef4444; }
+  .type-card .h { padding: 12px 14px 7px; color: #0f172a; font-size: .92rem; font-weight: 900; }
+  .type-card .b { padding: 0 14px 14px; color: #475569; font-size: .84rem; line-height: 1.5; font-weight: 730; }
+  .pattern { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; margin-top: 8px; font-family: ui-monospace, Menlo, Consolas, monospace; color: #1e293b; font-size: .78rem; font-weight: 900; line-height: 1.45; }
+  .pattern .dr { color: #1d4ed8; }
+  .pattern .cr { color: #b45309; }
+
+  .selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+  .scenario {
+    border: 2px solid #e2e8f0;
+    background: white;
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: .16s;
+    text-align: left;
+    font-family: inherit;
+  }
+  .scenario:hover { border-color: #3b82f6; background: #eff6ff; }
+  .scenario.active { border-color: #f59e0b; background: #fffbeb; box-shadow: 0 0 0 3px rgba(245,158,11,.14); }
+  .scenario .label { color: #64748b; font-size: .68rem; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .scenario .text { color: #0f172a; font-weight: 850; line-height: 1.35; font-size: .86rem; }
+
+  .step-ctrl { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; margin: 0 0 14px; }
+  .sc-btn { padding: 10px 20px; border-radius: 9px; border: none; font-weight: 800; font-size: .85rem; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .sc-step { background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; font-weight: 900; padding: 13px 24px; min-width: 250px; box-shadow: 0 4px 14px rgba(245,158,11,.38); animation: stepPulse 1.6s ease-in-out infinite; }
+  .sc-step:hover:not(:disabled) { background: linear-gradient(135deg, #d97706, #dc2626); transform: translateY(-1px); }
+  .sc-step:disabled { animation: none; box-shadow: none; background: #94a3b8; }
+  .sc-reset { background: #475569; color: white; padding: 9px 18px; font-size: .82rem; }
+  .sc-reset:hover { background: #334155; }
+  .sc-btn:disabled { opacity: .58; cursor: default; }
+  @keyframes stepPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(245,158,11,.38); }
+    50% { box-shadow: 0 4px 20px rgba(239,68,68,.66), 0 0 0 4px rgba(245,158,11,.16); }
+  }
+
+  .status-card { background: white; border-radius: 10px; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); margin-bottom: 14px; font-size: .92rem; color: #334155; line-height: 1.6; border-left: 4px solid #3b82f6; min-height: 64px; }
+  .status-card strong { color: #1e293b; }
+  .status-card .hi { display: inline-block; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 6px; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; }
+
+  .progress-pills { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-bottom: 14px; }
+  .pill { border: 2px solid #e2e8f0; border-radius: 8px; padding: 8px 5px; text-align: center; font-size: .72rem; color: #64748b; font-weight: 850; background: white; }
+  .pill.active { border-color: #f59e0b; background: #fef3c7; color: #92400e; }
+  .pill.done { border-color: #16a34a; background: #dcfce7; color: #15803d; }
+
+  .builder-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: 14px; align-items: start; }
+  .work-card { background: white; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); overflow: hidden; border: 1px solid #e2e8f0; }
+  .work-h { background: #0f766e; color: white; padding: 12px 15px; font-weight: 900; font-size: .9rem; }
+  .work-b { padding: 14px 16px; }
+  .analysis-list { display: grid; gap: 9px; }
+  .analysis-row { display: grid; grid-template-columns: 120px 1fr; gap: 10px; border: 2px solid #e2e8f0; border-radius: 10px; background: #f8fafc; padding: 10px 12px; opacity: .28; transition: .2s; }
+  .analysis-row.active { opacity: 1; background: #fef3c7; border-color: #f59e0b; }
+  .analysis-row.done { opacity: 1; background: #f0fdf4; border-color: #86efac; }
+  .analysis-key { color: #64748b; font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
+  .analysis-text { color: #334155; font-size: .88rem; line-height: 1.45; font-weight: 750; }
+  .analysis-text strong { color: #0f172a; }
+
+  .journal { width: 100%; border-collapse: collapse; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .86rem; }
+  .journal th { background: #f8fafc; color: #64748b; text-align: left; padding: 8px; font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; }
+  .journal th.dr, .journal th.cr, .journal td.dr, .journal td.cr { text-align: right; width: 100px; }
+  .journal td { padding: 8px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+  .journal tr.hidden { opacity: .2; }
+  .journal tr.active td { background: #fef3c7; }
+  .journal tr.done td { background: #f0fdf4; }
+  .journal .indent { padding-left: 28px; }
+  .journal .dr, .journal .cr { color: #0f172a; font-weight: 900; white-space: nowrap; }
+
+  .tgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  .tacct { border: 2px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #f8fafc; opacity: .25; transition: .2s; }
+  .tacct.show { opacity: 1; }
+  .tacct-h { background: #334155; color: white; padding: 8px 10px; text-align: center; font-size: .78rem; font-weight: 900; }
+  .tacct-body { display: grid; grid-template-columns: 1fr 1fr; min-height: 90px; }
+  .tcol { padding: 8px; font-size: .78rem; border-right: 1px solid #e2e8f0; }
+  .tcol:last-child { border-right: none; }
+  .side-label { font-weight: 900; color: #94a3b8; text-transform: uppercase; font-size: .65rem; margin-bottom: 5px; }
+  .entry-line { display: flex; justify-content: space-between; gap: 6px; color: #475569; padding: 2px 0; font-weight: 760; }
+  .entry-line.hot { color: #b45309; font-weight: 900; }
+
+  .effect-box { background: #eff6ff; border: 2px solid #93c5fd; border-radius: 12px; padding: 12px 14px; margin-top: 14px; color: #1e3a8a; font-size: .86rem; line-height: 1.5; font-weight: 760; display: none; }
+  .effect-box.show { display: block; animation: fadeIn .25s ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .takeaway { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 2px solid #16a34a; border-radius: 12px; padding: 14px 18px; margin-top: 16px; font-size: .92rem; color: #14532d; line-height: 1.6; }
+  .takeaway strong { color: #166534; }
+  .warning { background: #fff7ed; border-left: 5px solid #f59e0b; border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 14px 0; color: #7c2d12; font-size: .9rem; line-height: 1.55; }
+  .warning strong { color: #9a3412; }
+
+  .quiz-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .score { background: white; border-radius: 10px; padding: 12px 16px; box-shadow: 0 2px 8px rgba(0,0,0,.07); font-weight: 900; color: #1e293b; margin-bottom: 14px; }
+  .q-card { background: white; border-radius: 12px; padding: 15px 17px; box-shadow: 0 2px 8px rgba(0,0,0,.07); border: 1px solid #e2e8f0; }
+  .q-num { font-size: .72rem; color: #64748b; font-weight: 900; text-transform: uppercase; letter-spacing: .55px; margin-bottom: 6px; }
+  .q-text { font-weight: 850; color: #1e293b; margin-bottom: 11px; line-height: 1.45; }
+  .q-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .q-opt { border: 2px solid #e2e8f0; background: #f8fafc; color: #334155; border-radius: 8px; padding: 9px 12px; font-size: .84rem; font-weight: 850; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .q-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .q-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+  .q-opt:disabled { cursor: default; }
+  .explain { display: none; margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #f8fafc; color: #475569; font-size: .84rem; line-height: 1.55; font-weight: 700; }
+  .explain.show { display: block; }
+
+  .nav {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child { justify-self: start; background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child { justify-self: end; background: #2563eb !important; color: white !important; }
+  .nav > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+
+  @media (max-width: 900px) {
+    .grid-4, .selector, .builder-grid { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 700px) {
+    .flow { grid-template-columns: 1fr; }
+    .flow-op { display: none; }
+    .progress-pills { grid-template-columns: 1fr 1fr; }
+    .analysis-row { grid-template-columns: 1fr; gap: 5px; }
+    .tgrid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+    .nav {
+      grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important;
+      gap: 6px !important;
+      padding: 9px 10px !important;
+    }
+    .nav > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>Adjusting Journal Entries</h1>
+  <p>Kieso, Weygandt &amp; Warfield &middot; Intermediate Accounting 18th Ed. &middot; Chapter 2 &middot; Period-End Adjustments</p>
+</div>
+
+<div class="tabs" role="tablist" aria-label="Adjusting journal entry lesson tabs">
+  <button class="tab active" role="tab" aria-selected="true" onclick="showTab(0)">1. Why Adjust?</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(1)">2. Four Types</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(2)">3. Build the Entry</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(3)">4. Self-Check</button>
+</div>
+
+<section class="panel active">
+  <div class="sec-title">Adjusting Entries Update Accounts Before Financial Statements</div>
+  <div class="sec-sub">
+    Adjusting entries are recorded at the end of the period so revenues are reported when earned and expenses are reported when incurred.
+    They connect the unadjusted trial balance to the adjusted trial balance.
+  </div>
+
+  <div class="cash-warning">
+    Adjusting entries usually do not debit or credit Cash.
+    <span>Cash was received or paid earlier, or it will be received or paid later. The adjustment fixes the timing for revenue and expense.</span>
+  </div>
+
+  <div class="flow">
+    <div class="flow-card">
+      <div class="flow-label">Before adjustment</div>
+      <div class="flow-main">Unadjusted trial balance</div>
+      <div class="flow-sub">Accounts are recorded, but some period-end amounts are missing.</div>
+    </div>
+    <div class="flow-op">then</div>
+    <div class="flow-card highlight">
+      <div class="flow-label">Period-end step</div>
+      <div class="flow-main">Adjusting entries</div>
+      <div class="flow-sub">Update assets, liabilities, revenues, and expenses.</div>
+    </div>
+    <div class="flow-op">then</div>
+    <div class="flow-card">
+      <div class="flow-label">After adjustment</div>
+      <div class="flow-main">Adjusted trial balance</div>
+      <div class="flow-sub">Balances are ready for the financial statements.</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-h">Accrual Accounting Question</div>
+      <div class="card-b">
+        Ask two questions at the end of the period:
+        <br><br>
+        <strong>1. What revenue has been earned?</strong>
+        <br>
+        <strong>2. What expense has been incurred?</strong>
+        <br><br>
+        If the books do not yet show the correct amount, record an adjusting entry.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h">The Two-Sided Pattern</div>
+      <div class="card-b">
+        Every adjusting entry changes one income statement account and one balance sheet account.
+        <div class="pattern">
+          Income statement side: Revenue or Expense<br>
+          Balance sheet side: Asset or Liability
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <strong>Memory hook:</strong> At period-end, adjust for what has been earned, used, owed, or receivable.
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">The Four Common Adjusting Entry Types</div>
+  <div class="sec-sub">
+    Most beginner adjusting entries fit one of these four patterns. The account names change, but the logic stays the same.
+  </div>
+
+  <div class="grid-4">
+    <div class="type-card prepaid">
+      <div class="h">Prepaid Expense Used</div>
+      <div class="b">
+        The company paid before using the benefit. At period-end, move the used part from asset to expense.
+        <div class="pattern"><span class="dr">Dr Expense</span><br><span class="cr">Cr Prepaid Asset</span></div>
+      </div>
+    </div>
+    <div class="type-card unearned">
+      <div class="h">Unearned Revenue Earned</div>
+      <div class="b">
+        The customer paid before the company earned revenue. At period-end, move the earned part from liability to revenue.
+        <div class="pattern"><span class="dr">Dr Unearned Revenue</span><br><span class="cr">Cr Revenue</span></div>
+      </div>
+    </div>
+    <div class="type-card accrued-rev">
+      <div class="h">Accrued Revenue</div>
+      <div class="b">
+        The company earned revenue but has not billed or collected cash yet. Record the receivable and revenue.
+        <div class="pattern"><span class="dr">Dr Accounts Receivable</span><br><span class="cr">Cr Revenue</span></div>
+      </div>
+    </div>
+    <div class="type-card accrued-exp">
+      <div class="h">Accrued Expense</div>
+      <div class="b">
+        The company incurred an expense but has not paid cash yet. Record the expense and the liability.
+        <div class="pattern"><span class="dr">Dr Expense</span><br><span class="cr">Cr Payable</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warning">
+    <strong>Do not let the word "paid" trick you:</strong> adjusting entries focus on the part that belongs in this period.
+    They are not normal cash receipt or cash payment entries.
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Build the Adjusting Entry Step by Step</div>
+  <div class="sec-sub">
+    Choose a period-end situation, then reveal the adjusting logic. The T-accounts show what the adjustment changes.
+  </div>
+
+  <div class="selector">
+    <button class="scenario active" onclick="chooseCase(0)">
+      <div class="label">Prepaid</div>
+      <div class="text">Three months of insurance expired.</div>
+    </button>
+    <button class="scenario" onclick="chooseCase(1)">
+      <div class="label">Unearned</div>
+      <div class="text">One month of service has been earned.</div>
+    </button>
+    <button class="scenario" onclick="chooseCase(2)">
+      <div class="label">Accrued revenue</div>
+      <div class="text">Services were performed but not billed.</div>
+    </button>
+    <button class="scenario" onclick="chooseCase(3)">
+      <div class="label">Accrued expense</div>
+      <div class="text">Employees earned wages not yet paid.</div>
+    </button>
+  </div>
+
+  <div class="progress-pills">
+    <div class="pill active" id="pill0">Question</div>
+    <div class="pill" id="pill1">Amount</div>
+    <div class="pill" id="pill2">Debit</div>
+    <div class="pill" id="pill3">Credit</div>
+    <div class="pill" id="pill4">Effect</div>
+  </div>
+
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="buildBtn" onclick="nextBuild()">Show Period-End Question</button>
+    <button class="sc-btn sc-reset" onclick="resetBuild()">Reset</button>
+  </div>
+
+  <div class="status-card" id="buildStatus">
+    <strong>Ready.</strong> Pick a case, then reveal the adjustment one step at a time.
+  </div>
+
+  <div class="builder-grid">
+    <div class="work-card">
+      <div class="work-h" id="caseTitle">Prepaid Insurance</div>
+      <div class="work-b">
+        <div class="analysis-list">
+          <div class="analysis-row" id="row0"><div class="analysis-key">Question</div><div class="analysis-text" id="text0"></div></div>
+          <div class="analysis-row" id="row1"><div class="analysis-key">Amount</div><div class="analysis-text" id="text1"></div></div>
+          <div class="analysis-row" id="row2"><div class="analysis-key">Debit</div><div class="analysis-text" id="text2"></div></div>
+          <div class="analysis-row" id="row3"><div class="analysis-key">Credit</div><div class="analysis-text" id="text3"></div></div>
+          <div class="analysis-row" id="row4"><div class="analysis-key">Effect</div><div class="analysis-text" id="text4"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="work-card">
+      <div class="work-h">Journal Entry and T-Accounts</div>
+      <div class="work-b">
+        <table class="journal">
+          <thead><tr><th>Account</th><th class="dr">Debit</th><th class="cr">Credit</th></tr></thead>
+          <tbody id="journalBody"></tbody>
+        </table>
+
+        <div class="tgrid">
+          <div class="tacct" id="tAcctDebit">
+            <div class="tacct-h" id="tDebitTitle">Debit Account</div>
+            <div class="tacct-body">
+              <div class="tcol">
+                <div class="side-label">Debit</div>
+                <div id="tDebitLeft"></div>
+              </div>
+              <div class="tcol">
+                <div class="side-label">Credit</div>
+                <div id="tDebitRight"></div>
+              </div>
+            </div>
+          </div>
+          <div class="tacct" id="tAcctCredit">
+            <div class="tacct-h" id="tCreditTitle">Credit Account</div>
+            <div class="tacct-body">
+              <div class="tcol">
+                <div class="side-label">Debit</div>
+                <div id="tCreditLeft"></div>
+              </div>
+              <div class="tcol">
+                <div class="side-label">Credit</div>
+                <div id="tCreditRight"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="effect-box" id="effectBox"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <strong>Student habit:</strong> first ask what belongs in this period, then decide which asset or liability must be updated.
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Check Your Understanding</div>
+  <div class="sec-sub">Use these as self-check questions. They are for practice only.</div>
+  <div class="score">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</section>
+
+<div class="nav">
+  <button id="btnPrev" onclick="prevTab()">Previous</button>
+  <span class="nav-ind" id="navInd"></span>
+  <button id="btnNext" onclick="nextTab()">Next</button>
+</div>
+
+<script>
+const tabs = Array.from(document.querySelectorAll('.tab'));
+const panels = Array.from(document.querySelectorAll('.panel'));
+let currentTab = 0;
+let quizBuilt = false;
+
+function showTab(i) {
+  currentTab = Math.max(0, Math.min(i, panels.length - 1));
+  panels.forEach((panel, idx) => panel.classList.toggle('active', idx === currentTab));
+  tabs.forEach((tab, idx) => {
+    tab.classList.toggle('active', idx === currentTab);
+    tab.setAttribute('aria-selected', idx === currentTab ? 'true' : 'false');
+  });
+  updateBottomNav();
+  if (currentTab === 3 && !quizBuilt) buildQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateBottomNav() {
+  const label = tabs[currentTab].textContent.trim().replace(/^\d+\.\s*/, '');
+  document.getElementById('navInd').textContent = 'Tab ' + (currentTab + 1) + ' of ' + panels.length + ' - ' + label;
+  document.getElementById('btnPrev').disabled = currentTab === 0;
+  document.getElementById('btnNext').disabled = currentTab === panels.length - 1;
+}
+
+function nextTab() { showTab(currentTab + 1); }
+function prevTab() { showTab(currentTab - 1); }
+
+function money(n) { return '$' + n.toLocaleString('en-US'); }
+
+const cases = [
+  {
+    title: 'Prepaid Insurance',
+    prompt: 'On October 1, Boc paid $6,000 for six months of insurance. At December 31, three months have expired.',
+    steps: [
+      '<strong>Question:</strong> What part of the prepaid asset was used this period?',
+      '<strong>Amount:</strong> $6,000 / 6 months x 3 months = <span class="hi">$3,000</span> expired.',
+      '<strong>Debit:</strong> Insurance Expense increases because insurance was used.',
+      '<strong>Credit:</strong> Prepaid Insurance decreases because part of the asset is gone.',
+      '<strong>Effect:</strong> Expense increases and the asset decreases. No cash changes hands now.'
+    ],
+    debit: 'Insurance Expense',
+    credit: 'Prepaid Insurance',
+    amount: 3000,
+    debitSide: 'left',
+    creditSide: 'right',
+    effect: 'The adjustment moves $3,000 from the balance sheet to the income statement: asset down, expense up.'
+  },
+  {
+    title: 'Unearned Service Revenue',
+    prompt: 'Boc received $4,800 in advance for four months of service. By December 31, one month has been provided.',
+    steps: [
+      '<strong>Question:</strong> What part of the liability has now been earned?',
+      '<strong>Amount:</strong> $4,800 / 4 months x 1 month = <span class="hi">$1,200</span> earned.',
+      '<strong>Debit:</strong> Unearned Service Revenue decreases because Boc no longer owes that service.',
+      '<strong>Credit:</strong> Service Revenue increases because revenue has been earned.',
+      '<strong>Effect:</strong> Liability decreases and revenue increases. The cash was received earlier.'
+    ],
+    debit: 'Unearned Service Revenue',
+    credit: 'Service Revenue',
+    amount: 1200,
+    debitSide: 'left',
+    creditSide: 'right',
+    effect: 'The adjustment moves $1,200 from liability to revenue because that part of the service is complete.'
+  },
+  {
+    title: 'Accrued Revenue',
+    prompt: 'Boc performed $2,000 of services for a customer but has not yet billed or collected cash.',
+    steps: [
+      '<strong>Question:</strong> What revenue has been earned but not yet recorded?',
+      '<strong>Amount:</strong> The earned but unrecorded service revenue is <span class="hi">$2,000</span>.',
+      '<strong>Debit:</strong> Accounts Receivable increases because the customer owes Boc.',
+      '<strong>Credit:</strong> Service Revenue increases because Boc earned the revenue.',
+      '<strong>Effect:</strong> Asset increases and revenue increases. Cash will be collected later.'
+    ],
+    debit: 'Accounts Receivable',
+    credit: 'Service Revenue',
+    amount: 2000,
+    debitSide: 'left',
+    creditSide: 'right',
+    effect: 'The adjustment records revenue in the period earned, even though the customer will pay later.'
+  },
+  {
+    title: 'Accrued Salaries Expense',
+    prompt: 'Employees earned $1,500 of salaries by December 31. The company will pay them next period.',
+    steps: [
+      '<strong>Question:</strong> What expense has been incurred but not yet paid or recorded?',
+      '<strong>Amount:</strong> The unpaid salary earned by employees is <span class="hi">$1,500</span>.',
+      '<strong>Debit:</strong> Salaries Expense increases because employees worked this period.',
+      '<strong>Credit:</strong> Salaries Payable increases because Boc owes employees.',
+      '<strong>Effect:</strong> Expense increases and liability increases. Cash will be paid later.'
+    ],
+    debit: 'Salaries Expense',
+    credit: 'Salaries Payable',
+    amount: 1500,
+    debitSide: 'left',
+    creditSide: 'right',
+    effect: 'The adjustment records the cost in the period employees worked, not when the cash is paid.'
+  }
+];
+
+let selectedCase = 0;
+let buildStep = -1;
+
+function chooseCase(i) {
+  selectedCase = i;
+  document.querySelectorAll('.scenario').forEach((btn, idx) => btn.classList.toggle('active', idx === i));
+  resetBuild();
+}
+
+function renderCaseText() {
+  const item = cases[selectedCase];
+  document.getElementById('caseTitle').textContent = item.title;
+  for (let i = 0; i < 5; i++) {
+    document.getElementById('text' + i).innerHTML = item.steps[i];
+  }
+  renderJournal();
+}
+
+function renderJournal() {
+  const item = cases[selectedCase];
+  document.getElementById('journalBody').innerHTML =
+    '<tr class="hidden" id="jDebit"><td>' + item.debit + '</td><td class="dr">' + money(item.amount) + '</td><td class="cr"></td></tr>' +
+    '<tr class="hidden" id="jCredit"><td class="indent">' + item.credit + '</td><td class="dr"></td><td class="cr">' + money(item.amount) + '</td></tr>';
+  document.getElementById('tDebitTitle').textContent = item.debit;
+  document.getElementById('tCreditTitle').textContent = item.credit;
+  document.getElementById('tDebitLeft').innerHTML = '';
+  document.getElementById('tDebitRight').innerHTML = '';
+  document.getElementById('tCreditLeft').innerHTML = '';
+  document.getElementById('tCreditRight').innerHTML = '';
+}
+
+function resetBuild() {
+  buildStep = -1;
+  renderCaseText();
+  document.getElementById('buildStatus').innerHTML = '<strong>' + cases[selectedCase].prompt + '</strong><br>Ready: reveal the adjustment one step at a time.';
+  for (let i = 0; i < 5; i++) {
+    document.getElementById('row' + i).className = 'analysis-row';
+    document.getElementById('pill' + i).className = i === 0 ? 'pill active' : 'pill';
+  }
+  document.getElementById('jDebit').className = 'hidden';
+  document.getElementById('jCredit').className = 'hidden';
+  document.getElementById('tAcctDebit').className = 'tacct';
+  document.getElementById('tAcctCredit').className = 'tacct';
+  document.getElementById('effectBox').className = 'effect-box';
+  document.getElementById('effectBox').innerHTML = '';
+  document.getElementById('buildBtn').disabled = false;
+  document.getElementById('buildBtn').textContent = 'Show Period-End Question';
+}
+
+function setPills(step) {
+  for (let i = 0; i < 5; i++) {
+    document.getElementById('pill' + i).className = 'pill' + (i < step ? ' done' : (i === step ? ' active' : ''));
+  }
+}
+
+function nextBuild() {
+  if (buildStep >= 4) return;
+  buildStep++;
+  const item = cases[selectedCase];
+  for (let i = 0; i < 5; i++) {
+    document.getElementById('row' + i).className = 'analysis-row' + (i < buildStep ? ' done' : (i === buildStep ? ' active' : ''));
+  }
+  setPills(buildStep);
+  document.getElementById('buildStatus').innerHTML = item.steps[buildStep];
+
+  if (buildStep >= 2) {
+    document.getElementById('jDebit').className = buildStep === 2 ? 'active' : 'done';
+    document.getElementById('tAcctDebit').className = 'tacct show';
+    document.getElementById('tDebitLeft').innerHTML = '<div class="entry-line hot"><span>Adjust</span><span>' + money(item.amount) + '</span></div>';
+  }
+  if (buildStep >= 3) {
+    document.getElementById('jCredit').className = buildStep === 3 ? 'active' : 'done';
+    document.getElementById('tAcctCredit').className = 'tacct show';
+    document.getElementById('tCreditRight').innerHTML = '<div class="entry-line hot"><span>Adjust</span><span>' + money(item.amount) + '</span></div>';
+  }
+  if (buildStep >= 4) {
+    document.getElementById('effectBox').className = 'effect-box show';
+    document.getElementById('effectBox').innerHTML = '<strong>Why this is the adjustment:</strong> ' + item.effect;
+    document.getElementById('buildBtn').disabled = true;
+    document.getElementById('buildBtn').textContent = 'Adjustment Complete';
+  } else {
+    const labels = ['Show Amount', 'Show Debit', 'Show Credit', 'Show Effect'];
+    document.getElementById('buildBtn').textContent = labels[buildStep];
+  }
+}
+
+let score = 0;
+const questions = [
+  {
+    q: 'Which statement best describes an adjusting journal entry?',
+    opts: ['A period-end entry that updates accounts before financial statements', 'A cash receipt entry recorded whenever money is collected', 'A closing entry that resets revenue and expense accounts', 'A correcting entry that only fixes arithmetic errors'],
+    a: 0,
+    exp: 'Adjusting entries update accounts at period-end so revenues and expenses are reported in the correct period.'
+  },
+  {
+    q: 'What is the usual cash rule for adjusting entries?',
+    opts: ['They usually do not debit or credit Cash', 'They always debit Cash', 'They always credit Cash', 'They only record bank transactions'],
+    a: 0,
+    exp: 'Cash was paid or received earlier, or will be paid or received later. The adjustment fixes revenue or expense timing.'
+  },
+  {
+    q: 'Insurance paid in advance has now expired. What is the adjusting pattern?',
+    opts: ['Debit Insurance Expense; credit Prepaid Insurance', 'Debit Prepaid Insurance; credit Insurance Expense', 'Debit Cash; credit Insurance Revenue', 'Debit Insurance Payable; credit Cash'],
+    a: 0,
+    exp: 'The used portion becomes expense, and the prepaid asset decreases.'
+  },
+  {
+    q: 'A customer paid in advance, and part of the service has now been provided. What is the adjusting pattern?',
+    opts: ['Debit Unearned Revenue; credit Service Revenue', 'Debit Service Revenue; credit Unearned Revenue', 'Debit Cash; credit Service Revenue', 'Debit Accounts Receivable; credit Cash'],
+    a: 0,
+    exp: 'The liability decreases because the company no longer owes that portion of service; revenue increases because it has been earned.'
+  },
+  {
+    q: 'Employees earned salaries that will be paid next period. What is the adjusting entry?',
+    opts: ['Debit Salaries Expense; credit Salaries Payable', 'Debit Salaries Payable; credit Salaries Expense', 'Debit Cash; credit Salaries Payable', 'Debit Salaries Expense; credit Cash'],
+    a: 0,
+    exp: 'The company incurred salary expense and owes employees, so record both the expense and liability.'
+  }
+];
+
+function buildQuiz() {
+  quizBuilt = true;
+  score = 0;
+  document.getElementById('score').textContent = score;
+  document.getElementById('total').textContent = questions.length;
+  const wrap = document.getElementById('quizWrap');
+  wrap.innerHTML = questions.map((question, qi) => {
+    return '<div class="q-card">' +
+      '<div class="q-num">Question ' + (qi + 1) + '</div>' +
+      '<div class="q-text">' + question.q + '</div>' +
+      '<div class="q-opts">' + question.opts.map((opt, oi) =>
+        '<button class="q-opt" onclick="answerQ(' + qi + ',' + oi + ', this)">' + opt + '</button>'
+      ).join('') + '</div>' +
+      '<div class="explain" id="exp' + qi + '">' + question.exp + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function answerQ(qi, oi, btn) {
+  const card = btn.closest('.q-card');
+  const buttons = Array.from(card.querySelectorAll('.q-opt'));
+  buttons.forEach((button, idx) => {
+    button.disabled = true;
+    if (idx === questions[qi].a) button.classList.add('correct');
+  });
+  if (oi === questions[qi].a) {
+    score++;
+    document.getElementById('score').textContent = score;
+  } else {
+    btn.classList.add('wrong');
+  }
+  document.getElementById('exp' + qi).classList.add('show');
+}
+
+updateBottomNav();
+resetBuild();
+</script>
+</body>
+</html>
