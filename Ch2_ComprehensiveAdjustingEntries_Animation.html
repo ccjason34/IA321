@@ -209,6 +209,88 @@
     padding: 12px 14px;
   }
 
+  .transfer-board {
+    display: grid;
+    grid-template-columns: minmax(0, .92fr) 82px minmax(0, 1.08fr);
+    gap: 12px;
+    align-items: stretch;
+    margin: 14px 0;
+  }
+  .transfer-panel {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(15,23,42,.07);
+    overflow: hidden;
+  }
+  .transfer-h {
+    padding: 11px 14px;
+    background: #0f766e;
+    color: white;
+    font-size: .82rem;
+    font-weight: 900;
+  }
+  .transfer-h.dest { background: #1d4ed8; }
+  .transfer-b {
+    padding: 12px 14px;
+    color: #475569;
+    font-size: .86rem;
+    font-weight: 740;
+    line-height: 1.45;
+  }
+  .transfer-arrow {
+    display: grid;
+    place-items: center;
+    color: #b45309;
+    font-size: .78rem;
+    font-weight: 900;
+    line-height: 1.25;
+    text-align: center;
+    text-transform: uppercase;
+  }
+  .transfer-arrow .arrow {
+    display: block;
+    color: #f59e0b;
+    font-size: 2rem;
+    line-height: 1;
+    margin: 4px 0;
+  }
+  .transfer-list { display: grid; gap: 8px; }
+  .transfer-row {
+    display: grid;
+    grid-template-columns: minmax(130px, 1.1fr) minmax(110px, .8fr) minmax(150px, 1fr);
+    gap: 8px;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    padding: 9px 10px;
+  }
+  .transfer-row strong { color: #0f172a; }
+  .transfer-badge {
+    display: inline-flex;
+    width: fit-content;
+    border-radius: 999px;
+    padding: 3px 9px;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: .76rem;
+    font-weight: 900;
+  }
+  .transfer-badge.dr { background: #dbeafe; color: #1d4ed8; }
+  .transfer-badge.cr { background: #fef3c7; color: #92400e; }
+  .transfer-final {
+    color: #166534;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: .78rem;
+    font-weight: 900;
+  }
+  .transfer-page .goal-callout { padding: 11px 16px; margin-bottom: 14px; }
+  .transfer-page .goal-label { margin-bottom: 3px; }
+  .transfer-page .goal-main { font-size: 1.04rem; }
+  .transfer-page .goal-note { margin-top: 5px; font-size: .84rem; }
+  .transfer-page .status-card { min-height: auto; padding: 10px 15px; margin-bottom: 10px; }
+  .transfer-page .transfer-board { margin-top: 10px; }
+
   .entry-list { display: grid; gap: 8px; margin-top: 12px; }
   .entry-row { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 9px; padding: 9px 11px; color: #475569; font-size: .82rem; line-height: 1.45; font-weight: 740; }
   .entry-row strong { color: #0f172a; }
@@ -308,7 +390,9 @@
   @media (max-width: 820px) {
     .flow { grid-template-columns: 1fr; }
     .flow-op { transform: rotate(90deg); min-height: 24px; }
-    .grid-2, .grid-3, .work-grid { grid-template-columns: 1fr; }
+    .grid-2, .grid-3, .work-grid, .transfer-board { grid-template-columns: 1fr; }
+    .transfer-arrow .arrow { transform: rotate(90deg); }
+    .transfer-row { grid-template-columns: 1fr; }
     .progress-pills { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .q-opts { grid-template-columns: 1fr; }
   }
@@ -435,10 +519,11 @@
   </div>
 </section>
 
-<section class="panel">
-  <div class="sec-title">Prepare the Adjusted Trial Balance</div>
+<section class="panel transfer-page">
+  <div class="sec-title">Transfer T-Account Effects to the Adjusted Trial Balance</div>
   <div class="sec-sub">
-    Now apply the same six adjustments to the unadjusted balances. The adjusted trial balance is what the exercise is asking you to prepare.
+    Now take each adjusting entry from the T accounts and transfer the debit or credit into the adjusted trial balance.
+    This shows students where the numbers in the adjustment columns come from.
   </div>
 
   <div class="goal-callout">
@@ -449,10 +534,30 @@
 
   <div class="progress-pills" id="tbPills"></div>
   <div class="step-ctrl">
-    <button class="sc-btn sc-step" id="tbBtn" onclick="nextTb()">Apply Next Adjustment to Trial Balance</button>
+    <button class="sc-btn sc-step" id="tbBtn" onclick="nextTb()">Transfer A. Advertising to Trial Balance</button>
     <button class="sc-btn sc-reset" onclick="resetTb()">Reset</button>
   </div>
-  <div class="status-card" id="tbStatus"><strong>Ready.</strong> Start with the unadjusted trial balance. The adjusted columns will fill as you apply each entry.</div>
+  <div class="status-card" id="tbStatus"><strong>Ready.</strong> Start with A. Advertising. The T-account debit and credit will transfer into the adjusted trial balance columns.</div>
+
+  <div class="transfer-board" aria-label="T account to adjusted trial balance transfer">
+    <div class="transfer-panel">
+      <div class="transfer-h">Source: T-Account Effect</div>
+      <div class="transfer-b">
+        <div class="t-grid" id="transferTGrid"></div>
+      </div>
+    </div>
+    <div class="transfer-arrow">
+      Transfer
+      <span class="arrow">→</span>
+      to ATB
+    </div>
+    <div class="transfer-panel">
+      <div class="transfer-h dest">Destination: Adjusted Trial Balance Rows</div>
+      <div class="transfer-b">
+        <div class="transfer-list" id="transferRows"></div>
+      </div>
+    </div>
+  </div>
 
   <div class="trial-wrap">
     <div class="trial-h">
@@ -734,6 +839,54 @@ function resetAje() {
   document.getElementById('ajeBtn').textContent = nextAjeButtonText();
 }
 
+function balanceLabel(dr, cr) {
+  if (dr) return `${money(dr)} Dr`;
+  if (cr) return `${money(cr)} Cr`;
+  return '$0';
+}
+
+function nextTbButtonText() {
+  if (tbStep >= adjustments.length) return 'Adjusted Trial Balance Complete';
+  const next = adjustments[tbStep];
+  return `Transfer ${next.id.toUpperCase()}. ${next.short} to Trial Balance`;
+}
+
+function renderTransfer(adj) {
+  const tGrid = document.getElementById('transferTGrid');
+  const rows = document.getElementById('transferRows');
+  if (!adj) {
+    tGrid.innerHTML = '<div class="entry-prompt">Click the animation button to post A. Advertising into the T accounts.</div>';
+    rows.innerHTML = '<div class="entry-prompt">Then transfer those same T-account amounts into the adjusted trial balance rows.</div>';
+    return;
+  }
+
+  tGrid.innerHTML = adj.lines.map(line => `
+    <div class="tacct">
+      <div class="t-name">${line.account}</div>
+      <div class="t-body">
+        <div class="t-side dr">Debit<br>${line.debit ? `<span class="t-hit">${money(line.debit)}</span>` : ''}</div>
+        <div class="t-side cr">Credit<br>${line.credit ? `<span class="t-hit">${money(line.credit)}</span>` : ''}</div>
+      </div>
+    </div>
+  `).join('');
+
+  rows.innerHTML = adj.lines.map(line => {
+    const account = accounts.find(a => a.name === line.account);
+    const amount = line.debit || line.credit;
+    const side = line.debit ? 'dr' : 'cr';
+    const transferColumn = line.debit ? 'Adj. Dr column' : 'Adj. Cr column';
+    const before = account ? balanceLabel(account.uDr, account.uCr) : '$0';
+    const after = account ? balanceLabel(account.fDr, account.fCr) : money(amount);
+    return `
+      <div class="transfer-row">
+        <div><strong>${line.account}</strong><br>Before: ${before}</div>
+        <div><span class="transfer-badge ${side}">${line.debit ? 'Dr' : 'Cr'} ${money(amount)}</span><br>${transferColumn}</div>
+        <div class="transfer-final">Adjusted balance: ${after}</div>
+      </div>
+    `;
+  }).join('');
+}
+
 function renderTrialTable() {
   const activeIds = adjustments.slice(0, tbStep).map(a => a.id);
   const complete = tbStep === adjustments.length;
@@ -753,7 +906,7 @@ function renderTrialTable() {
     </thead>
     <tbody>
       ${accounts.map(a => {
-        const revealed = complete || (a.adj && activeIds.includes(a.adj));
+        const revealed = !a.adj || complete || (a.adj && activeIds.includes(a.adj));
         const changedNow = a.adj && activeIds[activeIds.length - 1] === a.adj;
         const rowClass = changedNow ? 'flash' : revealed && a.adj ? 'final' : '';
         const adjDr = revealed ? money(a.aDr) : a.aDr ? '?' : '';
@@ -790,22 +943,26 @@ function nextTb() {
   const adj = adjustments[tbStep];
   tbStep += 1;
   renderPills('tbPills', tbStep);
+  renderTransfer(adj);
   renderTrialTable();
-  document.getElementById('tbStatus').innerHTML = `<strong>${adj.id.toUpperCase()}. ${adj.title} applied:</strong> The adjustment columns show the debit/credit, and the adjusted balance column updates for the affected accounts.`;
+  document.getElementById('tbStatus').innerHTML = `<strong>${adj.id.toUpperCase()}. ${adj.title} transferred:</strong> Copy each T-account amount into the matching adjusted trial balance row. Debit amounts go to the Adj. Dr column; credit amounts go to the Adj. Cr column.`;
   if (tbStep === adjustments.length) {
     document.getElementById('tbBtn').disabled = true;
     document.getElementById('tbBtn').textContent = 'Adjusted Trial Balance Complete';
     document.getElementById('tbStatus').innerHTML = '<strong>Complete.</strong> The adjusted trial balance now balances: <span class="hi">$684,300 debit</span> = <span class="hi">$684,300 credit</span>.';
+  } else {
+    document.getElementById('tbBtn').textContent = nextTbButtonText();
   }
 }
 
 function resetTb() {
   tbStep = 0;
   renderPills('tbPills', tbStep);
+  renderTransfer(null);
   renderTrialTable();
-  document.getElementById('tbStatus').innerHTML = '<strong>Ready.</strong> Start with the unadjusted trial balance. The adjusted columns will fill as you apply each entry.';
+  document.getElementById('tbStatus').innerHTML = '<strong>Ready.</strong> Start with A. Advertising. The T-account debit and credit will transfer into the adjusted trial balance columns.';
   document.getElementById('tbBtn').disabled = false;
-  document.getElementById('tbBtn').textContent = 'Apply Next Adjustment to Trial Balance';
+  document.getElementById('tbBtn').textContent = nextTbButtonText();
 }
 
 const questions = [
