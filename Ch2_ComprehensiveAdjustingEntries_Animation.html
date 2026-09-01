@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comprehensive Adjusting Entries | Kieso Ch. 2</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f1f5f9;
+    color: #1e293b;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-size: 16px;
+    min-height: 100vh;
+    padding-bottom: 76px;
+  }
+  .header { background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white; padding: 18px 24px 14px; }
+  .header h1 { font-size: 1.22rem; font-weight: 800; letter-spacing: 0; }
+  .header p { font-size: .8rem; color: #94a3b8; margin-top: 3px; }
+
+  .tabs { display: flex; background: #0f172a; padding: 0 16px; gap: 4px; overflow-x: auto; border-bottom: 2px solid #1e293b; }
+  .tab {
+    padding: 11px 18px;
+    font-size: .88rem;
+    font-weight: 700;
+    color: #64748b;
+    cursor: pointer;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: all .2s;
+    background: transparent;
+    font-family: inherit;
+  }
+  .tab:hover { color: #94a3b8; }
+  .tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+  .panel { display: none; max-width: 1120px; margin: 0 auto; padding: 22px 16px 92px; }
+  .panel.active { display: block; }
+  .sec-title { font-size: 1.34rem; font-weight: 800; margin-bottom: 8px; }
+  .sec-sub { font-size: .96rem; color: #475569; margin-bottom: 18px; line-height: 1.65; max-width: 980px; }
+
+  .back-index-link {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .92);
+    color: #fff;
+    text-decoration: none;
+    font: 800 13px/1 "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .22);
+  }
+  .back-index-link:hover { background: #1d4ed8; }
+
+  .goal-callout {
+    background: linear-gradient(135deg, #fef3c7, #fffbeb);
+    border: 3px solid #f59e0b;
+    border-radius: 16px;
+    padding: 16px 18px;
+    margin: 0 0 18px;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, .12), 0 4px 16px rgba(245, 158, 11, .18);
+  }
+  .goal-label {
+    color: #92400e;
+    font-size: .74rem;
+    font-weight: 900;
+    letter-spacing: .75px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .goal-main { color: #78350f; font-size: 1.2rem; font-weight: 900; line-height: 1.35; }
+  .goal-main strong { color: #b91c1c; text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 3px; }
+  .goal-note { color: #92400e; font-size: .88rem; font-weight: 760; line-height: 1.55; margin-top: 8px; }
+
+  .flow { display: grid; grid-template-columns: 1fr 40px 1fr 40px 1fr; gap: 10px; align-items: stretch; margin-bottom: 18px; }
+  .flow-card { background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 14px; box-shadow: 0 3px 12px rgba(15,23,42,.07); text-align: center; }
+  .flow-card.goal { border-color: #f59e0b; background: #fffbeb; }
+  .flow-label { color: #64748b; font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .55px; margin-bottom: 5px; }
+  .flow-main { color: #0f172a; font-size: 1.02rem; font-weight: 900; line-height: 1.35; }
+  .flow-sub { color: #64748b; font-size: .8rem; font-weight: 730; line-height: 1.4; margin-top: 5px; }
+  .flow-op { display: flex; align-items: center; justify-content: center; color: #64748b; font-weight: 900; font-size: 1.4rem; }
+
+  .grid-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: start; }
+  .card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 3px 12px rgba(15,23,42,.07); overflow: hidden; }
+  .card-h { background: #1e293b; color: white; padding: 12px 15px; font-weight: 900; font-size: .9rem; }
+  .card-h.blue { background: #1d4ed8; }
+  .card-h.green { background: #0f766e; }
+  .card-h.amber { background: #b45309; }
+  .card-b { padding: 14px 16px; color: #475569; font-size: .88rem; line-height: 1.55; font-weight: 730; }
+
+  .clue-list { display: grid; gap: 9px; }
+  .clue {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 10px;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .clue-num {
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: #e0f2fe;
+    color: #0369a1;
+    font-weight: 900;
+    font-size: .78rem;
+  }
+  .clue.done { background: #ecfdf5; border-color: #86efac; }
+  .clue.active { background: #fffbeb; border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.14); }
+  .clue-text { color: #334155; font-size: .88rem; line-height: 1.45; font-weight: 750; }
+  .clue-text strong { color: #0f172a; }
+
+  .mini-table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; }
+  .mini-table { font-size: .84rem; }
+  .mini-table th { background: #1e293b; color: white; padding: 8px 10px; text-align: left; font-size: .72rem; text-transform: uppercase; letter-spacing: .5px; }
+  .mini-table th.r, .mini-table td.r { text-align: right; }
+  .mini-table td { padding: 7px 10px; border-bottom: 1px solid #e2e8f0; font-weight: 720; color: #334155; }
+  .mini-table td.r { font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .mini-table tr.total td { border-top: 2px solid #0f172a; border-bottom: 3px double #0f172a; color: #0f172a; font-weight: 900; }
+  .mini-table tr.changed { background: #fffbeb; }
+  .mini-table tr.done { background: #f0fdf4; }
+  .mini-table .dash { color: #94a3b8; }
+
+  .step-ctrl { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; margin: 0 0 14px; }
+  .sc-btn { padding: 10px 20px; border-radius: 9px; border: none; font-weight: 800; font-size: .85rem; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .sc-step { background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; font-weight: 900; padding: 13px 24px; min-width: 250px; box-shadow: 0 4px 14px rgba(245,158,11,.38); animation: stepPulse 1.6s ease-in-out infinite; }
+  .sc-step:hover:not(:disabled) { background: linear-gradient(135deg, #d97706, #dc2626); transform: translateY(-1px); }
+  .sc-step:disabled { animation: none; box-shadow: none; background: #94a3b8; }
+  .sc-reset { background: #475569; color: white; padding: 9px 18px; font-size: .82rem; }
+  .sc-reset:hover { background: #334155; }
+  .sc-btn:disabled { opacity: .58; cursor: default; }
+  @keyframes stepPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(245,158,11,.38); }
+    50% { box-shadow: 0 4px 20px rgba(239,68,68,.66), 0 0 0 4px rgba(245,158,11,.16); }
+  }
+
+  .progress-pills { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 7px; margin-bottom: 14px; }
+  .pill { border: 2px solid #e2e8f0; border-radius: 8px; padding: 8px 5px; text-align: center; font-size: .72rem; color: #64748b; font-weight: 850; background: white; }
+  .pill.active { border-color: #f59e0b; background: #fef3c7; color: #92400e; }
+  .pill.done { border-color: #16a34a; background: #dcfce7; color: #15803d; }
+
+  .status-card {
+    background: white;
+    border-radius: 10px;
+    padding: 14px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.07);
+    margin-bottom: 14px;
+    font-size: .92rem;
+    color: #334155;
+    line-height: 1.6;
+    border-left: 4px solid #3b82f6;
+    min-height: 64px;
+  }
+  .status-card strong { color: #1e293b; }
+  .status-card .hi { display: inline-block; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 6px; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; }
+
+  .work-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: 14px; align-items: start; }
+  .formula-box {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    color: #334155;
+    font-weight: 780;
+    line-height: 1.55;
+  }
+  .formula-box strong { color: #0f172a; }
+  .formula { color: #1d4ed8; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 900; display: block; margin-top: 5px; }
+
+  .journal { width: 100%; border-collapse: collapse; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .86rem; }
+  .journal th { background: #f8fafc; color: #64748b; text-align: left; padding: 8px; font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; }
+  .journal th.r, .journal td.r { text-align: right; }
+  .journal td { padding: 8px; border-bottom: 1px solid #e2e8f0; color: #334155; font-weight: 760; }
+  .journal .acct.cr { padding-left: 26px; color: #92400e; }
+  .journal .acct.dr { color: #1d4ed8; }
+  .journal .amount { text-align: right; font-weight: 900; color: #0f172a; }
+  .journal .blank { color: transparent; }
+
+  .t-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+  .tacct { background: white; border: 2px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+  .t-name { background: #f8fafc; text-align: center; padding: 8px; color: #0f172a; font-size: .78rem; font-weight: 900; }
+  .t-body { display: grid; grid-template-columns: 1fr 1fr; min-height: 62px; }
+  .t-side { padding: 8px; font-size: .78rem; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 800; color: #64748b; }
+  .t-side.dr { border-right: 2px solid #334155; }
+  .t-hit { display: inline-block; background: #fef3c7; color: #92400e; border-radius: 6px; padding: 2px 6px; margin-top: 4px; }
+
+  .entry-list { display: grid; gap: 8px; margin-top: 12px; }
+  .entry-row { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 9px; padding: 9px 11px; color: #475569; font-size: .82rem; line-height: 1.45; font-weight: 740; }
+  .entry-row strong { color: #0f172a; }
+
+  .trial-wrap { background: white; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 3px 12px rgba(15,23,42,.08); overflow: hidden; }
+  .trial-h { padding: 16px 18px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+  .trial-h .co { font-size: 1rem; font-weight: 900; }
+  .trial-h .doc { color: #334155; font-weight: 800; font-size: .88rem; margin-top: 2px; }
+  .trial-h .date { color: #64748b; font-size: .8rem; margin-top: 2px; }
+  .trial-scroll { overflow-x: auto; }
+  .trial-table { min-width: 860px; font-size: .82rem; }
+  .trial-table th { background: #1e293b; color: white; padding: 8px 9px; text-align: left; font-size: .7rem; text-transform: uppercase; letter-spacing: .45px; }
+  .trial-table th.r, .trial-table td.r { text-align: right; }
+  .trial-table td { padding: 7px 9px; border-bottom: 1px solid #f1f5f9; font-weight: 730; color: #334155; }
+  .trial-table td.r { font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 850; }
+  .trial-table tr.flash td { background: #fef3c7; }
+  .trial-table tr.final td { background: #f0fdf4; }
+  .trial-table tr.total td { background: #f8fafc; border-top: 2px solid #1e293b; border-bottom: 3px double #1e293b; color: #0f172a; font-weight: 900; }
+  .adj-dr { color: #1d4ed8 !important; }
+  .adj-cr { color: #b45309 !important; }
+  .pending { color: #94a3b8 !important; font-weight: 800 !important; }
+
+  .takeaway {
+    background: linear-gradient(135deg, #dbeafe, #ecfdf5);
+    border: 2px solid #2563eb;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-top: 16px;
+    color: #1e3a8a;
+    font-size: .94rem;
+    line-height: 1.6;
+    font-weight: 760;
+  }
+  .takeaway strong { color: #1d4ed8; font-weight: 900; }
+
+  .quiz-wrap { display: grid; gap: 14px; }
+  .q-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .q-num { font-size: .72rem; font-weight: 900; color: #94a3b8; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+  .q-text { font-size: 1rem; font-weight: 800; color: #1e293b; margin-bottom: 14px; line-height: 1.45; }
+  .q-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .q-opt { padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f8fafc; font-size: .88rem; font-weight: 700; cursor: pointer; transition: all .15s; color: #334155; text-align: left; font-family: inherit; }
+  .q-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .q-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .q-opt.wrong { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
+  .q-opt:disabled { cursor: default; }
+  .q-explain { margin-top: 10px; font-size: .85rem; padding: 9px 13px; border-radius: 7px; display: none; line-height: 1.45; font-weight: 740; }
+  .q-explain.show { display: block; }
+  .q-explain.ok { background: #dcfce7; color: #15803d; }
+  .q-explain.bad { background: #fee2e2; color: #991b1b; }
+  .score-line { text-align: center; font-size: 1rem; font-weight: 800; margin-bottom: 12px; }
+
+  .nav {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(100px, 160px) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .22) !important;
+  }
+  .nav > button:first-child { justify-self: start; }
+  .nav > button:last-child { justify-self: end; }
+  .nav > button {
+    min-width: 104px;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 8px !important;
+    padding: 9px 18px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav > button:first-child { background: #1e293b !important; color: #cbd5e1 !important; }
+  .nav > button:last-child { background: #2563eb !important; color: white !important; }
+  .nav > button:first-child:hover:not(:disabled) { background: #334155 !important; }
+  .nav > button:last-child:hover:not(:disabled) { background: #1d4ed8 !important; }
+  .nav > button:disabled { opacity: .42; cursor: default; }
+  .nav-ind {
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+    font-size: .82rem !important;
+  }
+
+  @media (max-width: 820px) {
+    .flow { grid-template-columns: 1fr; }
+    .flow-op { transform: rotate(90deg); min-height: 24px; }
+    .grid-2, .grid-3, .work-grid { grid-template-columns: 1fr; }
+    .progress-pills { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .q-opts { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    .back-index-link { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; }
+    .header { padding-right: 118px; }
+    .header h1 { font-size: 1.06rem; line-height: 1.2; }
+    .panel { padding: 18px 12px 92px; }
+    .goal-main { font-size: 1.06rem; }
+    .nav { grid-template-columns: minmax(76px, 92px) minmax(0, 1fr) minmax(76px, 92px) !important; gap: 6px !important; padding: 9px 10px !important; }
+    .nav > button { min-width: 76px; padding-left: 9px !important; padding-right: 9px !important; font-size: .78rem !important; }
+    .nav-ind { font-size: .72rem !important; }
+  }
+</style>
+</head>
+<body>
+<a class="back-index-link" href="index.html">Back to Index</a>
+
+<div class="header">
+  <h1>Comprehensive Adjusting Entries</h1>
+  <p>Kieso, Weygandt &amp; Warfield · Intermediate Accounting 18th Ed. · Chapter 2 · Delaney Corporation</p>
+</div>
+
+<div class="tabs" role="tablist" aria-label="Comprehensive adjusting entries lesson tabs">
+  <button class="tab active" role="tab" aria-selected="true" onclick="showTab(0)">1. Setup</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(1)">2. Adjusting Entries</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(2)">3. Adjusted Trial Balance</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="showTab(3)">4. Self-Check (Ungraded)</button>
+</div>
+
+<section class="panel active">
+  <div class="sec-title">From Unadjusted Trial Balance to Adjusted Trial Balance</div>
+  <div class="sec-sub">
+    This comprehensive exercise starts with Delaney Corporation's unadjusted trial balance for the year ended December 31, 2025.
+    The task is to journalize the adjusting entries and then prepare the adjusted trial balance.
+  </div>
+
+  <div class="goal-callout">
+    <div class="goal-label">What are we looking for?</div>
+    <div class="goal-main">The final target is the <strong>adjusted trial balance</strong> - the account balances after all adjusting entries are posted.</div>
+    <div class="goal-note">Memory hook: unadjusted balances are the starting point. The extra data tells us what must be adjusted before financial statements can be prepared.</div>
+  </div>
+
+  <div class="flow">
+    <div class="flow-card">
+      <div class="flow-label">Step 1</div>
+      <div class="flow-main">Start with the unadjusted trial balance</div>
+      <div class="flow-sub">Debits and credits already balance at $654,860, but some year-end events are missing.</div>
+    </div>
+    <div class="flow-op">+</div>
+    <div class="flow-card">
+      <div class="flow-label">Step 2</div>
+      <div class="flow-main">Record the 6 adjusting entries</div>
+      <div class="flow-sub">Advertising, services performed, supplies used, depreciation, unpaid salaries, and accrued interest.</div>
+    </div>
+    <div class="flow-op">=</div>
+    <div class="flow-card goal">
+      <div class="flow-label">Step 3</div>
+      <div class="flow-main">Prepare the adjusted trial balance</div>
+      <div class="flow-sub">This is the balance list used to prepare the financial statements.</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-h blue">Other Data - The Clues</div>
+      <div class="card-b">
+        <div class="clue-list" id="setupClues"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h">Unadjusted Trial Balance</div>
+      <div class="card-b">
+        <div class="mini-table-wrap">
+          <table class="mini-table" id="setupTable"></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <strong>Important:</strong> a trial balance can balance and still be incomplete. Adjusting entries fix timing problems before the statements are prepared.
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Journalize the Adjusting Entries</div>
+  <div class="sec-sub">
+    Click one step at a time. For each clue, first compute the amount, then decide which account gets the debit and which account gets the credit.
+  </div>
+
+  <div class="progress-pills" id="ajePills"></div>
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="ajeBtn" onclick="nextAje()">Reveal Next Adjusting Entry</button>
+    <button class="sc-btn sc-reset" onclick="resetAje()">Reset</button>
+  </div>
+  <div class="status-card" id="ajeStatus"><strong>Ready.</strong> Start with the first clue: prepaid advertising.</div>
+
+  <div class="work-grid">
+    <div class="card">
+      <div class="card-h amber">Current Clue and Calculation</div>
+      <div class="card-b">
+        <div class="formula-box" id="formulaBox">
+          Click the button to reveal the first year-end adjustment.
+        </div>
+        <div class="clue-list" id="ajeClues"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h green">Journal Entry and Account Effect</div>
+      <div class="card-b">
+        <table class="journal" id="journalTable">
+          <thead><tr><th>Account</th><th class="r">Debit</th><th class="r">Credit</th></tr></thead>
+          <tbody><tr><td class="pending">No adjustment revealed yet</td><td></td><td></td></tr></tbody>
+        </table>
+        <div class="t-grid" id="tGrid"></div>
+        <div class="entry-list" id="entryList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <strong>Student habit:</strong> do not start with the debit or credit. Start with the question: what happened before December 31 that has not been recorded yet?
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Prepare the Adjusted Trial Balance</div>
+  <div class="sec-sub">
+    Now apply the same six adjustments to the unadjusted balances. The adjusted trial balance is what the exercise is asking you to prepare.
+  </div>
+
+  <div class="goal-callout">
+    <div class="goal-label">Final target</div>
+    <div class="goal-main"><strong>Adjusted trial balance</strong> = unadjusted balance + or - the adjusting entries.</div>
+    <div class="goal-note">Accounts with no adjustment still carry forward. Accounts created by adjustments now appear with balances.</div>
+  </div>
+
+  <div class="progress-pills" id="tbPills"></div>
+  <div class="step-ctrl">
+    <button class="sc-btn sc-step" id="tbBtn" onclick="nextTb()">Apply Next Adjustment to Trial Balance</button>
+    <button class="sc-btn sc-reset" onclick="resetTb()">Reset</button>
+  </div>
+  <div class="status-card" id="tbStatus"><strong>Ready.</strong> Start with the unadjusted trial balance. The adjusted columns will fill as you apply each entry.</div>
+
+  <div class="trial-wrap">
+    <div class="trial-h">
+      <div class="co">Delaney Corporation</div>
+      <div class="doc">Adjusted Trial Balance Builder</div>
+      <div class="date">December 31, 2025</div>
+    </div>
+    <div class="trial-scroll">
+      <table class="trial-table" id="trialTable"></table>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-title">Self-Check (Ungraded)</div>
+  <div class="sec-sub">Use these as practice questions. They are not graded.</div>
+  <div class="score-line">For practice only | Practice progress: <span id="score">0</span> / <span id="total">0</span></div>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</section>
+
+<div class="nav">
+  <button id="btnPrev" onclick="prevTab()">Previous</button>
+  <span class="nav-ind" id="navInd"></span>
+  <button id="btnNext" onclick="nextTab()">Next</button>
+</div>
+
+<script>
+const tabs = Array.from(document.querySelectorAll('.tab'));
+const panels = Array.from(document.querySelectorAll('.panel'));
+let currentTab = 0;
+let quizBuilt = false;
+let ajeStep = 0;
+let tbStep = 0;
+let quizScore = 0;
+let answeredQuestions = {};
+
+function money(n) {
+  if (!n) return '';
+  return '$' + n.toLocaleString('en-US');
+}
+
+const clues = [
+  'Prepaid advertising is a one-year premium paid on November 1, 2025.',
+  'Services of $1,940 were performed in December but not yet billed or collected.',
+  'A December 31 count shows $1,860 of supplies on hand.',
+  'Annual depreciation: buildings 10% with $20,400 salvage value; equipment 10% with no salvage value.',
+  'Salaries of $2,900 were unpaid at December 31.',
+  'Interest on bonds has accrued for two months since November 1 at 5% annually.'
+];
+
+const adjustments = [
+  {
+    id: 'a',
+    short: 'Advertising',
+    title: 'Expired Advertising',
+    clue: clues[0],
+    formula: 'Advertising used = $6,000 x 2/12 = $1,000',
+    explain: 'The one-year advertising premium began on November 1. By December 31, two months have expired, so the asset decreases and expense increases.',
+    lines: [
+      { account: 'Advertising Expense', debit: 1000, credit: 0 },
+      { account: 'Prepaid Advertising', debit: 0, credit: 1000 }
+    ]
+  },
+  {
+    id: 'b',
+    short: 'Revenue',
+    title: 'Accrued Service Revenue',
+    clue: clues[1],
+    formula: 'Revenue earned but not recorded = $1,940',
+    explain: 'Delaney already performed the service, so revenue belongs in this period even though it has not been billed or collected.',
+    lines: [
+      { account: 'Accounts Receivable', debit: 1940, credit: 0 },
+      { account: 'Service Revenue', debit: 0, credit: 1940 }
+    ]
+  },
+  {
+    id: 'c',
+    short: 'Supplies',
+    title: 'Supplies Used',
+    clue: clues[2],
+    formula: 'Supplies used = $2,420 - $1,860 = $560',
+    explain: 'Only $1,860 of supplies remain. The missing $560 was used, so it becomes supplies expense.',
+    lines: [
+      { account: 'Supplies Expense', debit: 560, credit: 0 },
+      { account: 'Supplies', debit: 0, credit: 560 }
+    ]
+  },
+  {
+    id: 'd',
+    short: 'Depreciation',
+    title: 'Depreciation Expense',
+    clue: clues[3],
+    formula: 'Buildings: ($170,400 - $20,400) x 10% = $15,000; Equipment: $90,000 x 10% = $9,000; total = $24,000',
+    explain: 'Depreciation records the cost of using long-term assets during the period. The credit goes to accumulated depreciation, not to the asset account.',
+    lines: [
+      { account: 'Depreciation Expense', debit: 24000, credit: 0 },
+      { account: 'Accumulated Depreciation-Buildings', debit: 0, credit: 15000 },
+      { account: 'Accumulated Depreciation-Equipment', debit: 0, credit: 9000 }
+    ]
+  },
+  {
+    id: 'e',
+    short: 'Salaries',
+    title: 'Accrued Salaries',
+    clue: clues[4],
+    formula: 'Unpaid salaries at December 31 = $2,900',
+    explain: 'Employees have earned the salaries, so Delaney records the expense and the liability before paying cash later.',
+    lines: [
+      { account: 'Salaries and Wages Expense', debit: 2900, credit: 0 },
+      { account: 'Salaries and Wages Payable', debit: 0, credit: 2900 }
+    ]
+  },
+  {
+    id: 'f',
+    short: 'Interest',
+    title: 'Accrued Bond Interest',
+    clue: clues[5],
+    formula: 'Interest = $72,000 x 5% x 2/12 = $600',
+    explain: 'Two months of interest have passed since November 1. The expense belongs in 2025 even if cash has not been paid.',
+    lines: [
+      { account: 'Interest Expense', debit: 600, credit: 0 },
+      { account: 'Interest Payable', debit: 0, credit: 600 }
+    ]
+  }
+];
+
+const accounts = [
+  { name: 'Cash', type: 'asset', uDr: 45000, uCr: 0, aDr: 0, aCr: 0, fDr: 45000, fCr: 0 },
+  { name: 'Accounts Receivable', type: 'asset', uDr: 100060, uCr: 0, aDr: 1940, aCr: 0, fDr: 102000, fCr: 0, adj: 'b' },
+  { name: 'Supplies', type: 'asset', uDr: 2420, uCr: 0, aDr: 0, aCr: 560, fDr: 1860, fCr: 0, adj: 'c' },
+  { name: 'Prepaid Advertising', type: 'asset', uDr: 6000, uCr: 0, aDr: 0, aCr: 1000, fDr: 5000, fCr: 0, adj: 'a' },
+  { name: 'Land', type: 'asset', uDr: 137320, uCr: 0, aDr: 0, aCr: 0, fDr: 137320, fCr: 0 },
+  { name: 'Buildings', type: 'asset', uDr: 170400, uCr: 0, aDr: 0, aCr: 0, fDr: 170400, fCr: 0 },
+  { name: 'Accumulated Depreciation-Buildings', type: 'contra', uDr: 0, uCr: 75000, aDr: 0, aCr: 15000, fDr: 0, fCr: 90000, adj: 'd' },
+  { name: 'Equipment', type: 'asset', uDr: 90000, uCr: 0, aDr: 0, aCr: 0, fDr: 90000, fCr: 0 },
+  { name: 'Accumulated Depreciation-Equipment', type: 'contra', uDr: 0, uCr: 0, aDr: 0, aCr: 9000, fDr: 0, fCr: 9000, adj: 'd' },
+  { name: 'Notes Payable (due in 6 months)', type: 'liability', uDr: 0, uCr: 9400, aDr: 0, aCr: 0, fDr: 0, fCr: 9400 },
+  { name: 'Income Taxes Payable', type: 'liability', uDr: 0, uCr: 3000, aDr: 0, aCr: 0, fDr: 0, fCr: 3000 },
+  { name: 'Salaries and Wages Payable', type: 'liability', uDr: 0, uCr: 0, aDr: 0, aCr: 2900, fDr: 0, fCr: 2900, adj: 'e' },
+  { name: 'Interest Payable', type: 'liability', uDr: 0, uCr: 0, aDr: 0, aCr: 600, fDr: 0, fCr: 600, adj: 'f' },
+  { name: 'Bonds Payable', type: 'liability', uDr: 0, uCr: 72000, aDr: 0, aCr: 0, fDr: 0, fCr: 72000 },
+  { name: 'Common Stock', type: 'equity', uDr: 0, uCr: 102000, aDr: 0, aCr: 0, fDr: 0, fCr: 102000 },
+  { name: 'Retained Earnings', type: 'equity', uDr: 0, uCr: 0, aDr: 0, aCr: 0, fDr: 0, fCr: 0 },
+  { name: 'Dividends', type: 'equity', uDr: 50400, uCr: 0, aDr: 0, aCr: 0, fDr: 50400, fCr: 0 },
+  { name: 'Service Revenue', type: 'revenue', uDr: 0, uCr: 393460, aDr: 0, aCr: 1940, fDr: 0, fCr: 395400, adj: 'b' },
+  { name: 'Salaries and Wages Expense', type: 'expense', uDr: 50140, uCr: 0, aDr: 2900, aCr: 0, fDr: 53040, fCr: 0, adj: 'e' },
+  { name: 'Utilities Expenses', type: 'expense', uDr: 1320, uCr: 0, aDr: 0, aCr: 0, fDr: 1320, fCr: 0 },
+  { name: 'Advertising Expense', type: 'expense', uDr: 0, uCr: 0, aDr: 1000, aCr: 0, fDr: 1000, fCr: 0, adj: 'a' },
+  { name: 'Supplies Expense', type: 'expense', uDr: 0, uCr: 0, aDr: 560, aCr: 0, fDr: 560, fCr: 0, adj: 'c' },
+  { name: 'Depreciation Expense', type: 'expense', uDr: 0, uCr: 0, aDr: 24000, aCr: 0, fDr: 24000, fCr: 0, adj: 'd' },
+  { name: 'Interest Expense', type: 'expense', uDr: 1800, uCr: 0, aDr: 600, aCr: 0, fDr: 2400, fCr: 0, adj: 'f' }
+];
+
+function showTab(i) {
+  currentTab = Math.max(0, Math.min(i, panels.length - 1));
+  panels.forEach((panel, idx) => panel.classList.toggle('active', idx === currentTab));
+  tabs.forEach((tab, idx) => {
+    tab.classList.toggle('active', idx === currentTab);
+    tab.setAttribute('aria-selected', idx === currentTab ? 'true' : 'false');
+  });
+  updateBottomNav();
+  if (currentTab === 3 && !quizBuilt) buildQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateBottomNav() {
+  const label = tabs[currentTab].textContent.trim().replace(/^\d+\.\s*/, '');
+  document.getElementById('navInd').textContent = 'Tab ' + (currentTab + 1) + ' of ' + panels.length + ' - ' + label;
+  document.getElementById('btnPrev').disabled = currentTab === 0;
+  document.getElementById('btnNext').disabled = currentTab === panels.length - 1;
+}
+
+function nextTab() { showTab(currentTab + 1); }
+function prevTab() { showTab(currentTab - 1); }
+
+function renderSetup() {
+  document.getElementById('setupClues').innerHTML = clues.map((text, i) => `
+    <div class="clue">
+      <div class="clue-num">${i + 1}</div>
+      <div class="clue-text">${text}</div>
+    </div>
+  `).join('');
+
+  const rows = accounts.filter(a => a.uDr || a.uCr);
+  document.getElementById('setupTable').innerHTML = `
+    <thead><tr><th>Account</th><th class="r">Debit</th><th class="r">Credit</th></tr></thead>
+    <tbody>
+      ${rows.map(a => `<tr><td>${a.name}</td><td class="r">${money(a.uDr)}</td><td class="r">${money(a.uCr)}</td></tr>`).join('')}
+      <tr class="total"><td>Total</td><td class="r">$654,860</td><td class="r">$654,860</td></tr>
+    </tbody>
+  `;
+}
+
+function renderPills(containerId, step) {
+  document.getElementById(containerId).innerHTML = adjustments.map((a, i) => {
+    const cls = i < step ? 'done' : i === step ? 'active' : '';
+    return `<div class="pill ${cls}">${a.id.toUpperCase()}. ${a.short}</div>`;
+  }).join('');
+}
+
+function renderAjeClues() {
+  document.getElementById('ajeClues').innerHTML = adjustments.map((a, i) => {
+    const cls = i < ajeStep ? 'done' : i === ajeStep ? 'active' : '';
+    return `
+      <div class="clue ${cls}">
+        <div class="clue-num">${a.id.toUpperCase()}</div>
+        <div class="clue-text"><strong>${a.title}</strong><br>${a.clue}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderJournal(adj) {
+  const tbody = document.querySelector('#journalTable tbody');
+  if (!adj) {
+    tbody.innerHTML = '<tr><td class="pending">No adjustment revealed yet</td><td></td><td></td></tr>';
+    document.getElementById('tGrid').innerHTML = '';
+    return;
+  }
+  tbody.innerHTML = adj.lines.map(line => `
+    <tr>
+      <td class="acct ${line.debit ? 'dr' : 'cr'}">${line.debit ? line.account : '&nbsp;&nbsp;' + line.account}</td>
+      <td class="amount">${money(line.debit)}</td>
+      <td class="amount">${money(line.credit)}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('tGrid').innerHTML = adj.lines.map(line => `
+    <div class="tacct">
+      <div class="t-name">${line.account}</div>
+      <div class="t-body">
+        <div class="t-side dr">Debit<br>${line.debit ? `<span class="t-hit">${money(line.debit)}</span>` : ''}</div>
+        <div class="t-side cr">Credit<br>${line.credit ? `<span class="t-hit">${money(line.credit)}</span>` : ''}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderCompletedEntries() {
+  const completed = adjustments.slice(0, ajeStep);
+  document.getElementById('entryList').innerHTML = completed.map(a => `
+    <div class="entry-row"><strong>${a.id.toUpperCase()}. ${a.title}:</strong> ${a.lines.map(l => `${l.debit ? 'Dr' : 'Cr'} ${l.account} ${money(l.debit || l.credit)}`).join('; ')}</div>
+  `).join('');
+}
+
+function nextAje() {
+  if (ajeStep >= adjustments.length) return;
+  const adj = adjustments[ajeStep];
+  ajeStep += 1;
+  renderPills('ajePills', ajeStep);
+  renderAjeClues();
+  document.getElementById('formulaBox').innerHTML = `<strong>${adj.title}</strong><br>${adj.explain}<span class="formula">${adj.formula}</span>`;
+  document.getElementById('ajeStatus').innerHTML = `<strong>${adj.id.toUpperCase()}. ${adj.title}:</strong> ${adj.explain} <span class="hi">${adj.formula}</span>`;
+  renderJournal(adj);
+  renderCompletedEntries();
+  if (ajeStep === adjustments.length) {
+    document.getElementById('ajeBtn').disabled = true;
+    document.getElementById('ajeBtn').textContent = 'All Adjusting Entries Revealed';
+  }
+}
+
+function resetAje() {
+  ajeStep = 0;
+  renderPills('ajePills', ajeStep);
+  renderAjeClues();
+  document.getElementById('formulaBox').textContent = 'Click the button to reveal the first year-end adjustment.';
+  document.getElementById('ajeStatus').innerHTML = '<strong>Ready.</strong> Start with the first clue: prepaid advertising.';
+  renderJournal(null);
+  renderCompletedEntries();
+  document.getElementById('ajeBtn').disabled = false;
+  document.getElementById('ajeBtn').textContent = 'Reveal Next Adjusting Entry';
+}
+
+function renderTrialTable() {
+  const activeIds = adjustments.slice(0, tbStep).map(a => a.id);
+  const complete = tbStep === adjustments.length;
+  const drTotal = complete ? 684300 : '';
+  const crTotal = complete ? 684300 : '';
+  document.getElementById('trialTable').innerHTML = `
+    <thead>
+      <tr>
+        <th>Account</th>
+        <th class="r">Unadj. Dr</th>
+        <th class="r">Unadj. Cr</th>
+        <th class="r">Adj. Dr</th>
+        <th class="r">Adj. Cr</th>
+        <th class="r">Adjusted Dr</th>
+        <th class="r">Adjusted Cr</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${accounts.map(a => {
+        const revealed = complete || (a.adj && activeIds.includes(a.adj));
+        const changedNow = a.adj && activeIds[activeIds.length - 1] === a.adj;
+        const rowClass = changedNow ? 'flash' : revealed && a.adj ? 'final' : '';
+        const adjDr = revealed ? money(a.aDr) : a.aDr ? '?' : '';
+        const adjCr = revealed ? money(a.aCr) : a.aCr ? '?' : '';
+        const fDr = revealed ? money(a.fDr) : complete && a.fDr ? money(a.fDr) : a.fDr || a.fCr ? '<span class="pending">?</span>' : '';
+        const fCr = revealed ? money(a.fCr) : complete && a.fCr ? money(a.fCr) : a.fDr || a.fCr ? '<span class="pending">?</span>' : '';
+        return `
+          <tr class="${rowClass}">
+            <td>${a.name}</td>
+            <td class="r">${money(a.uDr)}</td>
+            <td class="r">${money(a.uCr)}</td>
+            <td class="r adj-dr">${adjDr}</td>
+            <td class="r adj-cr">${adjCr}</td>
+            <td class="r">${fDr}</td>
+            <td class="r">${fCr}</td>
+          </tr>
+        `;
+      }).join('')}
+      <tr class="total">
+        <td>Total</td>
+        <td class="r">$654,860</td>
+        <td class="r">$654,860</td>
+        <td class="r">${complete ? '$30,000' : '<span class="pending">?</span>'}</td>
+        <td class="r">${complete ? '$30,000' : '<span class="pending">?</span>'}</td>
+        <td class="r">${drTotal ? money(drTotal) : '<span class="pending">?</span>'}</td>
+        <td class="r">${crTotal ? money(crTotal) : '<span class="pending">?</span>'}</td>
+      </tr>
+    </tbody>
+  `;
+}
+
+function nextTb() {
+  if (tbStep >= adjustments.length) return;
+  const adj = adjustments[tbStep];
+  tbStep += 1;
+  renderPills('tbPills', tbStep);
+  renderTrialTable();
+  document.getElementById('tbStatus').innerHTML = `<strong>${adj.id.toUpperCase()}. ${adj.title} applied:</strong> The adjustment columns show the debit/credit, and the adjusted balance column updates for the affected accounts.`;
+  if (tbStep === adjustments.length) {
+    document.getElementById('tbBtn').disabled = true;
+    document.getElementById('tbBtn').textContent = 'Adjusted Trial Balance Complete';
+    document.getElementById('tbStatus').innerHTML = '<strong>Complete.</strong> The adjusted trial balance now balances: <span class="hi">$684,300 debit</span> = <span class="hi">$684,300 credit</span>.';
+  }
+}
+
+function resetTb() {
+  tbStep = 0;
+  renderPills('tbPills', tbStep);
+  renderTrialTable();
+  document.getElementById('tbStatus').innerHTML = '<strong>Ready.</strong> Start with the unadjusted trial balance. The adjusted columns will fill as you apply each entry.';
+  document.getElementById('tbBtn').disabled = false;
+  document.getElementById('tbBtn').textContent = 'Apply Next Adjustment to Trial Balance';
+}
+
+const questions = [
+  {
+    q: 'What is the main output this comprehensive exercise asks for?',
+    options: ['Adjusted trial balance', 'Bank reconciliation', 'Statement of cash flows', 'Closing entries'],
+    answer: 0,
+    explain: 'Correct. The adjusting entries are the steps; the adjusted trial balance is the final output.'
+  },
+  {
+    q: 'Why is the advertising adjustment $1,000?',
+    options: ['$6,000 x 2/12', '$6,000 x 10%', '$6,000 - $1,860', '$72,000 x 5%'],
+    answer: 0,
+    explain: 'The one-year advertising premium started November 1, so two months expired by December 31.'
+  },
+  {
+    q: 'The company performed $1,940 of services but has not billed the customer. What is debited?',
+    options: ['Accounts Receivable', 'Cash', 'Service Revenue', 'Unearned Revenue'],
+    answer: 0,
+    explain: 'Debit Accounts Receivable because the customer owes the company even though cash has not been collected.'
+  },
+  {
+    q: 'Supplies started at $2,420 and the count shows $1,860 on hand. What amount became supplies expense?',
+    options: ['$560', '$1,860', '$2,420', '$4,280'],
+    answer: 0,
+    explain: '$2,420 - $1,860 = $560 of supplies used.'
+  },
+  {
+    q: 'Which account is credited for depreciation?',
+    options: ['Accumulated Depreciation', 'Equipment', 'Cash', 'Depreciation Expense'],
+    answer: 0,
+    explain: 'Depreciation credits accumulated depreciation, a contra-asset account, not the asset account directly.'
+  },
+  {
+    q: 'After all six adjustments, what are the adjusted trial balance totals?',
+    options: ['$684,300 debit and $684,300 credit', '$654,860 debit and $654,860 credit', '$30,000 debit and $30,000 credit', '$393,460 debit and $393,460 credit'],
+    answer: 0,
+    explain: 'The adjusted trial balance totals are $684,300 on both sides.'
+  }
+];
+
+function buildQuiz() {
+  quizBuilt = true;
+  quizScore = 0;
+  answeredQuestions = {};
+  document.getElementById('score').textContent = '0';
+  document.getElementById('total').textContent = questions.length;
+  document.getElementById('quizWrap').innerHTML = questions.map((q, i) => `
+    <div class="q-card" id="q${i}">
+      <div class="q-num">Question ${i + 1}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="q-opts">
+        ${q.options.map((opt, j) => `<button class="q-opt" onclick="answerQ(${i}, ${j})">${opt}</button>`).join('')}
+      </div>
+      <div class="q-explain" id="exp${i}"></div>
+    </div>
+  `).join('');
+}
+
+function answerQ(i, j) {
+  const card = document.getElementById('q' + i);
+  const opts = card.querySelectorAll('.q-opt');
+  opts.forEach((btn, idx) => {
+    btn.disabled = true;
+    if (idx === questions[i].answer) btn.classList.add('correct');
+    else if (idx === j) btn.classList.add('wrong');
+  });
+  const exp = document.getElementById('exp' + i);
+  const ok = j === questions[i].answer;
+  if (!answeredQuestions[i] && ok) quizScore += 1;
+  answeredQuestions[i] = true;
+  exp.className = 'q-explain show ' + (ok ? 'ok' : 'bad');
+  exp.textContent = (ok ? 'Correct. ' : 'Not quite. ') + questions[i].explain;
+  document.getElementById('score').textContent = quizScore;
+}
+
+renderSetup();
+resetAje();
+resetTb();
+showTab(0);
+</script>
+</body>
+</html>
