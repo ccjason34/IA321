@@ -116,6 +116,7 @@
     font-size: .78rem;
   }
   .clue.done { background: #ecfdf5; border-color: #86efac; }
+  .clue.next { background: #eff6ff; border-color: #60a5fa; }
   .clue.active { background: #fffbeb; border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.14); }
   .clue-text { color: #334155; font-size: .88rem; line-height: 1.45; font-weight: 750; }
   .clue-text strong { color: #0f172a; }
@@ -147,6 +148,7 @@
 
   .progress-pills { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 7px; margin-bottom: 14px; }
   .pill { border: 2px solid #e2e8f0; border-radius: 8px; padding: 8px 5px; text-align: center; font-size: .72rem; color: #64748b; font-weight: 850; background: white; }
+  .pill.next { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
   .pill.active { border-color: #f59e0b; background: #fef3c7; color: #92400e; }
   .pill.done { border-color: #16a34a; background: #dcfce7; color: #15803d; }
 
@@ -195,6 +197,17 @@
   .t-side { padding: 8px; font-size: .78rem; font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 800; color: #64748b; }
   .t-side.dr { border-right: 2px solid #334155; }
   .t-hit { display: inline-block; background: #fef3c7; color: #92400e; border-radius: 6px; padding: 2px 6px; margin-top: 4px; }
+  .entry-prompt {
+    grid-column: 1 / -1;
+    background: #eff6ff;
+    border: 2px dashed #60a5fa;
+    border-radius: 10px;
+    color: #1d4ed8;
+    font-size: .84rem;
+    font-weight: 850;
+    line-height: 1.45;
+    padding: 12px 14px;
+  }
 
   .entry-list { display: grid; gap: 8px; margin-top: 12px; }
   .entry-row { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 9px; padding: 9px 11px; color: #475569; font-size: .82rem; line-height: 1.45; font-weight: 740; }
@@ -389,7 +402,7 @@
 
   <div class="progress-pills" id="ajePills"></div>
   <div class="step-ctrl">
-    <button class="sc-btn sc-step" id="ajeBtn" onclick="nextAje()">Reveal Next Adjusting Entry</button>
+    <button class="sc-btn sc-step" id="ajeBtn" onclick="nextAje()">Animate A. Advertising Entry</button>
     <button class="sc-btn sc-reset" onclick="resetAje()">Reset</button>
   </div>
   <div class="status-card" id="ajeStatus"><strong>Ready.</strong> Start with the first clue: prepaid advertising.</div>
@@ -409,7 +422,7 @@
       <div class="card-b">
         <table class="journal" id="journalTable">
           <thead><tr><th>Account</th><th class="r">Debit</th><th class="r">Credit</th></tr></thead>
-          <tbody><tr><td class="pending">No adjustment revealed yet</td><td></td><td></td></tr></tbody>
+          <tbody><tr><td class="pending" colspan="3">Click "Animate A. Advertising Entry" to show the journal entry here.</td></tr></tbody>
         </table>
         <div class="t-grid" id="tGrid"></div>
         <div class="entry-list" id="entryList"></div>
@@ -635,14 +648,14 @@ function renderSetup() {
 
 function renderPills(containerId, step) {
   document.getElementById(containerId).innerHTML = adjustments.map((a, i) => {
-    const cls = i < step ? 'done' : i === step ? 'active' : '';
+    const cls = i < step ? 'done' : i === step ? 'next' : '';
     return `<div class="pill ${cls}">${a.id.toUpperCase()}. ${a.short}</div>`;
   }).join('');
 }
 
 function renderAjeClues() {
   document.getElementById('ajeClues').innerHTML = adjustments.map((a, i) => {
-    const cls = i < ajeStep ? 'done' : i === ajeStep ? 'active' : '';
+    const cls = i < ajeStep ? 'done' : i === ajeStep ? 'next' : '';
     return `
       <div class="clue ${cls}">
         <div class="clue-num">${a.id.toUpperCase()}</div>
@@ -652,11 +665,17 @@ function renderAjeClues() {
   }).join('');
 }
 
+function nextAjeButtonText() {
+  if (ajeStep >= adjustments.length) return 'All Adjusting Entries Revealed';
+  const next = adjustments[ajeStep];
+  return `Animate ${next.id.toUpperCase()}. ${next.short} Entry`;
+}
+
 function renderJournal(adj) {
   const tbody = document.querySelector('#journalTable tbody');
   if (!adj) {
-    tbody.innerHTML = '<tr><td class="pending">No adjustment revealed yet</td><td></td><td></td></tr>';
-    document.getElementById('tGrid').innerHTML = '';
+    tbody.innerHTML = `<tr><td class="pending" colspan="3">Click "${nextAjeButtonText()}" to show the journal entry here.</td></tr>`;
+    document.getElementById('tGrid').innerHTML = '<div class="entry-prompt">The account-effect T accounts will appear here after the animation click.</div>';
     return;
   }
   tbody.innerHTML = adj.lines.map(line => `
@@ -698,6 +717,8 @@ function nextAje() {
   if (ajeStep === adjustments.length) {
     document.getElementById('ajeBtn').disabled = true;
     document.getElementById('ajeBtn').textContent = 'All Adjusting Entries Revealed';
+  } else {
+    document.getElementById('ajeBtn').textContent = nextAjeButtonText();
   }
 }
 
@@ -705,12 +726,12 @@ function resetAje() {
   ajeStep = 0;
   renderPills('ajePills', ajeStep);
   renderAjeClues();
-  document.getElementById('formulaBox').textContent = 'Click the button to reveal the first year-end adjustment.';
-  document.getElementById('ajeStatus').innerHTML = '<strong>Ready.</strong> Start with the first clue: prepaid advertising.';
+  document.getElementById('formulaBox').innerHTML = '<strong>Next: A. Expired Advertising</strong><br>Click the orange animation button to reveal the calculation, journal entry, and account effect.';
+  document.getElementById('ajeStatus').innerHTML = '<strong>Ready.</strong> Click the animation button to show A. Advertising: the calculation, journal entry, and account effect.';
   renderJournal(null);
   renderCompletedEntries();
   document.getElementById('ajeBtn').disabled = false;
-  document.getElementById('ajeBtn').textContent = 'Reveal Next Adjusting Entry';
+  document.getElementById('ajeBtn').textContent = nextAjeButtonText();
 }
 
 function renderTrialTable() {
