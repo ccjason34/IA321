@@ -284,6 +284,50 @@
     font-size: .78rem;
     font-weight: 900;
   }
+  .transfer-board.source-stage .transfer-panel:first-child,
+  .transfer-board.destination-stage .transfer-panel:last-child {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, .18);
+  }
+  .transfer-board.transferring .transfer-arrow {
+    border-radius: 9px;
+    background: #fffbeb;
+    animation: transferPulse 1s ease-in-out infinite;
+  }
+  .transfer-board.transferring .transfer-arrow .arrow {
+    animation: transferArrow 1s ease-in-out infinite;
+  }
+  .transfer-stage-note {
+    background: #fffbeb;
+    border: 1px dashed #f59e0b;
+    border-radius: 7px;
+    color: #92400e;
+    font-weight: 900;
+    padding: 7px 8px;
+  }
+  .transfer-pop { animation: transferPop .45s ease-out both; }
+  .transfer-arrive { animation: transferArrive .55s ease-out both; }
+  .transfer-page .trial-table tr.flash td { animation: atbFlash 1.35s ease-out both; }
+  @keyframes transferPulse {
+    0%, 100% { box-shadow: inset 0 0 0 1px rgba(245, 158, 11, .25), 0 0 0 rgba(245, 158, 11, 0); }
+    50% { box-shadow: inset 0 0 0 1px rgba(245, 158, 11, .55), 0 0 0 5px rgba(245, 158, 11, .14); }
+  }
+  @keyframes transferArrow {
+    0%, 100% { transform: rotate(90deg) translateX(0); }
+    50% { transform: rotate(90deg) translateX(5px); }
+  }
+  @keyframes transferPop {
+    from { opacity: 0; transform: scale(.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes transferArrive {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes atbFlash {
+    0%, 100% { background: #fef3c7; }
+    45% { background: #fde68a; }
+  }
   .transfer-page { max-width: 1280px; padding-top: 12px; }
   .transfer-page .sec-title { font-size: 1.08rem; margin-bottom: 3px; }
   .transfer-page .sec-sub { max-width: none; margin-bottom: 7px; font-size: .8rem; line-height: 1.35; }
@@ -634,8 +678,16 @@ let currentTab = 0;
 let quizBuilt = false;
 let ajeStep = 0;
 let tbStep = 0;
+let tbAnimating = false;
+let tbAnimationToken = 0;
 let quizScore = 0;
 let answeredQuestions = {};
+const TRANSFER_DELAY_MS = 850;
+const TABLE_REVEAL_DELAY_MS = 1050;
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function money(n) {
   if (!n) return '';
@@ -894,7 +946,14 @@ function nextTbButtonText() {
   return `Transfer ${next.id.toUpperCase()}. ${next.short} to Trial Balance`;
 }
 
-function renderTransfer(adj) {
+function setTransferStage(stage) {
+  const board = document.querySelector('.transfer-board');
+  if (!board) return;
+  board.classList.remove('source-stage', 'transferring', 'destination-stage');
+  if (stage) board.classList.add(stage);
+}
+
+function renderTransfer(adj, stage = 'complete') {
   const tGrid = document.getElementById('transferTGrid');
   const rows = document.getElementById('transferRows');
   if (!adj) {
@@ -904,7 +963,7 @@ function renderTransfer(adj) {
   }
 
   tGrid.innerHTML = adj.lines.map(line => `
-    <div class="tacct">
+    <div class="tacct transfer-pop">
       <div class="t-name">${line.account}</div>
       <div class="t-body">
         <div class="t-side dr">Debit<br>${line.debit ? `<span class="t-hit">${money(line.debit)}</span>` : ''}</div>
@@ -912,6 +971,11 @@ function renderTransfer(adj) {
       </div>
     </div>
   `).join('');
+
+  if (stage === 'source') {
+    rows.innerHTML = '<div class="transfer-stage-note">Watch the transfer arrow. The adjusted trial balance rows will fill in next.</div>';
+    return;
+  }
 
   rows.innerHTML = adj.lines.map(line => {
     const account = accounts.find(a => a.name === line.account);
@@ -921,7 +985,7 @@ function renderTransfer(adj) {
     const before = account ? balanceLabel(account.uDr, account.uCr) : '$0';
     const after = account ? balanceLabel(account.fDr, account.fCr) : money(amount);
     return `
-      <div class="transfer-row">
+      <div class="transfer-row transfer-arrive">
         <div><strong>${line.account}</strong> <span class="transfer-badge ${side}">${line.debit ? 'Dr' : 'Cr'} ${money(amount)} to ${transferColumn}</span></div>
         <div class="transfer-final">Before: ${before} -> Adjusted balance: ${after}</div>
       </div>
@@ -980,26 +1044,51 @@ function renderTrialTable() {
   `;
 }
 
-function nextTb() {
-  if (tbStep >= adjustments.length) return;
+async function nextTb() {
+  if (tbStep >= adjustments.length || tbAnimating) return;
+  tbAnimating = true;
+  const token = ++tbAnimationToken;
   const adj = adjustments[tbStep];
+  const tbBtn = document.getElementById('tbBtn');
+  tbBtn.disabled = true;
+  tbBtn.textContent = `Transferring ${adj.id.toUpperCase()}. ${adj.short}...`;
+  setTransferStage('source-stage');
+  renderTransfer(adj, 'source');
+  document.getElementById('tbStatus').innerHTML = `<strong>${adj.id.toUpperCase()}. ${adj.title}:</strong> First, see the debit and credit in the T accounts.`;
+
+  await delay(TRANSFER_DELAY_MS);
+  if (token !== tbAnimationToken) return;
+  setTransferStage('transferring');
+  document.getElementById('tbStatus').innerHTML = `<strong>${adj.id.toUpperCase()}. ${adj.title}:</strong> Now the T-account amounts are moving into the adjusted trial balance rows.`;
+
+  await delay(TABLE_REVEAL_DELAY_MS);
+  if (token !== tbAnimationToken) return;
+  setTransferStage('destination-stage');
+  renderTransfer(adj, 'destination');
+
+  await delay(TRANSFER_DELAY_MS);
+  if (token !== tbAnimationToken) return;
   tbStep += 1;
   renderPills('tbPills', tbStep);
-  renderTransfer(adj);
   renderTrialTable();
-  document.getElementById('tbStatus').innerHTML = `<strong>${adj.id.toUpperCase()}. ${adj.title} transferred:</strong> Copy each T-account amount into the matching adjusted trial balance row. Debit amounts go to the Adj. Dr column; credit amounts go to the Adj. Cr column.`;
+  document.getElementById('tbStatus').innerHTML = `<strong>${adj.id.toUpperCase()}. ${adj.title} transferred:</strong> The same T-account amount is now shown in the adjusted trial balance row.`;
+  tbAnimating = false;
   if (tbStep === adjustments.length) {
-    document.getElementById('tbBtn').disabled = true;
-    document.getElementById('tbBtn').textContent = 'Adjusted Trial Balance Complete';
+    tbBtn.disabled = true;
+    tbBtn.textContent = 'Adjusted Trial Balance Complete';
     document.getElementById('tbStatus').innerHTML = '<strong>Complete.</strong> The adjusted trial balance now balances: <span class="hi">$684,300 debit</span> = <span class="hi">$684,300 credit</span>.';
   } else {
-    document.getElementById('tbBtn').textContent = nextTbButtonText();
+    tbBtn.disabled = false;
+    tbBtn.textContent = nextTbButtonText();
   }
 }
 
 function resetTb() {
+  tbAnimationToken += 1;
+  tbAnimating = false;
   tbStep = 0;
   renderPills('tbPills', tbStep);
+  setTransferStage('');
   renderTransfer(null);
   renderTrialTable();
   document.getElementById('tbStatus').innerHTML = '<strong>Ready.</strong> Start with A. Advertising. The T-account debit and credit will transfer into the adjusted trial balance columns.';
