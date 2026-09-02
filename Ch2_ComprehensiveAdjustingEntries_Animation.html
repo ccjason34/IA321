@@ -284,12 +284,53 @@
     font-size: .78rem;
     font-weight: 900;
   }
-  .transfer-page .goal-callout { padding: 11px 16px; margin-bottom: 14px; }
-  .transfer-page .goal-label { margin-bottom: 3px; }
-  .transfer-page .goal-main { font-size: 1.04rem; }
-  .transfer-page .goal-note { margin-top: 5px; font-size: .84rem; }
-  .transfer-page .status-card { min-height: auto; padding: 10px 15px; margin-bottom: 10px; }
-  .transfer-page .transfer-board { margin-top: 10px; }
+  .transfer-page { max-width: 1280px; padding-top: 12px; }
+  .transfer-page .sec-title { font-size: 1.08rem; margin-bottom: 3px; }
+  .transfer-page .sec-sub { max-width: none; margin-bottom: 7px; font-size: .8rem; line-height: 1.35; }
+  .transfer-page .goal-callout { border-width: 2px; border-radius: 11px; padding: 7px 11px; margin-bottom: 7px; box-shadow: 0 0 0 3px rgba(245, 158, 11, .1); }
+  .transfer-page .goal-label { display: none; }
+  .transfer-page .goal-main { font-size: .9rem; line-height: 1.2; }
+  .transfer-page .goal-main strong { text-decoration-thickness: 2px; text-underline-offset: 2px; }
+  .transfer-page .goal-note { margin-top: 3px; font-size: .72rem; line-height: 1.25; }
+  .transfer-page .progress-pills { gap: 6px; margin-bottom: 7px; }
+  .transfer-page .pill { padding: 5px 4px; font-size: .64rem; }
+  .transfer-page .step-ctrl { margin-bottom: 7px; }
+  .transfer-page .sc-step { min-width: 230px; padding: 9px 16px; font-size: .78rem; }
+  .transfer-page .sc-reset { padding: 8px 14px; font-size: .76rem; }
+  .transfer-page .status-card { min-height: auto; padding: 7px 11px; margin-bottom: 8px; font-size: .78rem; line-height: 1.35; border-left-width: 3px; }
+  .transfer-workspace {
+    display: grid;
+    grid-template-columns: minmax(285px, 340px) minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+  }
+  .transfer-page .transfer-board { grid-template-columns: 1fr; gap: 6px; margin: 0; }
+  .transfer-page .transfer-panel { border-width: 1px; border-radius: 9px; box-shadow: none; }
+  .transfer-page .transfer-h { padding: 6px 9px; font-size: .68rem; }
+  .transfer-page .transfer-b { padding: 7px 8px; font-size: .7rem; line-height: 1.25; }
+  .transfer-page .transfer-arrow { min-height: 24px; font-size: .58rem; line-height: 1; }
+  .transfer-page .transfer-arrow .arrow { font-size: 1.1rem; margin: 0 0 1px; transform: rotate(90deg); }
+  .transfer-page .t-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 0; }
+  .transfer-page .tacct { border-width: 1px; border-radius: 8px; }
+  .transfer-page .t-name { padding: 5px; font-size: .62rem; }
+  .transfer-page .t-body { min-height: 42px; }
+  .transfer-page .t-side { padding: 5px; font-size: .6rem; }
+  .transfer-page .t-side.dr { border-right-width: 1px; }
+  .transfer-page .t-hit { margin-top: 2px; padding: 1px 4px; border-radius: 4px; }
+  .transfer-page .transfer-list { gap: 5px; }
+  .transfer-page .transfer-row { grid-template-columns: 1fr; gap: 3px; padding: 5px 7px; border-radius: 7px; font-size: .66rem; line-height: 1.18; }
+  .transfer-page .transfer-badge { padding: 2px 6px; font-size: .6rem; vertical-align: middle; }
+  .transfer-page .transfer-final { font-size: .63rem; }
+  .transfer-page .entry-prompt { padding: 8px 9px; font-size: .68rem; line-height: 1.25; }
+  .transfer-page .trial-h { padding: 3px 8px; }
+  .transfer-page .trial-h .co { font-size: .66rem; line-height: 1.05; }
+  .transfer-page .trial-h .doc { font-size: .56rem; line-height: 1.05; margin-top: 0; }
+  .transfer-page .trial-h .date { font-size: .52rem; line-height: 1.05; margin-top: 0; }
+  .transfer-page .trial-table { min-width: 700px; font-size: .48rem; }
+  .transfer-page .trial-table th { padding: 2px 3px; font-size: .39rem; letter-spacing: .15px; line-height: 1; }
+  .transfer-page .trial-table td { padding: 1px 3px; line-height: 1; font-weight: 680; }
+  .transfer-page .trial-table td.r { font-weight: 780; }
+  .transfer-page .trial-table tr.total td { border-top-width: 1px; border-bottom-width: 2px; }
 
   .entry-list { display: grid; gap: 8px; margin-top: 12px; }
   .entry-row { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 9px; padding: 9px 11px; color: #475569; font-size: .82rem; line-height: 1.45; font-weight: 740; }
@@ -390,8 +431,8 @@
   @media (max-width: 820px) {
     .flow { grid-template-columns: 1fr; }
     .flow-op { transform: rotate(90deg); min-height: 24px; }
-    .grid-2, .grid-3, .work-grid, .transfer-board { grid-template-columns: 1fr; }
-    .transfer-arrow .arrow { transform: rotate(90deg); }
+    .grid-2, .grid-3, .work-grid, .transfer-board, .transfer-workspace { grid-template-columns: 1fr; }
+    .transfer-page .transfer-arrow .arrow { transform: rotate(90deg); }
     .transfer-row { grid-template-columns: 1fr; }
     .progress-pills { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .q-opts { grid-template-columns: 1fr; }
@@ -539,34 +580,36 @@
   </div>
   <div class="status-card" id="tbStatus"><strong>Ready.</strong> Start with A. Advertising. The T-account debit and credit will transfer into the adjusted trial balance columns.</div>
 
-  <div class="transfer-board" aria-label="T account to adjusted trial balance transfer">
-    <div class="transfer-panel">
-      <div class="transfer-h">Source: T-Account Effect</div>
-      <div class="transfer-b">
-        <div class="t-grid" id="transferTGrid"></div>
+  <div class="transfer-workspace">
+    <div class="transfer-board" aria-label="T account to adjusted trial balance transfer">
+      <div class="transfer-panel">
+        <div class="transfer-h">Source: T-Account / JE Effect</div>
+        <div class="transfer-b">
+          <div class="t-grid" id="transferTGrid"></div>
+        </div>
+      </div>
+      <div class="transfer-arrow">
+        Transfer
+        <span class="arrow">→</span>
+        to ATB
+      </div>
+      <div class="transfer-panel">
+        <div class="transfer-h dest">Destination: ATB Rows</div>
+        <div class="transfer-b">
+          <div class="transfer-list" id="transferRows"></div>
+        </div>
       </div>
     </div>
-    <div class="transfer-arrow">
-      Transfer
-      <span class="arrow">→</span>
-      to ATB
-    </div>
-    <div class="transfer-panel">
-      <div class="transfer-h dest">Destination: Adjusted Trial Balance Rows</div>
-      <div class="transfer-b">
-        <div class="transfer-list" id="transferRows"></div>
-      </div>
-    </div>
-  </div>
 
-  <div class="trial-wrap">
-    <div class="trial-h">
-      <div class="co">Delaney Corporation</div>
-      <div class="doc">Adjusted Trial Balance Builder</div>
-      <div class="date">December 31, 2025</div>
-    </div>
-    <div class="trial-scroll">
-      <table class="trial-table" id="trialTable"></table>
+    <div class="trial-wrap">
+      <div class="trial-h">
+        <div class="co">Delaney Corporation</div>
+        <div class="doc">Adjusted Trial Balance Builder</div>
+        <div class="date">December 31, 2025</div>
+      </div>
+      <div class="trial-scroll">
+        <table class="trial-table" id="trialTable"></table>
+      </div>
     </div>
   </div>
 </section>
@@ -879,9 +922,8 @@ function renderTransfer(adj) {
     const after = account ? balanceLabel(account.fDr, account.fCr) : money(amount);
     return `
       <div class="transfer-row">
-        <div><strong>${line.account}</strong><br>Before: ${before}</div>
-        <div><span class="transfer-badge ${side}">${line.debit ? 'Dr' : 'Cr'} ${money(amount)}</span><br>${transferColumn}</div>
-        <div class="transfer-final">Adjusted balance: ${after}</div>
+        <div><strong>${line.account}</strong> <span class="transfer-badge ${side}">${line.debit ? 'Dr' : 'Cr'} ${money(amount)} to ${transferColumn}</span></div>
+        <div class="transfer-final">Before: ${before} -> Adjusted balance: ${after}</div>
       </div>
     `;
   }).join('');
