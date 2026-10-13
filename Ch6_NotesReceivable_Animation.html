@@ -148,6 +148,22 @@
   @keyframes rowIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
 
   .pv-bars { display: grid; gap: 8px; }
+  .factor-guide { margin-top: 14px; padding: 12px 0; border-top: 2px solid #cbd5e1; }
+  .factor-guide h3 { font-size: .95rem; margin-bottom: 4px; }
+  .factor-inputs, .factor-rounding { font-size: .78rem; color: #475569; line-height: 1.45; }
+  .factor-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 8px 0; }
+  .factor-example { min-width: 0; padding: 8px 10px; border-left: 3px solid #94a3b8; }
+  .factor-example.is-current { border-left-color: #2563eb; background: #eff6ff; }
+  .factor-example h4 { font-size: .8rem; margin-bottom: 5px; }
+  .factor-equation { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: .88rem; line-height: 1.5; margin: 5px 0; }
+  .factor-fraction { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; }
+  .factor-fraction > span:first-child { border-bottom: 1px solid currentColor; padding: 0 5px 2px; }
+  .factor-fraction > span:last-child { padding-top: 2px; }
+  .factor-equation strong { color: #1d4ed8; }
+  .factor-meaning, .factor-sum { font-size: .78rem; line-height: 1.5; color: #334155; }
+  .factor-sum { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 6px; }
+  .factor-term { white-space: nowrap; }
+  @media(max-width:620px) { .factor-columns { grid-template-columns: 1fr; gap: 8px; } }
   .pv-bar { border: 2px solid #e2e8f0; border-radius: 9px; overflow: hidden; background: #f8fafc; }
   .pv-bar-h { padding: 8px 10px; font-size: .72rem; text-transform: uppercase; letter-spacing: .5px; color: #64748b; font-weight: 900; }
   .pv-fill { height: 28px; background: #3b82f6; min-width: 2px; color: white; font-family: monospace; font-size: .76rem; font-weight: 900; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; transition: width .25s; }
@@ -523,6 +539,26 @@
       </div>
     </div>
   </div>
+  <section class="factor-guide" aria-labelledby="factorHeading">
+    <h3 id="factorHeading">Where do the PV factors come from?</h3>
+    <p class="factor-inputs" id="factorInputs"></p>
+    <div class="factor-columns">
+      <div class="factor-example" id="annuityFactorExample">
+        <h4>Step 2: Interest payments - ordinary annuity factor</h4>
+        <div class="factor-equation">Factor = <span class="factor-fraction"><span>1 - (1 + i)<sup>-n</sup></span><span>i</span></span></div>
+        <div class="factor-equation" id="annuityFactorFormula"></div>
+        <p class="factor-meaning">Add the PV of $1 received at the end of each year:</p>
+        <div class="factor-sum" id="annuityFactorSum"></div>
+      </div>
+      <div class="factor-example" id="principalFactorExample">
+        <h4>Step 3: Principal - single-payment factor</h4>
+        <div class="factor-equation">Factor = <span class="factor-fraction"><span>1</span><span>(1 + i)<sup>n</sup></span></span></div>
+        <div class="factor-equation" id="principalFactorFormula"></div>
+        <p class="factor-meaning" id="principalFactorMeaning"></p>
+      </div>
+    </div>
+    <p class="factor-rounding">Both factors use the market rate, not the stated rate. Factors are shown to 5 decimal places; dollar calculations use full precision.</p>
+  </section>
 </div>
 
 <div class="panel" id="tab-2">
@@ -753,6 +789,7 @@ function updateMetrics(n) {
   document.getElementById('scenarioBadge').textContent = n.cls.label + ' | PV ' + money(n.price);
 }
 function updatePVStepCards(n) {
+  updateFactorGuide(n);
   const ids = ['cardCash', 'cardInterest', 'cardPrincipal', 'cardTotal'];
   ids.forEach((id, idx) => {
     const card = document.getElementById(id);
@@ -769,6 +806,22 @@ function updatePVStepCards(n) {
   document.getElementById('pvTotalFormula').textContent = money(n.pvInterest) + ' + ' + money(n.pvPrincipal) + ' = ' + money(n.price);
   document.getElementById('pvStepBtn').textContent = pvStepIdx < 4 ? 'Show Step ' + (pvStepIdx + 1) : 'PV Complete';
   document.getElementById('pvStepBtn').disabled = pvStepIdx >= 4;
+}
+function updateFactorGuide(n) {
+  const rate = Number(n.market.toFixed(6)).toString();
+  const base = Number((1 + n.market).toFixed(6)).toString();
+  const fraction = (top, bottom) => '<span class="factor-fraction"><span>' + top + '</span><span>' + bottom + '</span></span>';
+  document.getElementById('factorInputs').textContent = 'i = market rate per year = ' + pct(n.marketPct) + ' = ' + rate + '; n = ' + n.years + (n.years === 1 ? ' annual period.' : ' annual periods.');
+  document.getElementById('annuityFactorFormula').innerHTML = n.market === 0
+    ? 'At 0%, no discounting: factor = n = <strong>' + n.annFactor.toFixed(5) + '</strong>'
+    : fraction('1 - (1 + ' + rate + ')<sup>-' + n.years + '</sup>', rate) + ' <span>=</span> <strong>' + n.annFactor.toFixed(5) + '</strong>';
+  document.getElementById('annuityFactorSum').innerHTML = Array.from({ length: n.years }, (_, index) =>
+    '<span class="factor-term">1 / ' + base + '<sup>' + (index + 1) + '</sup></span>'
+  ).join('<span>+</span>') + ' <span>= ' + n.annFactor.toFixed(5) + '</span>';
+  document.getElementById('principalFactorFormula').innerHTML = fraction('1', '(1 + ' + rate + ')<sup>' + n.years + '</sup>') + ' <span>=</span> <strong>' + n.singleFactor.toFixed(5) + '</strong>';
+  document.getElementById('principalFactorMeaning').textContent = '$1 received at the end of year ' + n.years + ' is worth $' + n.singleFactor.toFixed(5) + ' today. Multiply this factor by the face value.';
+  document.getElementById('annuityFactorExample').classList.toggle('is-current', pvStepIdx === 2);
+  document.getElementById('principalFactorExample').classList.toggle('is-current', pvStepIdx === 3);
 }
 function pvStatusText(n) {
   if (pvStepIdx === 0) return '<strong>Start:</strong> identify the note cash flows. The payee expects annual interest payments plus the face value at maturity.';
